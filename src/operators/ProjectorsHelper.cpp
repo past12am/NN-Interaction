@@ -2,8 +2,9 @@
 // Created by past12am on 8/2/23.
 //
 
-#include "../../include/utils/ProjectorsHelper.hpp"
+#include "../../include/operators/ProjectorsHelper.hpp"
 #include "../../include/utils/DiracStructuresHelper.hpp"
+#include "../../include/utils/MatrixInitializers.hpp"
 
 #include <complex>
 #include <gsl/gsl_complex_math.h>
@@ -11,16 +12,8 @@
 #include <gsl/gsl_blas.h>
 #include <cassert>
 
-ProjectorsHelper::ProjectorsHelper()
-{
-    unitM = gsl_matrix_complex_alloc(4, 4);
-    gsl_matrix_complex_set_identity(unitM);
-}
 
-ProjectorsHelper::~ProjectorsHelper()
-{
-    gsl_matrix_complex_free(unitM);
-}
+const gsl_matrix_complex* ProjectorsHelper::unitM = MatrixInitializers::generateUnitM();
 
 void ProjectorsHelper::transverseProjector(gsl_vector_complex* P, gsl_matrix_complex* transvProj)
 {
@@ -69,4 +62,9 @@ void ProjectorsHelper::posEnergyProjector(gsl_vector_complex* P, gsl_matrix_comp
     gsl_matrix_complex_scale(posEnergyProj, gsl_complex_rect(0.5, 0));
 
     // posEnergyProj = (unitM + slash(P)/valP)/2
+}
+
+const gsl_matrix_complex* ProjectorsHelper::getUnitM()
+{
+    return unitM;
 }

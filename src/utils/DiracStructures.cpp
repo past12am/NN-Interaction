@@ -45,9 +45,13 @@ DiracStructures::DiracStructures()
 
 
     gamma5 = gsl_matrix_complex_alloc(4, 4);
-    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), gamma[0], gamma[1], gsl_complex_rect(0, 0), gamma5);
-    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), gamma5, gamma[2], gsl_complex_rect(0, 0), gamma5);
-    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), gamma5, gamma[3], gsl_complex_rect(0, 0), gamma5);
+    gsl_matrix_complex* tmp1 = gsl_matrix_complex_alloc(4, 4);
+    gsl_matrix_complex* tmp2 = gsl_matrix_complex_alloc(4, 4);
+    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), gamma[0], gamma[1], gsl_complex_rect(0, 0), tmp1);
+    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), gamma[2], gamma[3], gsl_complex_rect(0, 0), tmp2);
+    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), tmp1, tmp2, gsl_complex_rect(0, 0), gamma5);
+    gsl_matrix_complex_free(tmp2);
+    gsl_matrix_complex_free(tmp1);
 }
 
 void DiracStructures::slash(gsl_vector_complex* p, gsl_matrix_complex* pSlash)

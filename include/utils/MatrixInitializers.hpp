@@ -11,7 +11,7 @@
 class MatrixInitializers
 {
     public:
-        static const gsl_matrix_complex* unitM;
+        static const gsl_matrix_complex* generateUnitM();
 };
 
 
