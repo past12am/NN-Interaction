@@ -10,7 +10,7 @@
 #include <gsl/gsl_complex_math.h>
 #include <gsl/gsl_matrix.h>
 
-QuarkExchange::QuarkExchange()
+QuarkExchange::QuarkExchange(int lenTau, int lenZ, double tauCutoff, double m, double M) : ScatteringProcess(lenTau, lenZ, tauCutoff, m, M)
 {
     S_p = new QuarkPropagator();
     S_k = new QuarkPropagator();

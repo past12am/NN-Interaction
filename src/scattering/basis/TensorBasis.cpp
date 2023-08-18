@@ -11,8 +11,9 @@
 #include "../../../include/utils/DiracStructuresHelper.hpp"
 #include "../../../include/utils/Commutator.hpp"
 
-TensorBasis::TensorBasis(gsl_vector_complex* p_f, gsl_vector_complex* p_i, gsl_vector_complex* k_f,
-                         gsl_vector_complex* k_i, gsl_vector_complex* P, gsl_vector_complex* K)
+void TensorBasis::calculateBasis(int impulseIdx,
+                                 gsl_vector_complex* p_f, gsl_vector_complex* p_i, gsl_vector_complex* k_f,
+                                 gsl_vector_complex* k_i, gsl_vector_complex* P, gsl_vector_complex* K)
 {
     // Positive Energy Projectors
     gsl_matrix_complex* Lambda_pf = gsl_matrix_complex_alloc(4, 4);
@@ -50,13 +51,13 @@ TensorBasis::TensorBasis(gsl_vector_complex* p_f, gsl_vector_complex* p_i, gsl_v
     // tau[0] = Lambda(p_f).1.Lambda(p_i) (x) Lambda(k_f).1.Lambda(k_i)
     matProd3Elem(Lambda_pf, ProjectorsHelper::getUnitM(), Lambda_pi, tmp, tmpA);
     matProd3Elem(Lambda_kf, ProjectorsHelper::getUnitM(), Lambda_ki, tmp, tmpB);
-    tau[0] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
+    tauGrid[impulseIdx][0] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
 
 
     // tau[1] = Lambda(p_f).1.Lambda(p_i) (x) Lambda(k_f).Slash(P).Lambda(k_i)
     // keep tmpA (same as tau[0])
     matProd3Elem(Lambda_kf, PSlash, Lambda_ki, tmpC, tmpB);
-    tau[1] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
+    tauGrid[impulseIdx][1] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
 
 
     // tau[2] = Sum(mu = 1 to 4) Lambda(p_f).gamma[mu].Lambda(p_i) (x) Lambda(k_f).gamma[mu].Lambda(k_i)
@@ -70,7 +71,7 @@ TensorBasis::TensorBasis(gsl_vector_complex* p_f, gsl_vector_complex* p_i, gsl_v
         gsl_matrix_complex_add(tmpSumA, tmpA);
         gsl_matrix_complex_add(tmpSumB, tmpB);
     }
-    tau[2] = Tensor4<4, 4, 4, 4>(tmpSumA, tmpSumB);
+    tauGrid[impulseIdx][2] = Tensor4<4, 4, 4, 4>(tmpSumA, tmpSumB);
 
 
     // tau[3] = Sum(mu = 1 to 4) Lambda(p_f).gamma[mu].Lambda(p_i) (x) Lambda(k_f).[gamma[mu], Slash(P)].Lambda(k_i)
@@ -84,13 +85,13 @@ TensorBasis::TensorBasis(gsl_vector_complex* p_f, gsl_vector_complex* p_i, gsl_v
         //gsl_matrix_complex_add(tmpSumA, tmpA);
         gsl_matrix_complex_add(tmpSumB, tmpB);
     }
-    tau[3] = Tensor4<4, 4, 4, 4>(tmpSumA, tmpSumB);
+    tauGrid[impulseIdx][3] = Tensor4<4, 4, 4, 4>(tmpSumA, tmpSumB);
 
 
     // tau[4] = Lambda(p_f).gamma5.Lambda(p_i) (x) Lambda(k_f).gamma5.Lambda(k_i)
     matProd3Elem(Lambda_pf, DiracStructuresHelper::diracStructures.gamma5, Lambda_pi, tmp, tmpA);
     matProd3Elem(Lambda_kf, DiracStructuresHelper::diracStructures.gamma5, Lambda_ki, tmp, tmpB);
-    tau[4] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
+    tauGrid[impulseIdx][4] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
 
 
     // tau[5] = Lambda(p_f).gamma5.Lambda(p_i) (x) Lambda(k_f).gamma5.Slash(P).Lambda(k_i)
@@ -98,7 +99,7 @@ TensorBasis::TensorBasis(gsl_vector_complex* p_f, gsl_vector_complex* p_i, gsl_v
     gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), DiracStructuresHelper::diracStructures.gamma5, PSlash,
                    gsl_complex_rect(0, 0), tmpC);
     matProd3Elem(Lambda_kf, tmpC, Lambda_ki, tmp, tmpB);
-    tau[5] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
+    tauGrid[impulseIdx][5] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
 
 
     // tau[6] = Sum(mu = 1 to 4) Lambda(p_f).gamma5.gamma[mu].Lambda(p_i) (x) Lambda(k_f).gamma5.gamma[mu].Lambda(k_i)
@@ -115,7 +116,7 @@ TensorBasis::TensorBasis(gsl_vector_complex* p_f, gsl_vector_complex* p_i, gsl_v
         gsl_matrix_complex_add(tmpSumA, tmpA);
         gsl_matrix_complex_add(tmpSumB, tmpB);
     }
-    tau[6] = Tensor4<4, 4, 4, 4>(tmpSumA, tmpSumB);
+    tauGrid[impulseIdx][6] = Tensor4<4, 4, 4, 4>(tmpSumA, tmpSumB);
 
 
     // tau[7] = Sum(mu = 1 to 4) Lambda(p_f).gamma5.gamma[mu].Lambda(p_i) (x) Lambda(k_f).gamma5.[gamma[mu], Slash(P)].Lambda(k_i)
@@ -130,7 +131,7 @@ TensorBasis::TensorBasis(gsl_vector_complex* p_f, gsl_vector_complex* p_i, gsl_v
 
         gsl_matrix_complex_add(tmpSumB, tmpB);
     }
-    tau[7] = Tensor4<4, 4, 4, 4>(tmpSumA, tmpSumB);
+    tauGrid[impulseIdx][7] = Tensor4<4, 4, 4, 4>(tmpSumA, tmpSumB);
 
 
     // Free temporary vars
@@ -165,5 +166,31 @@ TensorBasis::operator std::string() const
     // TODO
     return std::string();
 }
+
+TensorBasis::TensorBasis(ExternalImpulseGrid* externalImpulseGrid) : len(externalImpulseGrid->getLength()), externalImpulseGrid(externalImpulseGrid)
+{
+    tauGrid = new Tensor4<4, 4, 4, 4>* [len];
+    for(int i = 0; i < len; i++)
+    {
+        tauGrid[i] = new Tensor4<4, 4, 4, 4>[8];
+        calculateBasis(i, externalImpulseGrid->get_p_f(i), externalImpulseGrid->get_p_i(i), externalImpulseGrid->get_k_f(i),
+                       externalImpulseGrid->get_k_i(i), externalImpulseGrid->get_P(i), externalImpulseGrid->get_K(i));
+    }
+}
+
+Tensor4<4, 4, 4, 4>* TensorBasis::tau(int impulseIdx)
+{
+    return tauGrid[impulseIdx];
+}
+
+TensorBasis::~TensorBasis()
+{
+    for(int i = 0; i < len; i++)
+    {
+        delete tauGrid[i];
+    }
+}
+
+
 
 

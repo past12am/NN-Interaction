@@ -26,7 +26,7 @@ class QuarkExchange : public ScatteringProcess
         ScalarQuarkDiquarkAmplitude* Phi_kf;
 
     public:
-        QuarkExchange();
+        QuarkExchange(int lenTau, int lenZ, double tauCutoff, double m, double M);
         virtual ~QuarkExchange();
 
         void integralKernel(gsl_vector_complex* p_f, gsl_vector_complex* p_i,
