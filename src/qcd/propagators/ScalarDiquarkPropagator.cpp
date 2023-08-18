@@ -5,7 +5,7 @@
 #include <complex>
 #include <gsl/gsl_complex_math.h>
 #include <gsl/gsl_blas.h>
-#include "../../include/propagators/ScalarDiquarkPropagator.hpp"
+#include "../../../include/qcd/propagators/ScalarDiquarkPropagator.hpp"
 
 gsl_complex ScalarDiquarkPropagator::M(gsl_complex p2)
 {

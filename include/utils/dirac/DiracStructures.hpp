@@ -14,10 +14,10 @@ class DiracStructures
     public:
         DiracStructures();
 
-        gsl_matrix_complex* gamma5;
-        gsl_matrix_complex* gamma[];
+        const gsl_matrix_complex* gamma5;
+        const gsl_matrix_complex* gamma[];
 
-        void slash(gsl_vector_complex* p, gsl_matrix_complex* pSlash);
+        void slash(const gsl_vector_complex* p, gsl_matrix_complex* pSlash);
 };
 
 

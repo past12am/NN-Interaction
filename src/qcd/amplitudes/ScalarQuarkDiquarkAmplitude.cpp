@@ -5,7 +5,7 @@
 #include <complex>
 #include <gsl/gsl_complex_math.h>
 #include <gsl/gsl_blas.h>
-#include "../../include/amplitudes/ScalarQuarkDiquarkAmplitude.hpp"
+#include "../../../include/qcd/amplitudes/ScalarQuarkDiquarkAmplitude.hpp"
 
 ScalarQuarkDiquarkAmplitude::ScalarQuarkDiquarkAmplitude()
 {
@@ -23,7 +23,7 @@ void ScalarQuarkDiquarkAmplitude::Phi(gsl_vector_complex* p, gsl_vector_complex*
     gsl_blas_zdotu(p, p, &p2);
 
     // Only leading tensor --> tau_1 = matE --> consider Lambda+
-    ProjectorsHelper::posEnergyProjector(P, posEnergyProj);
+    Projectors::posEnergyProjector(P, posEnergyProj);
 
     // quarkDiquarkAmp = f(p2) * posEnergyProj(P)
     gsl_matrix_complex_memcpy(quarkDiquarkAmp, posEnergyProj);

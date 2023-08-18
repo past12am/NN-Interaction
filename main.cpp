@@ -1,6 +1,6 @@
 #include <iostream>
 #include "include/scattering/basis/TensorBasis.hpp"
-#include "include/helpers/ExternalImpulseGrid.hpp"
+#include "include/scattering/impulse/ExternalImpulseGrid.hpp"
 #include "include/scattering/ScatteringProcess.hpp"
 #include "include/scattering/processes/QuarkExchange.hpp"
 

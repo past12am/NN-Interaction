@@ -7,7 +7,7 @@
 
 #include <complex>
 #include <gsl/gsl_vector.h>
-#include "../helpers/ExternalImpulseGrid.hpp"
+#include "impulse/ExternalImpulseGrid.hpp"
 #include "basis/TensorBasis.hpp"
 
 class ScatteringProcess

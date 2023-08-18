@@ -1,6 +1,9 @@
 # vscode
 .vscode
 
+# Clion
+.idea
+
 ### C++ template
 # Compiled Object files
 *.slo

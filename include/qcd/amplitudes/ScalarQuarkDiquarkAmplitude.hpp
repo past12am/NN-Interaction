@@ -6,7 +6,7 @@
 #define NNINTERACTION_SCALARQUARKDIQUARKAMPLITUDE_HPP
 
 
-#include "../operators/ProjectorsHelper.hpp"
+#include "../../operators/Projectors.hpp"
 
 #include <complex>
 #include <gsl/gsl_matrix.h>

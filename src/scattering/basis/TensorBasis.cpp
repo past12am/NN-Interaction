@@ -8,8 +8,8 @@
 #include "gsl/gsl_matrix.h"
 #include "gsl/gsl_blas.h"
 #include "gsl/gsl_complex_math.h"
-#include "../../../include/utils/DiracStructuresHelper.hpp"
-#include "../../../include/utils/Commutator.hpp"
+#include "../../../include/utils/dirac/DiracStructuresHelper.hpp"
+#include "../../../include/utils/math/Commutator.hpp"
 
 void TensorBasis::calculateBasis(int impulseIdx,
                                  gsl_vector_complex* p_f, gsl_vector_complex* p_i, gsl_vector_complex* k_f,
@@ -17,16 +17,16 @@ void TensorBasis::calculateBasis(int impulseIdx,
 {
     // Positive Energy Projectors
     gsl_matrix_complex* Lambda_pf = gsl_matrix_complex_alloc(4, 4);
-    ProjectorsHelper::posEnergyProjector(p_f, Lambda_pf);
+    Projectors::posEnergyProjector(p_f, Lambda_pf);
 
     gsl_matrix_complex* Lambda_pi = gsl_matrix_complex_alloc(4, 4);
-    ProjectorsHelper::posEnergyProjector(p_i, Lambda_pi);
+    Projectors::posEnergyProjector(p_i, Lambda_pi);
 
     gsl_matrix_complex* Lambda_kf = gsl_matrix_complex_alloc(4, 4);
-    ProjectorsHelper::posEnergyProjector(k_f, Lambda_kf);
+    Projectors::posEnergyProjector(k_f, Lambda_kf);
 
     gsl_matrix_complex* Lambda_ki = gsl_matrix_complex_alloc(4, 4);
-    ProjectorsHelper::posEnergyProjector(k_i, Lambda_ki);
+    Projectors::posEnergyProjector(k_i, Lambda_ki);
 
 
     // Dirac Structures
@@ -49,8 +49,8 @@ void TensorBasis::calculateBasis(int impulseIdx,
 
     // Tensor Basis
     // tau[0] = Lambda(p_f).1.Lambda(p_i) (x) Lambda(k_f).1.Lambda(k_i)
-    matProd3Elem(Lambda_pf, ProjectorsHelper::getUnitM(), Lambda_pi, tmp, tmpA);
-    matProd3Elem(Lambda_kf, ProjectorsHelper::getUnitM(), Lambda_ki, tmp, tmpB);
+    matProd3Elem(Lambda_pf, Projectors::getUnitM(), Lambda_pi, tmp, tmpA);
+    matProd3Elem(Lambda_kf, Projectors::getUnitM(), Lambda_ki, tmp, tmpB);
     tauGrid[impulseIdx][0] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
 
 

@@ -5,9 +5,9 @@
 #include <complex>
 #include <gsl/gsl_complex_math.h>
 #include <gsl/gsl_blas.h>
-#include "../../include/propagators/QuarkPropagator.hpp"
-#include "../../include/utils/DiracStructuresHelper.hpp"
-#include "../../include/utils/DiracStructures.hpp"
+#include "../../../include/qcd/propagators/QuarkPropagator.hpp"
+#include "../../../include/utils/dirac/DiracStructuresHelper.hpp"
+#include "../../../include/utils/dirac/DiracStructures.hpp"
 
 gsl_complex QuarkPropagator::M(gsl_complex p2)
 {

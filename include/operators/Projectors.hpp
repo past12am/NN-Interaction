@@ -2,15 +2,15 @@
 // Created by past12am on 8/2/23.
 //
 
-#ifndef NNINTERACTION_PROJECTORSHELPER_HPP
-#define NNINTERACTION_PROJECTORSHELPER_HPP
+#ifndef NNINTERACTION_PROJECTORS_HPP
+#define NNINTERACTION_PROJECTORS_HPP
 
 #include <complex>
 #include <gsl/gsl_complex.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
 
-class ProjectorsHelper
+class Projectors
 {
     private:
         static const gsl_matrix_complex* unitM;
@@ -24,4 +24,4 @@ class ProjectorsHelper
 };
 
 
-#endif //NNINTERACTION_PROJECTORSHELPER_HPP
+#endif //NNINTERACTION_PROJECTORS_HPP

@@ -6,9 +6,9 @@
 #define NNINTERACTION_QUARKEXCHANGE_HPP
 
 
-#include "../../propagators/QuarkPropagator.hpp"
-#include "../../propagators/ScalarDiquarkPropagator.hpp"
-#include "../../amplitudes/ScalarQuarkDiquarkAmplitude.hpp"
+#include "../../qcd/propagators/QuarkPropagator.hpp"
+#include "../../qcd/propagators/ScalarDiquarkPropagator.hpp"
+#include "../../qcd/amplitudes/ScalarQuarkDiquarkAmplitude.hpp"
 #include "../ScatteringProcess.hpp"
 
 class QuarkExchange : public ScatteringProcess

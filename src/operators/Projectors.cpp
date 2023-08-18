@@ -2,8 +2,8 @@
 // Created by past12am on 8/2/23.
 //
 
-#include "../../include/operators/ProjectorsHelper.hpp"
-#include "../../include/utils/DiracStructuresHelper.hpp"
+#include "../../include/operators/Projectors.hpp"
+#include "../../include/utils/dirac/DiracStructuresHelper.hpp"
 #include "../../include/utils/MatrixInitializers.hpp"
 
 #include <complex>
@@ -13,9 +13,9 @@
 #include <cassert>
 
 
-const gsl_matrix_complex* ProjectorsHelper::unitM = MatrixInitializers::generateUnitM();
+const gsl_matrix_complex* Projectors::unitM = MatrixInitializers::generateUnitM();
 
-void ProjectorsHelper::transverseProjector(gsl_vector_complex* P, gsl_matrix_complex* transvProj)
+void Projectors::transverseProjector(gsl_vector_complex* P, gsl_matrix_complex* transvProj)
 {
     // valPSquared = |P|^2
     gsl_complex valPSquared;
@@ -31,7 +31,7 @@ void ProjectorsHelper::transverseProjector(gsl_vector_complex* P, gsl_matrix_com
     gsl_matrix_complex_add(transvProj, unitM);
 }
 
-void ProjectorsHelper::longitudinalProjector(gsl_vector_complex* P, gsl_matrix_complex* longitudProj)
+void Projectors::longitudinalProjector(gsl_vector_complex* P, gsl_matrix_complex* longitudProj)
 {
     // valPSquared = |P|^2
     gsl_complex valPSquared;
@@ -44,7 +44,7 @@ void ProjectorsHelper::longitudinalProjector(gsl_vector_complex* P, gsl_matrix_c
     gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1.0/GSL_REAL(valPSquared), 0.0), &PMatView.matrix, &PMatView.matrix, gsl_complex_rect(0.0, 0.0), longitudProj);
 }
 
-void ProjectorsHelper::posEnergyProjector(gsl_vector_complex* P, gsl_matrix_complex* posEnergyProj)
+void Projectors::posEnergyProjector(gsl_vector_complex* P, gsl_matrix_complex* posEnergyProj)
 {
     // Find norm of P
     gsl_complex valPSquared;
@@ -64,7 +64,7 @@ void ProjectorsHelper::posEnergyProjector(gsl_vector_complex* P, gsl_matrix_comp
     // posEnergyProj = (unitM + slash(P)/valP)/2
 }
 
-const gsl_matrix_complex* ProjectorsHelper::getUnitM()
+const gsl_matrix_complex* Projectors::getUnitM()
 {
     return unitM;
 }

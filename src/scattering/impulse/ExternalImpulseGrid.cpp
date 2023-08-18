@@ -2,7 +2,7 @@
 // Created by past12am on 8/18/23.
 //
 
-#include "../../include/helpers/ExternalImpulseGrid.hpp"
+#include "../../../include/scattering/impulse/ExternalImpulseGrid.hpp"
 
 #include "complex"
 #include "gsl/gsl_complex_math.h"

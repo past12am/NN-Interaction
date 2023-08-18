@@ -8,9 +8,9 @@
 #include <complex>
 #include <gsl/gsl_matrix.h>
 
-#include "../../utils/Tensor4.hpp"
-#include "../../operators/ProjectorsHelper.hpp"
-#include "../../helpers/ExternalImpulseGrid.hpp"
+#include "../../utils/tensor/Tensor4.hpp"
+#include "../../operators/Projectors.hpp"
+#include "../impulse/ExternalImpulseGrid.hpp"
 
 
 class TensorBasis
