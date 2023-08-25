@@ -13,14 +13,16 @@ class QuarkPropagator
     private:
         gsl_matrix_complex* pSlashCurrent;
 
-        gsl_complex A(gsl_complex p2, gsl_complex mu2);
+        gsl_complex renorm_point;
+
+        gsl_complex A(gsl_complex p2);
         gsl_complex M(gsl_complex p2);
 
     public:
-        QuarkPropagator();
+        QuarkPropagator(gsl_complex renorm_point);
         virtual ~QuarkPropagator();
 
-        void S(gsl_vector_complex* p, gsl_complex mu2, gsl_matrix_complex* quarkProp);
+        void S(gsl_vector_complex* p, gsl_matrix_complex* quarkProp);
 
 };
 

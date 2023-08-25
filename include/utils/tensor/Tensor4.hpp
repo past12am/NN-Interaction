@@ -38,7 +38,39 @@ template<int d1, int d2, int d3, int d4> class Tensor4
             }
         }
 
-        Tensor4() {}
+        Tensor4()
+        {
+            for(int i = 0; i < d1; i++)
+            {
+                for (int j = 0; j < d2; j++)
+                {
+                    for (int k = 0; k < d3; k++)
+                    {
+                        for (int l = 0; l < d4; l++)
+                        {
+                            tensor[i][j][k][l] = gsl_complex_rect(0, 0);
+                        }
+                    }
+                }
+            }
+        }
+
+        Tensor4(Tensor4 &tensor4)
+        {
+            for(int i = 0; i < d1; i++)
+            {
+                for (int j = 0; j < d2; j++)
+                {
+                    for (int k = 0; k < d3; k++)
+                    {
+                        for (int l = 0; l < d4; l++)
+                        {
+                            tensor[i][j][k][l] = tensor4.tensor[i][j][k][l];
+                        }
+                    }
+                }
+            }
+        }
 
         void setElement(size_t i, size_t j, size_t k, size_t l, gsl_complex x)
         {

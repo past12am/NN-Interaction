@@ -25,13 +25,17 @@ class TensorBasis
         void matProd3Elem(const gsl_matrix_complex* A, const gsl_matrix_complex* B, const gsl_matrix_complex* C,  gsl_matrix_complex* tmp, gsl_matrix_complex* res);
 
     public:
-        Tensor4<4, 4, 4, 4>* tau(int impulseIdx);
-
         TensorBasis(ExternalImpulseGrid* externalImpulseGrid);
-
         virtual ~TensorBasis();
 
+        int getLength() const;
+        Tensor4<4, 4, 4, 4>* tauGridAt(int basisElemIdx);
+
+
         explicit operator std::string() const;
+
+
+        Tensor4<4, 4, 4, 4>* tau(int basisElemIdx, int externalImpulseIdx);
 };
 
 
