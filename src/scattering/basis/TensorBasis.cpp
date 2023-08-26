@@ -195,10 +195,12 @@ Tensor4<4, 4, 4, 4>* TensorBasis::tau(int basisElemIdx, int externalImpulseIdx)
 
 TensorBasis::~TensorBasis()
 {
-    for(int i = 0; i < len; i++)
+    for(int i = 0; i < 8; i++)
     {
-        delete tauGrid[i];
+        delete []tauGrid[i];
     }
+
+    delete []tauGrid;
 }
 
 int TensorBasis::getLength() const

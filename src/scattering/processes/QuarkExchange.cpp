@@ -38,10 +38,12 @@ QuarkExchange::QuarkExchange(int lenTau, int lenZ, double tauCutoff, double m, d
     PhiConj_S_Phi__alpha_delta = gsl_matrix_complex_alloc(4, 4);
     PhiConj_S_Phi__gamma_beta = gsl_matrix_complex_alloc(4, 4);
 
+    S_Phi__alpha_delta = gsl_matrix_complex_alloc(4, 4);
     matrix_Conj_Phi_pf = gsl_matrix_complex_alloc(4, 4);
     matrix_S_k = gsl_matrix_complex_alloc(4, 4);
     matrix_Phi_ki = gsl_matrix_complex_alloc(4, 4);
 
+    S_Phi__gamma_beta = gsl_matrix_complex_alloc(4, 4);
     matrix_Conj_Phi_kf = gsl_matrix_complex_alloc(4, 4);
     matrix_S_p = gsl_matrix_complex_alloc(4, 4);
     matrix_Phi_pi = gsl_matrix_complex_alloc(4, 4);
@@ -60,6 +62,8 @@ QuarkExchange::QuarkExchange(int lenTau, int lenZ, double tauCutoff, double m, d
 
 QuarkExchange::~QuarkExchange()
 {
+    gsl_vector_complex_free(tmp1);
+
     gsl_vector_complex_free(k_r);
     gsl_vector_complex_free(k_rp);
     gsl_vector_complex_free(p_r);
@@ -72,6 +76,8 @@ QuarkExchange::~QuarkExchange()
 
     gsl_matrix_complex_free(PhiConj_S_Phi__alpha_delta);
     gsl_matrix_complex_free(PhiConj_S_Phi__gamma_beta);
+    gsl_matrix_complex_free(S_Phi__alpha_delta);
+    gsl_matrix_complex_free(S_Phi__gamma_beta);
     gsl_matrix_complex_free(matrix_Conj_Phi_pf);
     gsl_matrix_complex_free(matrix_S_k);
     gsl_matrix_complex_free(matrix_Phi_ki);
@@ -98,7 +104,12 @@ void QuarkExchange::integrate()
         // Integrate each Scattering Matrix element for each choice of external Impulse
         for (int externalImpulseIdx = 0; externalImpulseIdx < externalImpulseGrid.getLength(); externalImpulseIdx++)
         {
-            // TODO call integration on integralKernelWrapper
+            // TODO fix integration bounds
+            std::function<gsl_complex(double, double, double, double)> scatteringMatrixIntegrand = [=, this](double l2, double z, double y, double phi) -> gsl_complex {
+                return integralKernelWrapper(externalImpulseIdx, basisElemIdx, l2, z, y, phi);
+            };
+
+            momentumLoop.l2Integral(scatteringMatrixIntegrand, 0, 1E3);
         }
     }
 }
@@ -119,8 +130,9 @@ gsl_complex QuarkExchange::integralKernelWrapper(int externalImpulseIdx, int bas
                    externalImpulseGrid.get_k_f(externalImpulseIdx), externalImpulseGrid.get_k_i(externalImpulseIdx),
                    &integralKernelTensor);
 
-    // TODO implement inner Product for tensor (projection to basis element)
-    return integralKernelTensor.innerProd(tau_current);
+    gsl_vector_complex_free(l);
+
+    return integralKernelTensor.contractTauM(*tau_current);
 }
 
 // Note on notation: p_rp == p_r^' (p_r^prime)
@@ -155,11 +167,10 @@ void QuarkExchange::integralKernel(gsl_vector_complex* l, gsl_vector_complex* Q,
 
 
     // S_Phi__alpha_delta = S(k_q) Phi(k_r, k_i)
-    gsl_matrix_complex S_Phi__alpha_delta;
-    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), matrix_S_k, matrix_Phi_ki, gsl_complex_rect(0, 0), &S_Phi__alpha_delta);
+    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), matrix_S_k, matrix_Phi_ki, gsl_complex_rect(0, 0), S_Phi__alpha_delta);
 
     // PhiConj_S_Phi__alpha_delta = ChargeConj(Phi(p_r', p_f)) S_Phi__alpha_delta
-    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), matrix_Conj_Phi_pf, &S_Phi__alpha_delta, gsl_complex_rect(0, 0), PhiConj_S_Phi__alpha_delta);
+    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), matrix_Conj_Phi_pf, S_Phi__alpha_delta, gsl_complex_rect(0, 0), PhiConj_S_Phi__alpha_delta);
 
     // PhiConj_S_Phi__alpha_delta = ChargeConj(Phi(p_r', p_f)) S(k_q) Phi(k_r, k_i)
 
@@ -179,11 +190,10 @@ void QuarkExchange::integralKernel(gsl_vector_complex* l, gsl_vector_complex* Q,
 
 
     // S_Phi__gamma_beta = S(p_q) Phi(p_r, p_i)
-    gsl_matrix_complex S_Phi__gamma_beta;
-    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), matrix_S_p, matrix_Phi_pi, gsl_complex_rect(0, 0), &S_Phi__gamma_beta);
+    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), matrix_S_p, matrix_Phi_pi, gsl_complex_rect(0, 0), S_Phi__gamma_beta);
 
     // PhiConj_S_Phi__gamma_beta = ChargeConj(Phi(k_r', k_f)) PhiConj_S_Phi__gamma_beta
-    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), matrix_Conj_Phi_kf, &S_Phi__gamma_beta, gsl_complex_rect(0, 0), PhiConj_S_Phi__gamma_beta);
+    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), matrix_Conj_Phi_kf, S_Phi__gamma_beta, gsl_complex_rect(0, 0), PhiConj_S_Phi__gamma_beta);
 
 
 

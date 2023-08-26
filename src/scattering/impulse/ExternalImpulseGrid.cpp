@@ -128,14 +128,17 @@ ExternalImpulseGrid::~ExternalImpulseGrid()
         gsl_vector_complex_free(k_f[i]);
     }
 
-    delete Q;
-    delete P;
-    delete K;
+    delete []Q;
+    delete []P;
+    delete []K;
 
-    delete p_i;
-    delete p_f;
-    delete k_i;
-    delete k_f;
+    delete []p_i;
+    delete []p_f;
+    delete []k_i;
+    delete []k_f;
+
+    delete []tau;
+    delete []z;
 }
 
 gsl_vector_complex* ExternalImpulseGrid::get_Q(int idx)

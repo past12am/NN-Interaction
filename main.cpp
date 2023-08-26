@@ -20,9 +20,9 @@ int main()
 
 
     // Note: grid lengths must be even (edge case not handled)
-    ScatteringProcess* scattering = new QuarkExchange(100, 30, 3, m, M,
-                                        100, 30, 30, 10, gsl_complex_rect(0.19, 0));
-
+    QuarkExchange scattering(5, 4, 3, m, M,
+                                        5, 3, 3, 3, gsl_complex_rect(0.19, 0));
+    scattering.integrate();
 
     return 0;
 }

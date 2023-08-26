@@ -82,6 +82,27 @@ template<int d1, int d2, int d3, int d4> class Tensor4
             os << "tensor4: " << tensor4.tensor;
             return os;
         }
+
+        gsl_complex contractTauM(Tensor4<4, 4, 4, 4> &other)
+        {
+            gsl_complex res = gsl_complex_rect(0, 0);
+
+            for(int i = 0; i < d1; i++)
+            {
+                for (int j = 0; j < d2; j++)
+                {
+                    for (int k = 0; k < d3; k++)
+                    {
+                        for (int l = 0; l < d4; l++)
+                        {
+                            gsl_complex_add(res, gsl_complex_mul(tensor[i][j][k][l], other.tensor[j][i][l][k]));
+                        }
+                    }
+                }
+            }
+
+            return res;
+        }
 };
 
 

@@ -33,10 +33,12 @@ class QuarkExchange : public ScatteringProcess
         gsl_matrix_complex* PhiConj_S_Phi__alpha_delta;
         gsl_matrix_complex* PhiConj_S_Phi__gamma_beta;
 
+        gsl_matrix_complex* S_Phi__alpha_delta;
         gsl_matrix_complex* matrix_Conj_Phi_pf;
         gsl_matrix_complex* matrix_S_k;
         gsl_matrix_complex* matrix_Phi_ki;
 
+        gsl_matrix_complex* S_Phi__gamma_beta;
         gsl_matrix_complex* matrix_Conj_Phi_kf;
         gsl_matrix_complex* matrix_S_p;
         gsl_matrix_complex* matrix_Phi_pi;
