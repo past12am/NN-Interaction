@@ -21,10 +21,17 @@ int main()
     double tau_upper = 1.0/16.0;
     double tau_lower = 1.0/128.0;
 
+    double z_lower = -1E-3;
+    double z_upper = 1E-3;
+
     // Note: grid lengths must be even (edge case not handled)
-    QuarkExchange scattering(3, 5, tau_lower, tau_upper, M_nucleon,
+    QuarkExchange scattering(3, 5, tau_lower, tau_upper, z_lower, z_upper, M_nucleon,
                                         100, 20, 5, 5, gsl_complex_rect(0.19, 0));
     scattering.integrate();
+    scattering.buildScatteringMatrix(M_nucleon);
+
+
+    scattering.store_scattering_amplitude("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NNInteraction/data/");
 
     return 0;
 }

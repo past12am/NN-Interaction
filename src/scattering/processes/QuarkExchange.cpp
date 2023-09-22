@@ -19,9 +19,9 @@ std::mutex QuarkExchange::tmp1_mutex = std::mutex();
 
 
 
-QuarkExchange::QuarkExchange(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, gsl_complex M_nucleon,
+QuarkExchange::QuarkExchange(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex M_nucleon,
                              int l2Points, int zPoints, int yPoints, int phiPoints, gsl_complex quarkPropRenormPoint) :
-                                        ScatteringProcess(lenTau, lenZ, tauCutoffLower, tauCutoffUpper, M_nucleon),
+                                        ScatteringProcess(lenTau, lenZ, tauCutoffLower, tauCutoffUpper, zCutoffLower, zCutoffUpper, M_nucleon),
                                         momentumLoop(l2Points, zPoints, yPoints, phiPoints)
 {
     tmp1 = gsl_vector_complex_alloc(4);
@@ -112,6 +112,7 @@ void QuarkExchange::integrate()
             };
 
             gsl_complex res = momentumLoop.l2Integral(scatteringMatrixIntegrand, 0, 1E3);    // TODO set integration bounds
+            scattering_amplitude_basis_projected[calcScatteringAmpIdx(basisElemIdx, externalImpulseIdx)] = res;
             std::cout << "tau[" << basisElemIdx << "], basisIdx=" << externalImpulseIdx << ": " << GSL_REAL(res) << " + i " << GSL_IMAG(res) << std::endl;
         }
     }

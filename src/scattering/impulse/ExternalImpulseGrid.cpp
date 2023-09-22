@@ -9,7 +9,7 @@
 #include "gsl/gsl_complex_math.h"
 #include "gsl/gsl_math.h"
 
-ExternalImpulseGrid::ExternalImpulseGrid(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, gsl_complex M_nucleon) : lenTau(lenTau), lenZ(lenZ), tauCutoffLower(tauCutoffLower), tauCutoffUpper(tauCutoffUpper)
+ExternalImpulseGrid::ExternalImpulseGrid(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex M_nucleon) : lenTau(lenTau), lenZ(lenZ), tauCutoffLower(tauCutoffLower), tauCutoffUpper(tauCutoffUpper), zCutoffLower(zCutoffLower), zCutoffUpper(zCutoffUpper)
 {
     tau = new double[lenTau];
     z = new double[lenZ];
@@ -187,18 +187,28 @@ int ExternalImpulseGrid::getGridIdx(int tauIdx, int zIdx)
     return tauIdx * lenZ + zIdx;
 }
 
-int ExternalImpulseGrid::getLength()
+int ExternalImpulseGrid::getLength() const
 {
     return lenTau * lenZ;
 }
 
 double ExternalImpulseGrid::calcZAt(int zIdx)
 {
-    return 2.0 * ((double) zIdx)/((double) lenZ) - 1.0;
+    return zCutoffLower + (zCutoffUpper - zCutoffLower) * ((double) zIdx)/((double) (lenZ - 1));
 }
 
 double ExternalImpulseGrid::calcTauAt(int tauIdx)
 {
-    return tauCutoffLower + (tauCutoffUpper - tauCutoffLower) * ((double) tauIdx)/((double) lenTau);
+    return tauCutoffLower + (tauCutoffUpper - tauCutoffLower) * ((double) tauIdx)/((double) (lenTau - 1));
+}
+
+int ExternalImpulseGrid::getLenTau() const
+{
+    return lenTau;
+}
+
+int ExternalImpulseGrid::getLenZ() const
+{
+    return lenZ;
 }
 

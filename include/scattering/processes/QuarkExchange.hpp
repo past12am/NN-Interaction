@@ -74,8 +74,8 @@ class QuarkExchange : public ScatteringProcess
 
 
     public:
-        QuarkExchange(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, gsl_complex M_nucleon,
-                      int l2Points, int zPoints, int yPoints, int phiPoints, gsl_complex quarkPropRenormPoint);
+        QuarkExchange(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper,
+                      gsl_complex M_nucleon, int l2Points, int zPoints, int yPoints, int phiPoints, gsl_complex quarkPropRenormPoint);
         virtual ~QuarkExchange();
 
         gsl_complex integralKernelWrapper(int externalImpulseIdx, int basisElemIdx, double l2, double z, double y, double phi);

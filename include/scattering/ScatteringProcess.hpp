@@ -13,7 +13,14 @@
 
 class ScatteringProcess
 {
+    private:
+        gsl_matrix_complex* inverseKMatrix;
+
     protected:
+        gsl_complex* scattering_amplitude_basis_projected;  // h_i
+
+        Tensor4<4, 4, 4, 4>* scattering_matrix;
+
         ExternalImpulseGrid externalImpulseGrid;
         TensorBasis tensorBasis;
 
@@ -25,7 +32,20 @@ class ScatteringProcess
                                     gsl_vector_complex* k_f, gsl_vector_complex* k_i,
                                     Tensor4<4, 4, 4, 4>* integralKernelTensor) = 0;
 
-        ScatteringProcess(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, gsl_complex M_nucleon);
+        void store_scattering_amplitude(std::string data_path);
+
+        ScatteringProcess(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex M_nucleon);
+        virtual ~ScatteringProcess();
+
+        void buildScatteringMatrix(gsl_complex M_nucleon);
+
+        int calcScatteringAmpIdx(int basisElemIdx, int externalImpulseIdx);
+
+        gsl_matrix_complex* getInverseK(double tau, double z, gsl_complex M);
+        void build_h_vector(int externalImpulseIdx, gsl_vector_complex* h);
+
+        void calculateFormFactors(int tauIdx, int zIdx, gsl_complex M, gsl_vector_complex* f);
+        double calcSquaredNormOfScatteringMatrix(int externalImpulseIdx);
 };
 
 #endif //NNINTERACTION_SCATTERINGPROCESS_HPP

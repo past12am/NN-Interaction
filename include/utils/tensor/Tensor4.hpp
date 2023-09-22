@@ -8,6 +8,8 @@
 #include <complex>
 #include <gsl/gsl_matrix.h>
 #include <ostream>
+#include <cassert>
+#include <iostream>
 #include "gsl/gsl_complex_math.h"
 
 template<int d1, int d2, int d3, int d4> class Tensor4
@@ -103,7 +105,80 @@ template<int d1, int d2, int d3, int d4> class Tensor4
 
             return res;
         }
-};
 
+        Tensor4<d1, d2, d3, d4> operator*(const gsl_complex& scalar)
+        {
+            Tensor4<d1, d2, d3, d4> res = Tensor4<d1, d2, d3, d4>();
+            for(int i = 0; i < d1; i++)
+            {
+                for (int j = 0; j < d2; j++)
+                {
+                    for (int k = 0; k < d3; k++)
+                    {
+                        for (int l = 0; l < d4; l++)
+                        {
+                            res.tensor[i][j][k][l] = gsl_complex_mul(tensor[i][j][k][l], scalar);
+                        }
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        Tensor4<d1, d2, d3, d4>& operator+=(const Tensor4<d1, d2, d3, d4>& other)
+        {
+            for(int i = 0; i < d1; i++)
+            {
+                for (int j = 0; j < d2; j++)
+                {
+                    for (int k = 0; k < d3; k++)
+                    {
+                        for (int l = 0; l < d4; l++)
+                        {
+                            tensor[i][j][k][l] = gsl_complex_add(tensor[i][j][k][l], other.tensor[i][j][k][l]);
+                        }
+                    }
+                }
+            }
+
+            return *this;
+        }
+
+        double absSquare()
+        {
+            gsl_complex res = gsl_complex_rect(0, 0);
+            //gsl_complex res2 = gsl_complex_rect(0, 0);
+
+            for(int i = 0; i < d1; i++)
+            {
+                for (int j = 0; j < d2; j++)
+                {
+                    for (int k = 0; k < d3; k++)
+                    {
+                        for (int l = 0; l < d4; l++)
+                        {
+                            // TODO check correct way to contract M with itself (pair of indices of fully reversed)
+                            gsl_complex comp_res = gsl_complex_mul(tensor[i][j][k][l], gsl_complex_conjugate(tensor[l][k][j][i]));
+                            //gsl_complex comp_res2 = gsl_complex_mul(tensor[i][j][k][l], gsl_complex_conjugate(tensor[j][i][l][k]));
+                            // M_alpha,beta;gamma,delta . (M_beta,alpha;delta,gamma)*
+
+                            res = gsl_complex_add(res, comp_res);
+                            //res2 = gsl_complex_add(res2, comp_res2);
+                        }
+                    }
+                }
+            }
+
+            // TODO check if 1E-15 is sufficiently small
+            //std::cout << GSL_REAL(res) << " + i " << GSL_IMAG(res) << "   #   " << GSL_REAL(res2) << " + i " << GSL_IMAG(res2) << std::endl;
+            assert(GSL_IMAG(res) < 1E-15);
+
+            //assert(GSL_REAL(res) == GSL_REAL(res2));
+            //assert(GSL_IMAG(res) == GSL_IMAG(res2));
+
+            return GSL_REAL(res);
+        }
+};
 
 #endif //NNINTERACTION_TENSOR4_HPP
