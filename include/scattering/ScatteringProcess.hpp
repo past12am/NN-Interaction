@@ -25,7 +25,7 @@ class ScatteringProcess
                                     gsl_vector_complex* k_f, gsl_vector_complex* k_i,
                                     Tensor4<4, 4, 4, 4>* integralKernelTensor) = 0;
 
-        ScatteringProcess(int lenTau, int lenZ, double tauCutoff, double m, double M);
+        ScatteringProcess(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, gsl_complex M_nucleon);
 };
 
 #endif //NNINTERACTION_SCATTERINGPROCESS_HPP

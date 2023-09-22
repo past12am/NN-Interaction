@@ -13,8 +13,7 @@ MomentumLoop::~MomentumLoop()
 
 }
 
-MomentumLoop::MomentumLoop(int l2Points, int zPoints, int yPoints, int phiPoints) : l2Points(l2Points), zPoints(zPoints), yPoints(yPoints), phiPoints(phiPoints),
-                                                                                    gaussLegendreIntegrator_l2(l2Points),
+MomentumLoop::MomentumLoop(int l2Points, int zPoints, int yPoints, int phiPoints) : gaussLegendreIntegrator_l2(l2Points),
                                                                                     gaussChebyshevIntegrator_z(zPoints),
                                                                                     gaussLegendreIntegrator_y(yPoints),
                                                                                     gaussLegendreIntegrator_phi(phiPoints)

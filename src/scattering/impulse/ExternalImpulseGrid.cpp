@@ -2,13 +2,14 @@
 // Created by past12am on 8/18/23.
 //
 
+#include <cassert>
 #include "../../../include/scattering/impulse/ExternalImpulseGrid.hpp"
 
 #include "complex"
 #include "gsl/gsl_complex_math.h"
 #include "gsl/gsl_math.h"
 
-ExternalImpulseGrid::ExternalImpulseGrid(int lenTau, int lenZ, double tauCutoff, double m, double M) : lenTau(lenTau), lenZ(lenZ), tauCutoff(tauCutoff)
+ExternalImpulseGrid::ExternalImpulseGrid(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, gsl_complex M_nucleon) : lenTau(lenTau), lenZ(lenZ), tauCutoffLower(tauCutoffLower), tauCutoffUpper(tauCutoffUpper)
 {
     tau = new double[lenTau];
     z = new double[lenZ];
@@ -37,9 +38,9 @@ ExternalImpulseGrid::ExternalImpulseGrid(int lenTau, int lenZ, double tauCutoff,
             Q[i] = gsl_vector_complex_alloc(4);
             P[i] = gsl_vector_complex_alloc(4);
             K[i] = gsl_vector_complex_alloc(4);
-            calc_Q(Q[i], tau[tauIdx], m);
-            calc_P(P[i], tau[tauIdx], M);
-            calc_K(K[i], tau[tauIdx], z[zIdx], M);
+            calc_Q(Q[i], tau[tauIdx], M_nucleon);
+            calc_P(P[i], tau[tauIdx], M_nucleon);
+            calc_K(K[i], tau[tauIdx], z[zIdx], M_nucleon);
 
             p_i[i] = gsl_vector_complex_alloc(4);
             p_f[i] = gsl_vector_complex_alloc(4);
@@ -82,34 +83,39 @@ void ExternalImpulseGrid::calc_k_f(const gsl_vector_complex* K, const gsl_vector
     gsl_vector_complex_add(k_f, K);
 }
 
-void ExternalImpulseGrid::calc_Q(gsl_vector_complex* Q, double tau, double m)
+void ExternalImpulseGrid::calc_Q(gsl_vector_complex* Q, double tau, gsl_complex M_nucleon)
 {
+    assert(tau > 0);
+
     gsl_vector_complex_set_zero(Q);
     gsl_vector_complex_set(Q, 3, gsl_complex_rect(1, 0));
 
-    gsl_complex sqrt_tau = gsl_complex_sqrt(gsl_complex_rect(tau, 0));
-    double pref = 2.0 * m;
+    gsl_complex pref = gsl_complex_mul_real(M_nucleon, 2.0 * sqrt(tau));
 
-    gsl_vector_complex_scale(Q, gsl_complex_mul_real(sqrt_tau, pref));
+    gsl_vector_complex_scale(Q, pref);
 }
 
-void ExternalImpulseGrid::calc_P(gsl_vector_complex* P, double tau, double M)
+void ExternalImpulseGrid::calc_P(gsl_vector_complex* P, double tau, gsl_complex M_nucleon)
 {
+    assert((1.0 + tau) > 0);
+
     gsl_vector_complex_set_zero(P);
     gsl_vector_complex_set(P, 2, gsl_complex_rect(1, 0));
 
-    gsl_complex pref = gsl_complex_mul(gsl_complex_rect(0, M), gsl_complex_sqrt(gsl_complex_rect(1 + tau, 0)));
+    gsl_complex pref = gsl_complex_mul_real(gsl_complex_mul_imag(M_nucleon, 1), sqrt(1 + tau));
 
     gsl_vector_complex_scale(P, pref);
 }
 
-void ExternalImpulseGrid::calc_K(gsl_vector_complex* K, double tau, double z, double M)
+void ExternalImpulseGrid::calc_K(gsl_vector_complex* K, double tau, double z, gsl_complex M_nucleon)
 {
+    assert((1.0 + tau) > 0);
+
     gsl_vector_complex_set_zero(K);
     gsl_vector_complex_set(K, 1, gsl_complex_sqrt(gsl_complex_rect(1 - gsl_pow_2(z), 0)));
     gsl_vector_complex_set(K, 2, gsl_complex_rect(z, 0));
 
-    gsl_complex pref = gsl_complex_mul(gsl_complex_rect(0, M), gsl_complex_sqrt(gsl_complex_rect(1 + tau, 0)));
+    gsl_complex pref = gsl_complex_mul_real(gsl_complex_mul_imag(M_nucleon, 1), sqrt(1 + tau));
 
     gsl_vector_complex_scale(K, pref);
 }
@@ -193,6 +199,6 @@ double ExternalImpulseGrid::calcZAt(int zIdx)
 
 double ExternalImpulseGrid::calcTauAt(int tauIdx)
 {
-    return tauCutoff * ((double) tauIdx)/((double) lenTau);
+    return tauCutoffLower + (tauCutoffUpper - tauCutoffLower) * ((double) tauIdx)/((double) lenTau);
 }
 

@@ -14,7 +14,8 @@ class ExternalImpulseGrid
         int lenTau;
         int lenZ;
 
-        double tauCutoff;
+        double tauCutoffLower;
+        double tauCutoffUpper;
 
         double* tau;
         double* z;
@@ -28,9 +29,9 @@ class ExternalImpulseGrid
         gsl_vector_complex** k_i;
         gsl_vector_complex** k_f;
 
-        void calc_Q(gsl_vector_complex* Q, double tau, double m);
-        void calc_P(gsl_vector_complex* P, double tau, double M);
-        void calc_K(gsl_vector_complex* K, double tau, double z, double M);
+        void calc_Q(gsl_vector_complex* Q, double tau, gsl_complex M_nucleon);
+        void calc_P(gsl_vector_complex* P, double tau, gsl_complex M_nucleon);
+        void calc_K(gsl_vector_complex* K, double tau, double z, gsl_complex M_nucleon);
 
         void calc_p_i(const gsl_vector_complex* P, const gsl_vector_complex* Q, gsl_vector_complex* p_i);
         void calc_p_f(const gsl_vector_complex* P, const gsl_vector_complex* Q, gsl_vector_complex* p_f);
@@ -40,7 +41,7 @@ class ExternalImpulseGrid
         int getGridIdx(int tauIdx, int zIdx);
 
     public:
-        ExternalImpulseGrid(int lenTau, int lenZ, double tauCutoff, double m, double M);
+        ExternalImpulseGrid(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, gsl_complex M_nucleon);
         virtual ~ExternalImpulseGrid();
 
         gsl_vector_complex* get_Q(int idx);

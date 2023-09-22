@@ -5,8 +5,8 @@
 #include "../../include/scattering/NNInteraction.hpp"
 
 
-NNInteraction::NNInteraction(ScatteringProcess* scattering, double m, double M, int lenZ, int lenTau, double tauCutoff) : scattering(scattering), externalImpulseGrid(lenTau, lenZ, tauCutoff, m, M),
-                                                                                                                          tensorBasis(&externalImpulseGrid)
+NNInteraction::NNInteraction(ScatteringProcess* scattering, gsl_complex M_nucleon, int lenZ, int lenTau,
+                             double tauCutoffLower, double tauCutoffUpper) : scattering(scattering), externalImpulseGrid(lenTau, lenZ, tauCutoffLower, tauCutoffUpper, M_nucleon), tensorBasis(&externalImpulseGrid)
 {
     // define impulses
 

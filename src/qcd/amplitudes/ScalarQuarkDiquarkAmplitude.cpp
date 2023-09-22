@@ -33,5 +33,9 @@ void ScalarQuarkDiquarkAmplitude::Phi(gsl_vector_complex* p, gsl_vector_complex*
 gsl_complex ScalarQuarkDiquarkAmplitude::f(gsl_complex p2)
 {
     // f = (c1 + c2*p^2) * e^(-c3*p^2)
-    return gsl_complex_mul(gsl_complex_add(c1, gsl_complex_mul(c2, p2)), gsl_complex_exp(gsl_complex_mul(gsl_complex_negative(c3), p2)));
+    gsl_complex term1 = gsl_complex_add(c1, gsl_complex_mul(c2, p2));
+    gsl_complex exponential_param = gsl_complex_mul(gsl_complex_negative(c3), p2);
+    gsl_complex term2 = gsl_complex_exp(exponential_param);
+
+    return gsl_complex_mul(term1, term2);
 }

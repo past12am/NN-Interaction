@@ -17,7 +17,7 @@ class NNInteraction
         ExternalImpulseGrid externalImpulseGrid;
 
     public:
-        NNInteraction(ScatteringProcess* scattering, double m, double M, int lenZ, int lenTau, double tauCutoff);
+        NNInteraction(ScatteringProcess* scattering, gsl_complex M_nucleon, int lenZ, int lenTau, double tauCutoffLower, double tauCutoffUpper);
 
         void calcScatteringAmplitude();
 };

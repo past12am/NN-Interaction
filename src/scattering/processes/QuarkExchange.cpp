@@ -11,15 +11,17 @@
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_integration.h>
 
+#include <iostream>
+
 // Static Definitions
 gsl_vector_complex* QuarkExchange::tmp1 = gsl_vector_complex_alloc(4);
 std::mutex QuarkExchange::tmp1_mutex = std::mutex();
 
 
 
-QuarkExchange::QuarkExchange(int lenTau, int lenZ, double tauCutoff, double m, double M,
+QuarkExchange::QuarkExchange(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, gsl_complex M_nucleon,
                              int l2Points, int zPoints, int yPoints, int phiPoints, gsl_complex quarkPropRenormPoint) :
-                                        ScatteringProcess(lenTau, lenZ, tauCutoff, m, M),
+                                        ScatteringProcess(lenTau, lenZ, tauCutoffLower, tauCutoffUpper, M_nucleon),
                                         momentumLoop(l2Points, zPoints, yPoints, phiPoints)
 {
     tmp1 = gsl_vector_complex_alloc(4);
@@ -109,7 +111,8 @@ void QuarkExchange::integrate()
                 return integralKernelWrapper(externalImpulseIdx, basisElemIdx, l2, z, y, phi);
             };
 
-            momentumLoop.l2Integral(scatteringMatrixIntegrand, 0, 1E3);
+            gsl_complex res = momentumLoop.l2Integral(scatteringMatrixIntegrand, 0, 1E3);    // TODO set integration bounds
+            std::cout << "tau[" << basisElemIdx << "], basisIdx=" << externalImpulseIdx << ": " << GSL_REAL(res) << " + i " << GSL_IMAG(res) << std::endl;
         }
     }
 }
@@ -221,6 +224,7 @@ void QuarkExchange::integralKernel(gsl_vector_complex* l, gsl_vector_complex* Q,
                     kernelElement = gsl_complex_mul(kernelElement, gsl_complex_mul(gsl_matrix_complex_get(PhiConj_S_Phi__alpha_delta, alpha, delta),
                                                                                          gsl_matrix_complex_get(PhiConj_S_Phi__gamma_beta,  gamma, beta)));
 
+                    //std::cout << kernelElement.dat[0] << "+i " << kernelElement.dat[1] << std::endl;
                     integralKernelTensor->setElement(alpha, beta, gamma, delta, kernelElement);
                 }
             }

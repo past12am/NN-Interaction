@@ -95,7 +95,7 @@ template<int d1, int d2, int d3, int d4> class Tensor4
                     {
                         for (int l = 0; l < d4; l++)
                         {
-                            gsl_complex_add(res, gsl_complex_mul(tensor[i][j][k][l], other.tensor[j][i][l][k]));
+                            res = gsl_complex_add(res, gsl_complex_mul(tensor[i][j][k][l], other.tensor[j][i][l][k]));
                         }
                     }
                 }

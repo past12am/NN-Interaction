@@ -5,7 +5,7 @@
 #include "../../include/scattering/ScatteringProcess.hpp"
 
 
-ScatteringProcess::ScatteringProcess(int lenTau, int lenZ, double tauCutoff, double m, double M) : externalImpulseGrid(lenTau, lenZ, tauCutoff, m, M),
+ScatteringProcess::ScatteringProcess(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, gsl_complex M_nucleon) : externalImpulseGrid(lenTau, lenZ, tauCutoffLower, tauCutoffUpper, M_nucleon),
                                                                                                    tensorBasis(&externalImpulseGrid)
 {
 }

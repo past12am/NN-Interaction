@@ -13,12 +13,6 @@
 class MomentumLoop
 {
     private:
-        //LoopImpulseGrid loopImpulseGrid;
-        int l2Points;
-        int zPoints;
-        int yPoints;
-        int phiPoints;
-
         // TODO fix used integration routines
         GaussLegendre gaussLegendreIntegrator_l2;
         GaussLegendre gaussLegendreIntegrator_y;
