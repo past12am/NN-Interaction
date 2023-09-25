@@ -99,21 +99,37 @@ QuarkExchange::~QuarkExchange()
     delete S_p;
 }
 
-void QuarkExchange::integrate()
+void QuarkExchange::integrate(double l2_cutoff)
 {
+    int num_progress_char = 100;
+    int progress = 0;
+    int total = tensorBasis.getLength() * externalImpulseGrid.getLength();
+
+    double avg_time = 0;
+    clock_t clock_at_start = clock();
+    clock_t clock_at_end = clock();
+
     for(int basisElemIdx = 0; basisElemIdx < tensorBasis.getLength(); basisElemIdx++)
     {
         // Integrate each Scattering Matrix element for each choice of external Impulse
         for (int externalImpulseIdx = 0; externalImpulseIdx < externalImpulseGrid.getLength(); externalImpulseIdx++)
         {
+            progress = basisElemIdx * externalImpulseGrid.getLength() + externalImpulseIdx;
+            avg_time = (clock_at_end - clock_at_start)/(progress + 1);
+
+            std::cout << "\r" << "Basis Element [" << std::string(((double) progress/total) * num_progress_char, '#') << std::string((1.0 - (double) progress/total) * num_progress_char, '-').c_str() << "]    --> "
+                << ((clock_at_end - clock_at_start)/CLOCKS_PER_SEC)/60 << " of " << ((avg_time * total)/CLOCKS_PER_SEC)/60 << "\t" << std::flush;
+
             // TODO fix integration bounds
             std::function<gsl_complex(double, double, double, double)> scatteringMatrixIntegrand = [=, this](double l2, double z, double y, double phi) -> gsl_complex {
                 return integralKernelWrapper(externalImpulseIdx, basisElemIdx, l2, z, y, phi);
             };
 
-            gsl_complex res = momentumLoop.l2Integral(scatteringMatrixIntegrand, 0, 1E3);    // TODO set integration bounds
+            gsl_complex res = momentumLoop.l2Integral(scatteringMatrixIntegrand, 0, l2_cutoff);    // TODO set integration bounds
             scattering_amplitude_basis_projected[calcScatteringAmpIdx(basisElemIdx, externalImpulseIdx)] = res;
             std::cout << "tau[" << basisElemIdx << "], basisIdx=" << externalImpulseIdx << ": " << GSL_REAL(res) << " + i " << GSL_IMAG(res) << std::endl;
+
+            clock_at_end = clock();
         }
     }
 }

@@ -85,7 +85,7 @@ class QuarkExchange : public ScatteringProcess
                             gsl_vector_complex* k_f, gsl_vector_complex* k_i,
                             Tensor4<4, 4, 4, 4>* integralKernelTensor) override;
 
-        void integrate();
+        void integrate(double l2_cutoff);
 };
 
 

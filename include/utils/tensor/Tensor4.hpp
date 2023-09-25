@@ -159,8 +159,8 @@ template<int d1, int d2, int d3, int d4> class Tensor4
                         for (int l = 0; l < d4; l++)
                         {
                             // TODO check correct way to contract M with itself (pair of indices of fully reversed)
-                            gsl_complex comp_res = gsl_complex_mul(tensor[i][j][k][l], gsl_complex_conjugate(tensor[l][k][j][i]));
-                            //gsl_complex comp_res2 = gsl_complex_mul(tensor[i][j][k][l], gsl_complex_conjugate(tensor[j][i][l][k]));
+                            gsl_complex comp_res = gsl_complex_mul(tensor[i][j][k][l], gsl_complex_conjugate(tensor[j][i][l][k]));
+                            //gsl_complex comp_res2 = gsl_complex_mul(tensor[i][j][k][l], gsl_complex_conjugate(tensor[l][k][j][i]));
                             // M_alpha,beta;gamma,delta . (M_beta,alpha;delta,gamma)*
 
                             res = gsl_complex_add(res, comp_res);
