@@ -19,14 +19,14 @@ int main(int argc, char *argv[])
     double impulse_mid_cutoff = 600;
 
     double tau_upper = 1.0/16.0;
-    double tau_lower = 1.0/128.0;
+    double tau_lower = 1E-3;
 
     double z_lower = -1 + 1E-4;
     double z_upper =  1 - 1E-4;
 
     // Note: grid lengths must be even (edge case not handled)
-    QuarkExchange scattering(15, 15, tau_lower, tau_upper, z_lower, z_upper, M_nucleon,
-                                        200, 40, 5, 5, gsl_complex_rect(0.19, 0));
+    QuarkExchange scattering(15, 30, tau_lower, tau_upper, z_lower, z_upper, M_nucleon,
+                                        200, 40, 20, 20, gsl_complex_rect(0.19, 0));
     scattering.integrate(1E3);
     scattering.buildScatteringMatrix(M_nucleon);
 

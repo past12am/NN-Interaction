@@ -18,6 +18,7 @@ class ScatteringProcess
 
     protected:
         gsl_complex* scattering_amplitude_basis_projected;  // h_i
+        gsl_complex* form_factors;                          // f_i  // TODO
 
         Tensor4<4, 4, 4, 4>* scattering_matrix;
 
