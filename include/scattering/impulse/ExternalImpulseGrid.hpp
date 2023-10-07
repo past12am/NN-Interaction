@@ -7,22 +7,11 @@
 
 #include <complex>
 #include <gsl/gsl_vector.h>
+#include "ZTauGrid.hpp"
 
-class ExternalImpulseGrid
+class ExternalImpulseGrid : public ZTauGrid
 {
     private:
-        int lenTau;
-        int lenZ;
-
-        double tauCutoffLower;
-        double tauCutoffUpper;
-
-        double zCutoffLower;
-        double zCutoffUpper;
-
-        double* tau;
-        double* z;
-
         gsl_vector_complex** Q;
         gsl_vector_complex** P;
         gsl_vector_complex** K;
@@ -53,15 +42,6 @@ class ExternalImpulseGrid
         gsl_vector_complex* get_p_f(int idx);
         gsl_vector_complex* get_k_i(int idx);
         gsl_vector_complex* get_k_f(int idx);
-
-        int getLength() const;
-        int getLenTau() const;
-        int getLenZ() const;
-
-        double calcZAt(int zIdx);
-        double calcTauAt(int tauIdx);
-
-        int getGridIdx(int tauIdx, int zIdx);
 };
 
 

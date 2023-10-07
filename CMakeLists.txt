@@ -61,6 +61,6 @@ add_executable(NNInteraction main.cpp
         src/numerics/integration/GaussChebyshev.cpp
         src/numerics/integration/GaussLegendre.cpp
         src/numerics/polynomials/LegendrePolynomials.cpp
-        src/numerics/roots/NewtonRootFinder.cpp src/utils/print/PrintGSLElements.cpp include/utils/print/PrintGSLElements.hpp)
+        src/numerics/roots/NewtonRootFinder.cpp src/utils/print/PrintGSLElements.cpp include/utils/print/PrintGSLElements.hpp src/numerics/extrapolation/SchlessingerPointMethod.cpp include/numerics/extrapolation/SchlessingerPointMethod.hpp src/scattering/ScatteringProcessHandler.cpp include/scattering/ScatteringProcessHandler.hpp src/scattering/impulse/ZTauGrid.cpp include/scattering/impulse/ZTauGrid.hpp)
 target_link_libraries(NNInteraction GSL::gsl)
 #target_link_libraries(NNInteraction "${TORCH_LIBRARIES}")

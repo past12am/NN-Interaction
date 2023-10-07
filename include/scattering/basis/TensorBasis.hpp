@@ -28,7 +28,7 @@ class TensorBasis
         TensorBasis(ExternalImpulseGrid* externalImpulseGrid);
         virtual ~TensorBasis();
 
-        int getLength() const;
+        int getTensorBasisElementCount() const;
         Tensor4<4, 4, 4, 4>* tauGridAt(int basisElemIdx);
 
 

@@ -9,11 +9,13 @@
 #include "../../include/scattering/ScatteringProcess.hpp"
 
 
-ScatteringProcess::ScatteringProcess(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex M_nucleon) : externalImpulseGrid(lenTau, lenZ, tauCutoffLower, tauCutoffUpper, zCutoffLower, zCutoffUpper, M_nucleon),
-                                                                                                   tensorBasis(&externalImpulseGrid)
+ScatteringProcess::ScatteringProcess(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, int threadIdx) :
+        nucleon_mass(nucleon_mass), threadIdx(threadIdx),
+        externalImpulseGrid(lenTau, lenZ, tauCutoffLower, tauCutoffUpper, zCutoffLower, zCutoffUpper, nucleon_mass),
+        tensorBasis(&externalImpulseGrid)
 {
-    scattering_amplitude_basis_projected = new gsl_complex[tensorBasis.getLength() * externalImpulseGrid.getLength()];
-    form_factors = new gsl_complex[tensorBasis.getLength() * externalImpulseGrid.getLength()];
+    scattering_amplitude_basis_projected = new gsl_complex[tensorBasis.getTensorBasisElementCount() * externalImpulseGrid.getLength()];
+    form_factors = new gsl_complex[tensorBasis.getTensorBasisElementCount() * externalImpulseGrid.getLength()];
 
     inverseKMatrix = gsl_matrix_complex_alloc(8, 8);
     gsl_matrix_complex_set_zero(inverseKMatrix);
@@ -23,16 +25,6 @@ ScatteringProcess::ScatteringProcess(int lenTau, int lenZ, double tauCutoffLower
     {
         scattering_matrix[i] = Tensor4<4, 4, 4, 4>();
     }
-}
-
-void ScatteringProcess::calc_l(double l2, double z, double y, double phi, gsl_vector_complex* l)
-{
-    gsl_vector_complex_set(l, 0, gsl_complex_rect(sqrt(1.0 - pow(z, 2)) * sqrt(1.0 - pow(y, 2)) * sin(phi), 0));
-    gsl_vector_complex_set(l, 1, gsl_complex_rect(sqrt(1.0 - pow(z, 2)) * sqrt(1.0 - pow(y, 2)) * cos(phi), 0));
-    gsl_vector_complex_set(l, 2, gsl_complex_rect(sqrt(1.0 - pow(z, 2)) * y, 0));
-    gsl_vector_complex_set(l, 2, gsl_complex_rect(z, 0));
-
-    gsl_vector_complex_scale(l, gsl_complex_rect(sqrt(l2), 0));
 }
 
 ScatteringProcess::~ScatteringProcess()
@@ -45,45 +37,64 @@ ScatteringProcess::~ScatteringProcess()
     delete[] scattering_amplitude_basis_projected;
 }
 
-void ScatteringProcess::store_scattering_amplitude(std::string data_path)
+void ScatteringProcess::calc_l(double l2, double z, double y, double phi, gsl_vector_complex* l)
 {
-    for(int basisElemIdx = 0; basisElemIdx < tensorBasis.getLength(); basisElemIdx++)
+    gsl_vector_complex_set(l, 0, gsl_complex_rect(sqrt(1.0 - pow(z, 2)) * sqrt(1.0 - pow(y, 2)) * sin(phi), 0));
+    gsl_vector_complex_set(l, 1, gsl_complex_rect(sqrt(1.0 - pow(z, 2)) * sqrt(1.0 - pow(y, 2)) * cos(phi), 0));
+    gsl_vector_complex_set(l, 2, gsl_complex_rect(sqrt(1.0 - pow(z, 2)) * y, 0));
+    gsl_vector_complex_set(l, 2, gsl_complex_rect(z, 0));
+
+    gsl_vector_complex_scale(l, gsl_complex_rect(sqrt(l2), 0));
+}
+
+gsl_complex ScatteringProcess::integralKernelWrapper(int externalImpulseIdx, int basisElemIdx, double l2, double z, double y, double phi)
+{
+    gsl_vector_complex* l = gsl_vector_complex_alloc(4);
+    calc_l(l2, z, y, phi, l);
+
+    // get basis Element
+    Tensor4<4, 4, 4, 4>* tau_current = tensorBasis.tau(basisElemIdx, externalImpulseIdx);
+
+    // get Tensor
+    Tensor4<4, 4, 4, 4> integralKernelTensor;
+    integralKernel(l,
+                   externalImpulseGrid.get_Q(externalImpulseIdx), externalImpulseGrid.get_K(externalImpulseIdx), externalImpulseGrid.get_P(externalImpulseIdx),
+                   externalImpulseGrid.get_p_f(externalImpulseIdx), externalImpulseGrid.get_p_i(externalImpulseIdx),
+                   externalImpulseGrid.get_k_f(externalImpulseIdx), externalImpulseGrid.get_k_i(externalImpulseIdx),
+                   &integralKernelTensor);
+
+    gsl_vector_complex_free(l);
+
+    return integralKernelTensor.contractTauM(*tau_current);
+}
+
+void ScatteringProcess::store_scattering_amplitude(int basisElemIdx, std::ofstream& data_file)
+{
+    for(int tauIdx = 0; tauIdx < externalImpulseGrid.getLenTau(); tauIdx++)
     {
-        std::ostringstream fnamestrstream;
-        fnamestrstream << data_path << "/tau_" << basisElemIdx << ".txt";
+        double tau = externalImpulseGrid.calcTauAt(tauIdx);
 
-        std::ofstream data_file;
-        data_file.open(fnamestrstream.str(), std::ofstream::out | std::ios::trunc);
-
-        data_file << "tau,z,PK,QQ,h,f,|scattering_amp|2" << std::endl;
-
-
-        for(int tauIdx = 0; tauIdx < externalImpulseGrid.getLenTau(); tauIdx++)
+        for(int zIdx = 0; zIdx < externalImpulseGrid.getLenZ(); zIdx++)
         {
-            double tau = externalImpulseGrid.calcTauAt(tauIdx);
+            double z = externalImpulseGrid.calcZAt(zIdx);
 
-            for(int zIdx = 0; zIdx < externalImpulseGrid.getLenZ(); zIdx++)
-            {
-                double z = externalImpulseGrid.calcZAt(zIdx);
+            int externalImpulseIdx = externalImpulseGrid.getGridIdx(tauIdx, zIdx);
+            gsl_complex PK;
+            gsl_complex QQ;
 
-                int externalImpulseIdx = externalImpulseGrid.getGridIdx(tauIdx, zIdx);
-                gsl_complex PK;
-                gsl_complex QQ;
+            gsl_blas_zdotu(externalImpulseGrid.get_P(externalImpulseIdx), externalImpulseGrid.get_K(externalImpulseIdx), &PK);
+            gsl_blas_zdotu(externalImpulseGrid.get_Q(externalImpulseIdx), externalImpulseGrid.get_Q(externalImpulseIdx), &QQ);
 
-                gsl_blas_zdotu(externalImpulseGrid.get_P(externalImpulseIdx), externalImpulseGrid.get_K(externalImpulseIdx), &PK);
-                gsl_blas_zdotu(externalImpulseGrid.get_Q(externalImpulseIdx), externalImpulseGrid.get_Q(externalImpulseIdx), &QQ);
+            assert(GSL_IMAG(PK) == 0);
+            assert(GSL_IMAG(QQ) == 0);
 
-                assert(GSL_IMAG(PK) == 0);
-                assert(GSL_IMAG(QQ) == 0);
+            gsl_complex h_i = scattering_amplitude_basis_projected[calcScatteringAmpIdx(basisElemIdx, externalImpulseIdx)];
+            gsl_complex f_i = form_factors[calcScatteringAmpIdx(basisElemIdx, externalImpulseIdx)];
 
-                gsl_complex h_i = scattering_amplitude_basis_projected[calcScatteringAmpIdx(basisElemIdx, externalImpulseIdx)];
-                gsl_complex f_i = form_factors[calcScatteringAmpIdx(basisElemIdx, externalImpulseIdx)];
-
-                data_file << tau << "," << z << "," << GSL_REAL(PK) << "," << GSL_REAL(QQ) << ","
-                          << GSL_REAL(h_i) << (GSL_IMAG(h_i) < 0 ? "-" : "+") << abs(GSL_IMAG(h_i)) << "i" << ","
-                          << GSL_REAL(f_i) << (GSL_IMAG(f_i) < 0 ? "-" : "+") << abs(GSL_IMAG(f_i)) << "i" << ","
-                          << calcSquaredNormOfScatteringMatrix(externalImpulseIdx) << std::endl;
-            }
+            data_file << tau << "," << z << "," << GSL_REAL(PK) << "," << GSL_REAL(QQ) << ","
+                      << GSL_REAL(h_i) << (GSL_IMAG(h_i) < 0 ? "-" : "+") << abs(GSL_IMAG(h_i)) << "i" << ","
+                      << GSL_REAL(f_i) << (GSL_IMAG(f_i) < 0 ? "-" : "+") << abs(GSL_IMAG(f_i)) << "i" << ","
+                      << calcSquaredNormOfScatteringMatrix(externalImpulseIdx) << std::endl;
         }
     }
 }
@@ -221,7 +232,7 @@ void ScatteringProcess::calculateFormFactors(int tauIdx, int zIdx, gsl_complex M
     gsl_vector_complex_free(h);
 }
 
-void ScatteringProcess::buildScatteringMatrix(gsl_complex M_nucleon)
+void ScatteringProcess::buildScatteringMatrix()
 {
     gsl_vector_complex* f = gsl_vector_complex_alloc(8);
 
@@ -232,7 +243,7 @@ void ScatteringProcess::buildScatteringMatrix(gsl_complex M_nucleon)
             int externalImpulseIdx = externalImpulseGrid.getGridIdx(tauIdx, zIdx);
 
             // find f
-            calculateFormFactors(tauIdx, zIdx, M_nucleon, f);
+            calculateFormFactors(tauIdx, zIdx, nucleon_mass, f);
 
             // loop over tensor basis
             for (int basisElemIdx = 0; basisElemIdx < 8; basisElemIdx++)
@@ -244,4 +255,15 @@ void ScatteringProcess::buildScatteringMatrix(gsl_complex M_nucleon)
             }
         }
     }
+}
+
+void ScatteringProcess::performScatteringCalculation(double l2_cutoff)
+{
+    integrate(l2_cutoff);
+    buildScatteringMatrix();
+}
+
+TensorBasis* ScatteringProcess::getTensorBasis()
+{
+    return &tensorBasis;
 }

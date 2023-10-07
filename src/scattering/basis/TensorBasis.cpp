@@ -203,7 +203,7 @@ TensorBasis::~TensorBasis()
     delete []tauGrid;
 }
 
-int TensorBasis::getLength() const
+int TensorBasis::getTensorBasisElementCount() const
 {
     return 8;
 }

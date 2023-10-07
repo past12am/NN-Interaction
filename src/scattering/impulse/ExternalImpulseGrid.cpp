@@ -9,11 +9,9 @@
 #include "gsl/gsl_complex_math.h"
 #include "gsl/gsl_math.h"
 
-ExternalImpulseGrid::ExternalImpulseGrid(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex M_nucleon) : lenTau(lenTau), lenZ(lenZ), tauCutoffLower(tauCutoffLower), tauCutoffUpper(tauCutoffUpper), zCutoffLower(zCutoffLower), zCutoffUpper(zCutoffUpper)
+ExternalImpulseGrid::ExternalImpulseGrid(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex M_nucleon) :
+    ZTauGrid(lenTau, lenZ, tauCutoffLower, tauCutoffUpper, zCutoffLower, zCutoffUpper)
 {
-    tau = new double[lenTau];
-    z = new double[lenZ];
-
     int len = getLength();
 
     Q = new gsl_vector_complex*[len];
@@ -27,12 +25,8 @@ ExternalImpulseGrid::ExternalImpulseGrid(int lenTau, int lenZ, double tauCutoffL
 
     for(int tauIdx = 0; tauIdx < lenTau; tauIdx++)
     {
-        tau[tauIdx] = calcTauAt(tauIdx);
-
         for(int zIdx = 0; zIdx < lenZ; zIdx++)
         {
-            z[zIdx] = calcZAt(zIdx);
-
             int i = getGridIdx(tauIdx, zIdx);
 
             Q[i] = gsl_vector_complex_alloc(4);
@@ -142,9 +136,6 @@ ExternalImpulseGrid::~ExternalImpulseGrid()
     delete []p_f;
     delete []k_i;
     delete []k_f;
-
-    delete []tau;
-    delete []z;
 }
 
 gsl_vector_complex* ExternalImpulseGrid::get_Q(int idx)
@@ -182,33 +173,4 @@ gsl_vector_complex* ExternalImpulseGrid::get_k_f(int idx)
     return k_f[idx];
 }
 
-int ExternalImpulseGrid::getGridIdx(int tauIdx, int zIdx)
-{
-    return tauIdx * lenZ + zIdx;
-}
-
-int ExternalImpulseGrid::getLength() const
-{
-    return lenTau * lenZ;
-}
-
-double ExternalImpulseGrid::calcZAt(int zIdx)
-{
-    return zCutoffLower + (zCutoffUpper - zCutoffLower) * ((double) zIdx)/((double) (lenZ - 1));
-}
-
-double ExternalImpulseGrid::calcTauAt(int tauIdx)
-{
-    return tauCutoffLower + (tauCutoffUpper - tauCutoffLower) * ((double) tauIdx)/((double) (lenTau - 1));
-}
-
-int ExternalImpulseGrid::getLenTau() const
-{
-    return lenTau;
-}
-
-int ExternalImpulseGrid::getLenZ() const
-{
-    return lenZ;
-}
 

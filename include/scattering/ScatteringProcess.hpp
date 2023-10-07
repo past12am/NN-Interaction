@@ -17,8 +17,12 @@ class ScatteringProcess
         gsl_matrix_complex* inverseKMatrix;
 
     protected:
+        int threadIdx;
+
+        gsl_complex nucleon_mass;
+
         gsl_complex* scattering_amplitude_basis_projected;  // h_i
-        gsl_complex* form_factors;                          // f_i  // TODO
+        gsl_complex* form_factors;                          // f_i
 
         Tensor4<4, 4, 4, 4>* scattering_matrix;
 
@@ -28,25 +32,37 @@ class ScatteringProcess
         void calc_l(double l2, double z, double y, double phi, gsl_vector_complex* l);
 
     public:
+        ScatteringProcess(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, int threadIdx);
+        virtual ~ScatteringProcess();
+
+
+        TensorBasis* getTensorBasis();
+
+        void store_scattering_amplitude(int basisElemIdx, std::ofstream& data_file);
+
+        void performScatteringCalculation(double l2_cutoff);
+
+        void buildScatteringMatrix();
+
+        int calcScatteringAmpIdx(int basisElemIdx, int externalImpulseIdx);
+
+        gsl_matrix_complex* getInverseK(double tau, double z, gsl_complex M);
+
+        void build_h_vector(int externalImpulseIdx, gsl_vector_complex* h);
+
+        void calculateFormFactors(int tauIdx, int zIdx, gsl_complex M, gsl_vector_complex* f);
+
+        double calcSquaredNormOfScatteringMatrix(int externalImpulseIdx);
+
+        gsl_complex integralKernelWrapper(int externalImpulseIdx, int basisElemIdx, double l2, double z, double y, double phi);
+
+
         virtual void integralKernel(gsl_vector_complex* l, gsl_vector_complex* Q, gsl_vector_complex* K, gsl_vector_complex* P,
                                     gsl_vector_complex* p_f, gsl_vector_complex* p_i,
                                     gsl_vector_complex* k_f, gsl_vector_complex* k_i,
                                     Tensor4<4, 4, 4, 4>* integralKernelTensor) = 0;
 
-        void store_scattering_amplitude(std::string data_path);
-
-        ScatteringProcess(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex M_nucleon);
-        virtual ~ScatteringProcess();
-
-        void buildScatteringMatrix(gsl_complex M_nucleon);
-
-        int calcScatteringAmpIdx(int basisElemIdx, int externalImpulseIdx);
-
-        gsl_matrix_complex* getInverseK(double tau, double z, gsl_complex M);
-        void build_h_vector(int externalImpulseIdx, gsl_vector_complex* h);
-
-        void calculateFormFactors(int tauIdx, int zIdx, gsl_complex M, gsl_vector_complex* f);
-        double calcSquaredNormOfScatteringMatrix(int externalImpulseIdx);
+        virtual void integrate(double l2_cutoff) = 0;
 };
 
 #endif //NNINTERACTION_SCATTERINGPROCESS_HPP

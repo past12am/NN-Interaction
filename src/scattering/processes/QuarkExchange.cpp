@@ -13,15 +13,11 @@
 
 #include <iostream>
 
-// Static Definitions
-gsl_vector_complex* QuarkExchange::tmp1 = gsl_vector_complex_alloc(4);
-std::mutex QuarkExchange::tmp1_mutex = std::mutex();
-
-
 
 QuarkExchange::QuarkExchange(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex M_nucleon,
-                             int l2Points, int zPoints, int yPoints, int phiPoints, gsl_complex quarkPropRenormPoint) :
-                                        ScatteringProcess(lenTau, lenZ, tauCutoffLower, tauCutoffUpper, zCutoffLower, zCutoffUpper, M_nucleon),
+                             int l2Points, int zPoints, int yPoints, int phiPoints, gsl_complex quarkPropRenormPoint, double eta, int threadIdx) :
+                                        eta(eta),
+                                        ScatteringProcess(lenTau, lenZ, tauCutoffLower, tauCutoffUpper, zCutoffLower, zCutoffUpper, M_nucleon, threadIdx),
                                         momentumLoop(l2Points, zPoints, yPoints, phiPoints)
 {
     tmp1 = gsl_vector_complex_alloc(4);
@@ -103,13 +99,13 @@ void QuarkExchange::integrate(double l2_cutoff)
 {
     int num_progress_char = 100;
     int progress = 0;
-    int total = tensorBasis.getLength() * externalImpulseGrid.getLength();
+    int total = tensorBasis.getTensorBasisElementCount() * externalImpulseGrid.getLength();
 
     double avg_time = 0;
     clock_t clock_at_start = clock();
     clock_t clock_at_end = clock();
 
-    for(int basisElemIdx = 0; basisElemIdx < tensorBasis.getLength(); basisElemIdx++)
+    for(int basisElemIdx = 0; basisElemIdx < tensorBasis.getTensorBasisElementCount(); basisElemIdx++)
     {
         // Integrate each Scattering Matrix element for each choice of external Impulse
         for (int externalImpulseIdx = 0; externalImpulseIdx < externalImpulseGrid.getLength(); externalImpulseIdx++)
@@ -117,42 +113,21 @@ void QuarkExchange::integrate(double l2_cutoff)
             progress = basisElemIdx * externalImpulseGrid.getLength() + externalImpulseIdx;
             avg_time = (clock_at_end - clock_at_start)/(progress + 1);
 
-            std::cout << "\r" << "Basis Element [" << std::string(((double) progress/total) * num_progress_char, '#') << std::string((1.0 - (double) progress/total) * num_progress_char, '-').c_str() << "]    --> "
+            std::cout << "Thread " << threadIdx << "-->   Basis Element [" << std::string(((double) progress/total) * num_progress_char, '#') << std::string((1.0 - (double) progress/total) * num_progress_char, '-').c_str() << "]    --> "
                 << ((clock_at_end - clock_at_start)/CLOCKS_PER_SEC)/60 << " of " << ((avg_time * total)/CLOCKS_PER_SEC)/60 << "\t" << std::flush;
 
-            // TODO fix integration bounds
             std::function<gsl_complex(double, double, double, double)> scatteringMatrixIntegrand = [=, this](double l2, double z, double y, double phi) -> gsl_complex {
                 return integralKernelWrapper(externalImpulseIdx, basisElemIdx, l2, z, y, phi);
             };
 
-            gsl_complex res = momentumLoop.l2Integral(scatteringMatrixIntegrand, 0, l2_cutoff);    // TODO set integration bounds
+            gsl_complex res = momentumLoop.l2Integral(scatteringMatrixIntegrand, 0, l2_cutoff);
             scattering_amplitude_basis_projected[calcScatteringAmpIdx(basisElemIdx, externalImpulseIdx)] = res;
+
             std::cout << "tau[" << basisElemIdx << "], basisIdx=" << externalImpulseIdx << ": " << GSL_REAL(res) << " + i " << GSL_IMAG(res) << std::endl;
 
             clock_at_end = clock();
         }
     }
-}
-
-gsl_complex QuarkExchange::integralKernelWrapper(int externalImpulseIdx, int basisElemIdx, double l2, double z, double y, double phi)
-{
-    gsl_vector_complex* l = gsl_vector_complex_alloc(4);
-    calc_l(l2, z, y, phi, l);
-
-    // get basis Element
-    Tensor4<4, 4, 4, 4>* tau_current = tensorBasis.tau(basisElemIdx, externalImpulseIdx);
-
-    // get Tensor
-    Tensor4<4, 4, 4, 4> integralKernelTensor;
-    integralKernel(l,
-                   externalImpulseGrid.get_Q(externalImpulseIdx), externalImpulseGrid.get_K(externalImpulseIdx), externalImpulseGrid.get_P(externalImpulseIdx),
-                   externalImpulseGrid.get_p_f(externalImpulseIdx), externalImpulseGrid.get_p_i(externalImpulseIdx),
-                   externalImpulseGrid.get_k_f(externalImpulseIdx), externalImpulseGrid.get_k_i(externalImpulseIdx),
-                   &integralKernelTensor);
-
-    gsl_vector_complex_free(l);
-
-    return integralKernelTensor.contractTauM(*tau_current);
 }
 
 // Note on notation: p_rp == p_r^' (p_r^prime)
@@ -165,9 +140,6 @@ void QuarkExchange::integralKernel(gsl_vector_complex* l, gsl_vector_complex* Q,
     calc_p_q(l, Q, p_q);
     calc_k_d(l, K, k_d);
     calc_p_d(l, P, p_d);
-
-    // TODO
-    double eta = 0.1;
 
     calc_k_r(l, K, Q, eta, k_r);
     calc_k_rp(l, K, Q, eta, k_rp);
@@ -277,7 +249,7 @@ void QuarkExchange::calc_p_d(gsl_vector_complex* l, gsl_vector_complex* P, gsl_v
 
 void QuarkExchange::calc_k_r(gsl_vector_complex* l, gsl_vector_complex* K, gsl_vector_complex* Q, double eta, gsl_vector_complex* k_r)
 {
-    tmp1_mutex.lock();
+    //tmp1_mutex.lock();
 
     gsl_vector_complex_memcpy(tmp1, K);
     gsl_vector_complex_scale(tmp1, gsl_complex_rect(-eta, 0));
@@ -288,12 +260,12 @@ void QuarkExchange::calc_k_r(gsl_vector_complex* l, gsl_vector_complex* K, gsl_v
     gsl_vector_complex_add(k_r, tmp1);
     gsl_vector_complex_add(k_r, l);
 
-    tmp1_mutex.unlock();
+    //tmp1_mutex.unlock();
 }
 
 void QuarkExchange::calc_k_rp(gsl_vector_complex* l, gsl_vector_complex* K, gsl_vector_complex* Q, double eta, gsl_vector_complex* k_rp)
 {
-    tmp1_mutex.lock();
+    //tmp1_mutex.lock();
 
     gsl_vector_complex_memcpy(tmp1, K);
     gsl_vector_complex_scale(tmp1, gsl_complex_rect(-eta, 0));
@@ -304,12 +276,12 @@ void QuarkExchange::calc_k_rp(gsl_vector_complex* l, gsl_vector_complex* K, gsl_
     gsl_vector_complex_add(k_rp, tmp1);
     gsl_vector_complex_add(k_rp, l);
 
-    tmp1_mutex.unlock();
+    //tmp1_mutex.unlock();
 }
 
 void QuarkExchange::calc_p_r(gsl_vector_complex* l, gsl_vector_complex* P, gsl_vector_complex* Q, double eta, gsl_vector_complex* p_r)
 {
-    tmp1_mutex.lock();
+    //tmp1_mutex.lock();
 
     gsl_vector_complex_memcpy(tmp1, P);
     gsl_vector_complex_scale(tmp1, gsl_complex_rect(-eta, 0));
@@ -320,12 +292,12 @@ void QuarkExchange::calc_p_r(gsl_vector_complex* l, gsl_vector_complex* P, gsl_v
     gsl_vector_complex_add(p_r, tmp1);
     gsl_vector_complex_add(p_r, l);
 
-    tmp1_mutex.unlock();
+    //tmp1_mutex.unlock();
 }
 
 void QuarkExchange::calc_p_rp(gsl_vector_complex* l, gsl_vector_complex* P, gsl_vector_complex* Q, double eta, gsl_vector_complex* p_rp)
 {
-    tmp1_mutex.lock();
+    //tmp1_mutex.lock();
 
     gsl_vector_complex_memcpy(tmp1, P);
     gsl_vector_complex_scale(tmp1, gsl_complex_rect(-eta, 0));
@@ -336,5 +308,5 @@ void QuarkExchange::calc_p_rp(gsl_vector_complex* l, gsl_vector_complex* P, gsl_
     gsl_vector_complex_add(p_rp, tmp1);
     gsl_vector_complex_add(p_rp, l);
 
-    tmp1_mutex.unlock();
+    //tmp1_mutex.unlock();
 }
