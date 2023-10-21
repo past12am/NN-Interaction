@@ -105,6 +105,8 @@ void QuarkExchange::integrate(double l2_cutoff)
     clock_t clock_at_start = clock();
     clock_t clock_at_end = clock();
 
+    std::cout << "Thread " << threadIdx << " calculates " << tensorBasis.getTensorBasisElementCount() * externalImpulseGrid.getLength() << " grid points" << std::endl;
+
     for(int basisElemIdx = 0; basisElemIdx < tensorBasis.getTensorBasisElementCount(); basisElemIdx++)
     {
         // Integrate each Scattering Matrix element for each choice of external Impulse
@@ -117,10 +119,12 @@ void QuarkExchange::integrate(double l2_cutoff)
                 << ((clock_at_end - clock_at_start)/CLOCKS_PER_SEC)/60 << " of " << ((avg_time * total)/CLOCKS_PER_SEC)/60 << "\t" << std::flush;
 
             std::function<gsl_complex(double, double, double, double)> scatteringMatrixIntegrand = [=, this](double l2, double z, double y, double phi) -> gsl_complex {
-                return integralKernelWrapper(externalImpulseIdx, basisElemIdx, l2, z, y, phi);
+                return integralKernelWrapper(externalImpulseIdx, basisElemIdx, threadIdx, l2, z, y, phi);
             };
 
             gsl_complex res = momentumLoop.l2Integral(scatteringMatrixIntegrand, 0, l2_cutoff);
+            res = gsl_complex_mul_real(res, 1.0/pow(2.0 * std::numbers::pi, 4) * 0.5);
+
             scattering_amplitude_basis_projected[calcScatteringAmpIdx(basisElemIdx, externalImpulseIdx)] = res;
 
             std::cout << "tau[" << basisElemIdx << "], basisIdx=" << externalImpulseIdx << ": " << GSL_REAL(res) << " + i " << GSL_IMAG(res) << std::endl;
@@ -149,7 +153,7 @@ void QuarkExchange::integralKernel(gsl_vector_complex* l, gsl_vector_complex* Q,
 
     // matrix_Conj_Phi_pf = ChargeConj(Phi(p_r', p_f))
     Phi_pf->Phi(p_rp, p_f, matrix_Conj_Phi_pf);
-    ChargeConjugation::chargeConj(matrix_Conj_Phi_pf);
+    ChargeConjugation::chargeConj(matrix_Conj_Phi_pf, threadIdx);
 
     // matrix_S_k = S(k_q)
     S_k->S(k_q,  matrix_S_k);
@@ -172,7 +176,7 @@ void QuarkExchange::integralKernel(gsl_vector_complex* l, gsl_vector_complex* Q,
 
     // matrix_Conj_Phi_kf = ChargeConj(Phi(k_r', k_f))
     Phi_pf->Phi(k_rp, k_f, matrix_Conj_Phi_kf);
-    ChargeConjugation::chargeConj(matrix_Conj_Phi_kf);
+    ChargeConjugation::chargeConj(matrix_Conj_Phi_kf, threadIdx);
 
     // matrix_S_p = S(p_q)
     S_k->S(p_q,  matrix_S_p);

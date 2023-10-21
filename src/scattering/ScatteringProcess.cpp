@@ -7,6 +7,7 @@
 #include <cassert>
 #include <iostream>
 #include "../../include/scattering/ScatteringProcess.hpp"
+#include "../../include/Definitions.h"
 
 
 ScatteringProcess::ScatteringProcess(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, int threadIdx) :
@@ -25,10 +26,14 @@ ScatteringProcess::ScatteringProcess(int lenTau, int lenZ, double tauCutoffLower
     {
         scattering_matrix[i] = Tensor4<4, 4, 4, 4>();
     }
+
+    l = gsl_vector_complex_alloc(4);
 }
 
 ScatteringProcess::~ScatteringProcess()
 {
+    gsl_vector_complex_free(l);
+
     delete[] scattering_matrix;
 
     gsl_matrix_complex_free(inverseKMatrix);
@@ -47,9 +52,17 @@ void ScatteringProcess::calc_l(double l2, double z, double y, double phi, gsl_ve
     gsl_vector_complex_scale(l, gsl_complex_rect(sqrt(l2), 0));
 }
 
-gsl_complex ScatteringProcess::integralKernelWrapper(int externalImpulseIdx, int basisElemIdx, double l2, double z, double y, double phi)
+gsl_complex ScatteringProcess::integralKernelWrapper(int externalImpulseIdx, int basisElemIdx, int threadIdx, double l2, double z, double y, double phi)
 {
-    gsl_vector_complex* l = gsl_vector_complex_alloc(4);
+    //gsl_vector_complex* l = gsl_vector_complex_alloc(4);
+    if(!l_mutex.try_lock())
+    {
+        std::cout << "Probable race condition on temporary l impulse" << std::endl;
+        exit(-1);
+    }
+
+    gsl_vector_complex_set_zero(l);
+
     calc_l(l2, z, y, phi, l);
 
     // get basis Element
@@ -63,7 +76,7 @@ gsl_complex ScatteringProcess::integralKernelWrapper(int externalImpulseIdx, int
                    externalImpulseGrid.get_k_f(externalImpulseIdx), externalImpulseGrid.get_k_i(externalImpulseIdx),
                    &integralKernelTensor);
 
-    gsl_vector_complex_free(l);
+    l_mutex.unlock();
 
     return integralKernelTensor.contractTauM(*tau_current);
 }

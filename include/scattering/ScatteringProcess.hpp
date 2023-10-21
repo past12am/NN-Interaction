@@ -7,6 +7,7 @@
 
 #include <complex>
 #include <gsl/gsl_vector.h>
+#include <mutex>
 #include "impulse/ExternalImpulseGrid.hpp"
 #include "basis/TensorBasis.hpp"
 #include "../numerics/Integratable.hpp"
@@ -14,6 +15,9 @@
 class ScatteringProcess
 {
     private:
+        gsl_vector_complex* l;
+        std::mutex l_mutex;
+
         gsl_matrix_complex* inverseKMatrix;
 
     protected:
@@ -54,7 +58,7 @@ class ScatteringProcess
 
         double calcSquaredNormOfScatteringMatrix(int externalImpulseIdx);
 
-        gsl_complex integralKernelWrapper(int externalImpulseIdx, int basisElemIdx, double l2, double z, double y, double phi);
+        gsl_complex integralKernelWrapper(int externalImpulseIdx, int basisElemIdx, int threadIdx, double l2, double z, double y, double phi);
 
 
         virtual void integralKernel(gsl_vector_complex* l, gsl_vector_complex* Q, gsl_vector_complex* K, gsl_vector_complex* P,

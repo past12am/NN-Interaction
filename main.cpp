@@ -1,4 +1,5 @@
 #include <iostream>
+#include "include/Definitions.h"
 #include "include/scattering/basis/TensorBasis.hpp"
 #include "include/scattering/impulse/ExternalImpulseGrid.hpp"
 #include "include/scattering/ScatteringProcess.hpp"
@@ -15,7 +16,7 @@ int main(int argc, char *argv[])
     double m_d = 0.8; // GeV (scalar diquark)
     gsl_complex M_nucleon = gsl_complex_rect(0, 0.94); // GeV
 
-    double eta = 0.1;
+    double eta = 0.25;
 
     double impulse_ir_cutoff = 1E-2;
     double impulse_uv_cutoff = 3E3;
@@ -37,10 +38,15 @@ int main(int argc, char *argv[])
     scattering.store_scattering_amplitude(argv[1]);
      */
 
-    int numThreads = 8;
-    int lenTau = 16;
-    int lenZ = 20;
-    ScatteringProcessHandler<QuarkExchange> scatteringProcessHandler(numThreads, lenTau, lenZ, 200, 40, 15, 15,
+    if(argc < 2)
+    {
+        std::cout << "Need to specify output path" << std::endl;
+    }
+
+    int numThreads = NUM_THREADS;
+    int lenTau = 15;
+    int lenZ = 30;
+    ScatteringProcessHandler<QuarkExchange> scatteringProcessHandler(numThreads, lenTau, lenZ, 220, 40, 5, 5,
                                                                      eta, tau_lower, tau_upper,
                                                                      z_lower, z_upper, M_nucleon);
     scatteringProcessHandler.calculateScattering(1E3);
