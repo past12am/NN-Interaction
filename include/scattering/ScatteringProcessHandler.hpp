@@ -17,6 +17,7 @@ class ScatteringProcessHandler
 
         int lenTau;
         int lenZ;
+        int lenA;
 
         int l2Points;
         int zPoints;
@@ -25,22 +26,24 @@ class ScatteringProcessHandler
 
         double eta;
 
-        double tauCutoffLower;
-        double tauCutoffUpper;
-
-        double zCutoffLower;
-        double zCutoffUpper;
+        double aImagCutoffLower;
+        double aImagCutoffUpper;
 
         gsl_complex nucleon_mass;
+        gsl_complex* a;
 
         std::thread** subgridIntegrationThread;
         ScatteringType** subgridScatteringProcess;
 
+        gsl_complex calcAAt(int aIdx);
+
+        int calcScatteringProcessIdx(int aIdx, int threadIdx);
+
 
     public:
-        ScatteringProcessHandler(int numThreads, int lenTau, int lenZ, int l2Points, int zPoints, int yPoints,
+        ScatteringProcessHandler(int numThreads, int lenTau, int lenZ, int lenA, int l2Points, int zPoints, int yPoints,
                                  int phiPoints, double eta, double tauCutoffLower, double tauCutoffUpper,
-                                 double zCutoffLower, double zCutoffUpper, gsl_complex nucleonMass);
+                                 double zCutoffLower, double zCutoffUpper, double aImagCutoffLower, double aImagCutoffUpper, gsl_complex nucleonMass);
 
         virtual ~ScatteringProcessHandler();
 

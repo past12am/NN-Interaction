@@ -29,7 +29,6 @@ add_executable(NNInteraction main.cpp
         include/utils/tensor/Tensor4.hpp
         include/utils/math/Commutator.hpp
         include/numerics/Integration.hpp
-        include/scattering/NNInteraction.hpp
         include/scattering/impulse/ExternalImpulseGrid.hpp
         include/scattering/MomentumLoop.hpp
         include/numerics/Integratable.hpp
@@ -52,7 +51,6 @@ add_executable(NNInteraction main.cpp
         src/utils/tensor/Tensor4.cpp
         src/utils/math/Commutator.cpp
         src/numerics/Integration.cpp
-        src/scattering/NNInteraction.cpp
         src/scattering/impulse/ExternalImpulseGrid.cpp
         src/scattering/ScatteringProcess.cpp
         src/scattering/MomentumLoop.cpp

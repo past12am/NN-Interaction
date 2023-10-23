@@ -3,6 +3,7 @@
 //
 
 #include <cassert>
+#include <gsl/gsl_complex_math.h>
 #include "../../../include/scattering/impulse/ZTauGrid.hpp"
 
 

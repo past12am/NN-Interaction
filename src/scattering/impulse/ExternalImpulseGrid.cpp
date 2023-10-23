@@ -9,7 +9,7 @@
 #include "gsl/gsl_complex_math.h"
 #include "gsl/gsl_math.h"
 
-ExternalImpulseGrid::ExternalImpulseGrid(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex M_nucleon) :
+ExternalImpulseGrid::ExternalImpulseGrid(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex M_nucleon, gsl_complex a) :
     ZTauGrid(lenTau, lenZ, tauCutoffLower, tauCutoffUpper, zCutoffLower, zCutoffUpper)
 {
     int len = getLength();
@@ -33,8 +33,8 @@ ExternalImpulseGrid::ExternalImpulseGrid(int lenTau, int lenZ, double tauCutoffL
             P[i] = gsl_vector_complex_alloc(4);
             K[i] = gsl_vector_complex_alloc(4);
             calc_Q(Q[i], tau[tauIdx], M_nucleon);
-            calc_P(P[i], tau[tauIdx], M_nucleon);
-            calc_K(K[i], tau[tauIdx], z[zIdx], M_nucleon);
+            calc_P(P[i], tau[tauIdx], M_nucleon, a);
+            calc_K(K[i], tau[tauIdx], z[zIdx], M_nucleon, a);
 
             p_i[i] = gsl_vector_complex_alloc(4);
             p_f[i] = gsl_vector_complex_alloc(4);
@@ -87,9 +87,11 @@ void ExternalImpulseGrid::calc_Q(gsl_vector_complex* Q, double tau, gsl_complex 
     gsl_complex pref = gsl_complex_mul_real(M_nucleon, 2.0 * sqrt(tau));
 
     gsl_vector_complex_scale(Q, pref);
+
+    assert(GSL_IMAG(pref) == 0);
 }
 
-void ExternalImpulseGrid::calc_P(gsl_vector_complex* P, double tau, gsl_complex M_nucleon)
+void ExternalImpulseGrid::calc_P(gsl_vector_complex* P, double tau, gsl_complex M_nucleon, gsl_complex a)
 {
     assert((1.0 + tau) > 0);
 
@@ -97,11 +99,14 @@ void ExternalImpulseGrid::calc_P(gsl_vector_complex* P, double tau, gsl_complex 
     gsl_vector_complex_set(P, 2, gsl_complex_rect(1, 0));
 
     gsl_complex pref = gsl_complex_mul_real(gsl_complex_mul_imag(M_nucleon, 1), sqrt(1 + tau));
+    pref = gsl_complex_mul(pref, a);
 
     gsl_vector_complex_scale(P, pref);
+
+    assert(GSL_IMAG(pref) == 0);
 }
 
-void ExternalImpulseGrid::calc_K(gsl_vector_complex* K, double tau, double z, gsl_complex M_nucleon)
+void ExternalImpulseGrid::calc_K(gsl_vector_complex* K, double tau, double z, gsl_complex M_nucleon, gsl_complex a)
 {
     assert((1.0 + tau) > 0);
 
@@ -110,8 +115,11 @@ void ExternalImpulseGrid::calc_K(gsl_vector_complex* K, double tau, double z, gs
     gsl_vector_complex_set(K, 2, gsl_complex_rect(z, 0));
 
     gsl_complex pref = gsl_complex_mul_real(gsl_complex_mul_imag(M_nucleon, 1), sqrt(1 + tau));
+    pref = gsl_complex_mul(pref, a);
 
     gsl_vector_complex_scale(K, pref);
+
+    assert(GSL_IMAG(pref) == 0);
 }
 
 ExternalImpulseGrid::~ExternalImpulseGrid()

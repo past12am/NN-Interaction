@@ -14,10 +14,10 @@
 #include <iostream>
 
 
-QuarkExchange::QuarkExchange(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex M_nucleon,
+QuarkExchange::QuarkExchange(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, gsl_complex a,
                              int l2Points, int zPoints, int yPoints, int phiPoints, gsl_complex quarkPropRenormPoint, double eta, int threadIdx) :
                                         eta(eta),
-                                        ScatteringProcess(lenTau, lenZ, tauCutoffLower, tauCutoffUpper, zCutoffLower, zCutoffUpper, M_nucleon, threadIdx),
+                                        ScatteringProcess(lenTau, lenZ, tauCutoffLower, tauCutoffUpper, zCutoffLower, zCutoffUpper, nucleon_mass, a, threadIdx),
                                         momentumLoop(l2Points, zPoints, yPoints, phiPoints)
 {
     tmp1 = gsl_vector_complex_alloc(4);
@@ -124,6 +124,8 @@ void QuarkExchange::integrate(double l2_cutoff)
 
             gsl_complex res = momentumLoop.l2Integral(scatteringMatrixIntegrand, 0, l2_cutoff);
             res = gsl_complex_mul_real(res, 1.0/pow(2.0 * std::numbers::pi, 4) * 0.5);
+
+            //assert(GSL_IMAG(res) == 0);
 
             scattering_amplitude_basis_projected[calcScatteringAmpIdx(basisElemIdx, externalImpulseIdx)] = res;
 

@@ -13,7 +13,6 @@
 class MomentumLoop
 {
     private:
-        // TODO fix used integration routines
         GaussLegendre gaussLegendreIntegrator_l2;
         GaussLegendre gaussLegendreIntegrator_y;
         GaussLegendre gaussLegendreIntegrator_phi;

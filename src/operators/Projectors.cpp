@@ -50,6 +50,7 @@ void Projectors::posEnergyProjector(gsl_vector_complex* P, gsl_matrix_complex* p
     gsl_complex valPSquared;
     gsl_blas_zdotc(P, P, &valPSquared);
     gsl_complex valP = gsl_complex_sqrt(valPSquared);
+    assert(GSL_IMAG(valP) == 0);
 
     // posEnergyProj = slash(P)
     DiracStructuresHelper::diracStructures.slash(P, posEnergyProj);

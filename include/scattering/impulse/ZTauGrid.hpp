@@ -6,6 +6,8 @@
 #define NNINTERACTION_ZTAUGRID_HPP
 
 
+#include <gsl/gsl_complex.h>
+
 class ZTauGrid
 {
     protected:
@@ -23,8 +25,7 @@ class ZTauGrid
 
 
     public:
-        ZTauGrid(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower,
-                 double zCutoffUpper);
+        ZTauGrid(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper);
 
         virtual ~ZTauGrid();
 

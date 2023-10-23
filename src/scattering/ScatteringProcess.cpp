@@ -10,9 +10,9 @@
 #include "../../include/Definitions.h"
 
 
-ScatteringProcess::ScatteringProcess(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, int threadIdx) :
+ScatteringProcess::ScatteringProcess(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, gsl_complex a, int threadIdx) :
         nucleon_mass(nucleon_mass), threadIdx(threadIdx),
-        externalImpulseGrid(lenTau, lenZ, tauCutoffLower, tauCutoffUpper, zCutoffLower, zCutoffUpper, nucleon_mass),
+        externalImpulseGrid(lenTau, lenZ, tauCutoffLower, tauCutoffUpper, zCutoffLower, zCutoffUpper, nucleon_mass, a),
         tensorBasis(&externalImpulseGrid)
 {
     scattering_amplitude_basis_projected = new gsl_complex[tensorBasis.getTensorBasisElementCount() * externalImpulseGrid.getLength()];
@@ -81,7 +81,7 @@ gsl_complex ScatteringProcess::integralKernelWrapper(int externalImpulseIdx, int
     return integralKernelTensor.contractTauM(*tau_current);
 }
 
-void ScatteringProcess::store_scattering_amplitude(int basisElemIdx, std::ofstream& data_file)
+void ScatteringProcess::store_scattering_amplitude(int basisElemIdx, gsl_complex a, std::ofstream& data_file)
 {
     for(int tauIdx = 0; tauIdx < externalImpulseGrid.getLenTau(); tauIdx++)
     {
@@ -104,7 +104,7 @@ void ScatteringProcess::store_scattering_amplitude(int basisElemIdx, std::ofstre
             gsl_complex h_i = scattering_amplitude_basis_projected[calcScatteringAmpIdx(basisElemIdx, externalImpulseIdx)];
             gsl_complex f_i = form_factors[calcScatteringAmpIdx(basisElemIdx, externalImpulseIdx)];
 
-            data_file << tau << "," << z << "," << GSL_REAL(PK) << "," << GSL_REAL(QQ) << ","
+            data_file << GSL_REAL(a) << (GSL_IMAG(a) < 0 ? "-" : "+") << abs(GSL_IMAG(a)) << "i" << "," << tau << "," << z << "," << GSL_REAL(PK) << "," << GSL_REAL(QQ) << ","
                       << GSL_REAL(h_i) << (GSL_IMAG(h_i) < 0 ? "-" : "+") << abs(GSL_IMAG(h_i)) << "i" << ","
                       << GSL_REAL(f_i) << (GSL_IMAG(f_i) < 0 ? "-" : "+") << abs(GSL_IMAG(f_i)) << "i" << ","
                       << calcSquaredNormOfScatteringMatrix(externalImpulseIdx) << std::endl;
@@ -261,6 +261,7 @@ void ScatteringProcess::buildScatteringMatrix()
             // loop over tensor basis
             for (int basisElemIdx = 0; basisElemIdx < 8; basisElemIdx++)
             {
+                //assert(GSL_IMAG(gsl_vector_complex_get(f, basisElemIdx)) == 0);
                 form_factors[calcScatteringAmpIdx(basisElemIdx, externalImpulseIdx)] = gsl_vector_complex_get(f, basisElemIdx);
                 scattering_matrix[externalImpulseIdx] += (*tensorBasis.tau(basisElemIdx, externalImpulseIdx)) * gsl_vector_complex_get(f, basisElemIdx);
 

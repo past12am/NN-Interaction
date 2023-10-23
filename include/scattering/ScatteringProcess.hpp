@@ -36,13 +36,13 @@ class ScatteringProcess
         void calc_l(double l2, double z, double y, double phi, gsl_vector_complex* l);
 
     public:
-        ScatteringProcess(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, int threadIdx);
+        ScatteringProcess(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, gsl_complex a, int threadIdx);
         virtual ~ScatteringProcess();
 
 
         TensorBasis* getTensorBasis();
 
-        void store_scattering_amplitude(int basisElemIdx, std::ofstream& data_file);
+        void store_scattering_amplitude(int basisElemIdx, gsl_complex a, std::ofstream& data_file);
 
         void performScatteringCalculation(double l2_cutoff);
 
