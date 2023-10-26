@@ -7,11 +7,17 @@
 
 #include <complex>
 #include <gsl/gsl_vector.h>
-#include "ZTauGrid.hpp"
+#include "ZXGrid.hpp"
 
-class ExternalImpulseGrid : public ZTauGrid
+class ExternalImpulseGrid : public ZXGrid
 {
     private:
+        gsl_complex nucleon_mass;
+
+        gsl_vector_complex** q_ext;
+        gsl_vector_complex** p_ext;
+        gsl_vector_complex** k_ext;
+
         gsl_vector_complex** Q;
         gsl_vector_complex** P;
         gsl_vector_complex** K;
@@ -21,17 +27,21 @@ class ExternalImpulseGrid : public ZTauGrid
         gsl_vector_complex** k_i;
         gsl_vector_complex** k_f;
 
-        void calc_Q(gsl_vector_complex* Q, double tau, gsl_complex M_nucleon);
-        void calc_P(gsl_vector_complex* P, double tau, gsl_complex M_nucleon, gsl_complex a);
-        void calc_K(gsl_vector_complex* K, double tau, double z, gsl_complex M_nucleon, gsl_complex a);
+        void calc_k_ext(gsl_vector_complex* k_ext, double X, gsl_complex nucleon_mass, double z);
+        void calc_q_ext(gsl_vector_complex* q_ext, double X, gsl_complex nucleon_mass, double a);
+        void calc_p_ext(gsl_vector_complex* p_ext, double X, gsl_complex nucleon_mass);
 
-        void calc_p_i(const gsl_vector_complex* P, const gsl_vector_complex* Q, gsl_vector_complex* p_i);
-        void calc_p_f(const gsl_vector_complex* P, const gsl_vector_complex* Q, gsl_vector_complex* p_f);
-        void calc_k_i(const gsl_vector_complex* K, const gsl_vector_complex* Q, gsl_vector_complex* k_i);
-        void calc_k_f(const gsl_vector_complex* K, const gsl_vector_complex* Q, gsl_vector_complex* k_f);
+        void calc_Q(gsl_vector_complex* Q, const gsl_vector_complex* k_ext, const gsl_vector_complex* p_ext, const gsl_vector_complex* q_ext);
+        void calc_P(gsl_vector_complex* P, const gsl_vector_complex* k_ext, const gsl_vector_complex* p_ext, const gsl_vector_complex* q_ext);
+        void calc_K(gsl_vector_complex* K, const gsl_vector_complex* k_ext, const gsl_vector_complex* p_ext, const gsl_vector_complex* q_ext);
+
+        void calc_p_i(gsl_vector_complex* p_i, const gsl_vector_complex* k_ext, const gsl_vector_complex* p_ext, const gsl_vector_complex* q_ext);
+        void calc_p_f(gsl_vector_complex* p_f, const gsl_vector_complex* k_ext, const gsl_vector_complex* p_ext, const gsl_vector_complex* q_ext);
+        void calc_k_i(gsl_vector_complex* k_i, const gsl_vector_complex* k_ext, const gsl_vector_complex* p_ext, const gsl_vector_complex* q_ext);
+        void calc_k_f(gsl_vector_complex* k_f, const gsl_vector_complex* k_ext, const gsl_vector_complex* p_ext, const gsl_vector_complex* q_ext);
 
     public:
-        ExternalImpulseGrid(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex M_nucleon, gsl_complex a);
+        ExternalImpulseGrid(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, double a);
         virtual ~ExternalImpulseGrid();
 
         gsl_vector_complex* get_Q(int idx);
@@ -42,6 +52,8 @@ class ExternalImpulseGrid : public ZTauGrid
         gsl_vector_complex* get_p_f(int idx);
         gsl_vector_complex* get_k_i(int idx);
         gsl_vector_complex* get_k_f(int idx);
+
+        double calc_tau(int XIdx, int zIdx);
 };
 
 

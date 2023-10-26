@@ -36,13 +36,13 @@ class ScatteringProcess
         void calc_l(double l2, double z, double y, double phi, gsl_vector_complex* l);
 
     public:
-        ScatteringProcess(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, gsl_complex a, int threadIdx);
+        ScatteringProcess(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, double a, int threadIdx);
         virtual ~ScatteringProcess();
 
 
         TensorBasis* getTensorBasis();
 
-        void store_scattering_amplitude(int basisElemIdx, gsl_complex a, std::ofstream& data_file);
+        void store_scattering_amplitude(int basisElemIdx, double a, std::ofstream& data_file);
 
         void performScatteringCalculation(double l2_cutoff);
 
@@ -54,7 +54,7 @@ class ScatteringProcess
 
         void build_h_vector(int externalImpulseIdx, gsl_vector_complex* h);
 
-        void calculateFormFactors(int tauIdx, int zIdx, gsl_complex M, gsl_vector_complex* f);
+        void calculateFormFactors(int XIdx, int zIdx, gsl_complex M, gsl_vector_complex* f);
 
         double calcSquaredNormOfScatteringMatrix(int externalImpulseIdx);
 

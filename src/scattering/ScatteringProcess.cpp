@@ -10,9 +10,9 @@
 #include "../../include/Definitions.h"
 
 
-ScatteringProcess::ScatteringProcess(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, gsl_complex a, int threadIdx) :
+ScatteringProcess::ScatteringProcess(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, double a, int threadIdx) :
         nucleon_mass(nucleon_mass), threadIdx(threadIdx),
-        externalImpulseGrid(lenTau, lenZ, tauCutoffLower, tauCutoffUpper, zCutoffLower, zCutoffUpper, nucleon_mass, a),
+        externalImpulseGrid(lenX, lenZ, XCutoffLower, XCutoffUpper, zCutoffLower, zCutoffUpper, nucleon_mass, a),
         tensorBasis(&externalImpulseGrid)
 {
     scattering_amplitude_basis_projected = new gsl_complex[tensorBasis.getTensorBasisElementCount() * externalImpulseGrid.getLength()];
@@ -81,17 +81,17 @@ gsl_complex ScatteringProcess::integralKernelWrapper(int externalImpulseIdx, int
     return integralKernelTensor.contractTauM(*tau_current);
 }
 
-void ScatteringProcess::store_scattering_amplitude(int basisElemIdx, gsl_complex a, std::ofstream& data_file)
+void ScatteringProcess::store_scattering_amplitude(int basisElemIdx, double a, std::ofstream& data_file)
 {
-    for(int tauIdx = 0; tauIdx < externalImpulseGrid.getLenTau(); tauIdx++)
+    for(int XIdx = 0; XIdx < externalImpulseGrid.getLenX(); XIdx++)
     {
-        double tau = externalImpulseGrid.calcTauAt(tauIdx);
+        double X = externalImpulseGrid.calcXAt(XIdx);
 
         for(int zIdx = 0; zIdx < externalImpulseGrid.getLenZ(); zIdx++)
         {
             double z = externalImpulseGrid.calcZAt(zIdx);
 
-            int externalImpulseIdx = externalImpulseGrid.getGridIdx(tauIdx, zIdx);
+            int externalImpulseIdx = externalImpulseGrid.getGridIdx(XIdx, zIdx);
             gsl_complex PK;
             gsl_complex QQ;
 
@@ -104,7 +104,7 @@ void ScatteringProcess::store_scattering_amplitude(int basisElemIdx, gsl_complex
             gsl_complex h_i = scattering_amplitude_basis_projected[calcScatteringAmpIdx(basisElemIdx, externalImpulseIdx)];
             gsl_complex f_i = form_factors[calcScatteringAmpIdx(basisElemIdx, externalImpulseIdx)];
 
-            data_file << GSL_REAL(a) << (GSL_IMAG(a) < 0 ? "-" : "+") << abs(GSL_IMAG(a)) << "i" << "," << tau << "," << z << "," << GSL_REAL(PK) << "," << GSL_REAL(QQ) << ","
+            data_file << a << "," << X << "," << z << "," << GSL_REAL(PK) << "," << GSL_REAL(QQ) << ","
                       << GSL_REAL(h_i) << (GSL_IMAG(h_i) < 0 ? "-" : "+") << abs(GSL_IMAG(h_i)) << "i" << ","
                       << GSL_REAL(f_i) << (GSL_IMAG(f_i) < 0 ? "-" : "+") << abs(GSL_IMAG(f_i)) << "i" << ","
                       << calcSquaredNormOfScatteringMatrix(externalImpulseIdx) << std::endl;
@@ -234,12 +234,13 @@ void ScatteringProcess::build_h_vector(int externalImpulseIdx, gsl_vector_comple
     }
 }
 
-void ScatteringProcess::calculateFormFactors(int tauIdx, int zIdx, gsl_complex M, gsl_vector_complex* f)
+void ScatteringProcess::calculateFormFactors(int XIdx, int zIdx, gsl_complex M, gsl_vector_complex* f)
 {
     gsl_vector_complex* h = gsl_vector_complex_alloc(8);
-    build_h_vector(externalImpulseGrid.getGridIdx(tauIdx, zIdx), h);
+    build_h_vector(externalImpulseGrid.getGridIdx(XIdx, zIdx), h);
 
-    gsl_matrix_complex* invK = getInverseK(externalImpulseGrid.calcTauAt(tauIdx), externalImpulseGrid.calcZAt(zIdx), M);
+    // TODO calculate tau for inverse K
+    gsl_matrix_complex* invK = getInverseK(externalImpulseGrid.calc_tau(XIdx, zIdx), externalImpulseGrid.calcZAt(zIdx), M);
 
     gsl_blas_zgemv(CblasNoTrans, GSL_COMPLEX_ONE, invK, h, GSL_COMPLEX_ZERO, f);
     gsl_vector_complex_free(h);
@@ -249,14 +250,14 @@ void ScatteringProcess::buildScatteringMatrix()
 {
     gsl_vector_complex* f = gsl_vector_complex_alloc(8);
 
-    for(int tauIdx = 0; tauIdx < externalImpulseGrid.getLenTau(); tauIdx++)
+    for(int XIdx = 0; XIdx < externalImpulseGrid.getLenX(); XIdx++)
     {
         for (int zIdx = 0; zIdx < externalImpulseGrid.getLenZ(); zIdx++)
         {
-            int externalImpulseIdx = externalImpulseGrid.getGridIdx(tauIdx, zIdx);
+            int externalImpulseIdx = externalImpulseGrid.getGridIdx(XIdx, zIdx);
 
             // find f
-            calculateFormFactors(tauIdx, zIdx, nucleon_mass, f);
+            calculateFormFactors(XIdx, zIdx, nucleon_mass, f);
 
             // loop over tensor basis
             for (int basisElemIdx = 0; basisElemIdx < 8; basisElemIdx++)

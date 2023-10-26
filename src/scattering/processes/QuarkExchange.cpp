@@ -14,10 +14,10 @@
 #include <iostream>
 
 
-QuarkExchange::QuarkExchange(int lenTau, int lenZ, double tauCutoffLower, double tauCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, gsl_complex a,
+QuarkExchange::QuarkExchange(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, double a,
                              int l2Points, int zPoints, int yPoints, int phiPoints, gsl_complex quarkPropRenormPoint, double eta, int threadIdx) :
                                         eta(eta),
-                                        ScatteringProcess(lenTau, lenZ, tauCutoffLower, tauCutoffUpper, zCutoffLower, zCutoffUpper, nucleon_mass, a, threadIdx),
+                                        ScatteringProcess(lenX, lenZ, XCutoffLower, XCutoffUpper, zCutoffLower, zCutoffUpper, nucleon_mass, a, threadIdx),
                                         momentumLoop(l2Points, zPoints, yPoints, phiPoints)
 {
     tmp1 = gsl_vector_complex_alloc(4);

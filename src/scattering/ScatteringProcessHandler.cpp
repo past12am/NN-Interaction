@@ -7,38 +7,38 @@
 #include "../../include/scattering/processes/QuarkExchange.hpp"
 
 template<class ScatteringType>
-ScatteringProcessHandler<ScatteringType>::ScatteringProcessHandler(int numThreads, int lenTau, int lenZ, int lenA,
+ScatteringProcessHandler<ScatteringType>::ScatteringProcessHandler(int numThreads, int lenX, int lenZ, int lenA,
                                                                    int l2Points, int zPoints, int yPoints, int phiPoints,
                                                                    double eta,
-                                                                   double tauCutoffLower, double tauCutoffUpper,
+                                                                   double XCutoffLower, double XCutoffUpper,
                                                                    double zCutoffLower, double zCutoffUpper,
-                                                                   double aImagCutoffLower, double aImagCutoffUpper,
+                                                                   double aCutoffLower, double aCutoffUpper,
                                                                    const gsl_complex nucleonMass) :
-        numThreads(numThreads), lenTau(lenTau), lenZ(lenZ), lenA(lenA), l2Points(l2Points), zPoints(zPoints), yPoints(yPoints),
-        phiPoints(phiPoints), eta(eta), aImagCutoffLower(aImagCutoffLower), aImagCutoffUpper(aImagCutoffUpper), nucleon_mass(nucleonMass)
+        numThreads(numThreads), lenX(lenX), lenZ(lenZ), lenA(lenA), l2Points(l2Points), zPoints(zPoints), yPoints(yPoints),
+        phiPoints(phiPoints), eta(eta), aCutoffLower(aCutoffLower), aCutoffUpper(aCutoffUpper), nucleon_mass(nucleonMass)
 {
     subgridScatteringProcess = new ScatteringType*[numThreads * lenA];
     subgridIntegrationThread = new std::thread*[numThreads * lenA];
 
 
-    a = new gsl_complex[lenA];
+    a = new double[lenA];
 
     for(int aIdx = 0; aIdx < lenA; aIdx++)
     {
         a[aIdx] = calcAAt(aIdx);
     }
 
-    assert(GSL_IMAG(a[0]) == aImagCutoffLower);
-    assert(GSL_IMAG(a[lenA - 1]) == aImagCutoffUpper);
+    assert(a[0] == aCutoffLower);
+    assert(a[lenA - 1] == aCutoffUpper);
 
 
 
-    ZTauGrid completeZTauGrid(lenTau, lenZ, tauCutoffLower, tauCutoffUpper, zCutoffLower, zCutoffUpper);
+    ZXGrid completeZXGrid(lenX, lenZ, XCutoffLower, XCutoffUpper, zCutoffLower, zCutoffUpper);
 
-    int numTauPerThread = lenTau / numThreads;
-    if(lenTau % numThreads != 0)
+    int numXPerThread = lenX / numThreads;
+    if(lenX % numThreads != 0)
     {
-        std::cout << "length of tau grid must be divisible by number of threads" << std::endl;
+        std::cout << "length of X grid must be divisible by number of threads" << std::endl;
         exit(-1);
     }
 
@@ -48,14 +48,14 @@ ScatteringProcessHandler<ScatteringType>::ScatteringProcessHandler(int numThread
         {
             int scatteringProcessIdx = calcScatteringProcessIdx(aIdx, threadIdx);
 
-            double curTauCutoffLower = completeZTauGrid.getTauAt(threadIdx * numTauPerThread);
-            double curTauCutoffUpper = completeZTauGrid.getTauAt((threadIdx + 1) * numTauPerThread - 1);
+            double curXCutoffLower = completeZXGrid.getXAt(threadIdx * numXPerThread);
+            double curXCutoffUpper = completeZXGrid.getXAt((threadIdx + 1) * numXPerThread - 1);
 
             if(typeid(ScatteringType) == typeid(QuarkExchange))
             {
-                subgridScatteringProcess[scatteringProcessIdx] = new QuarkExchange(numTauPerThread, lenZ, curTauCutoffLower, curTauCutoffUpper, zCutoffLower,
-                                                                        zCutoffUpper, nucleon_mass, a[aIdx], l2Points, zPoints, yPoints, phiPoints,
-                                                                        gsl_complex_rect(0.19, 0), eta, threadIdx);
+                subgridScatteringProcess[scatteringProcessIdx] = new QuarkExchange(numXPerThread, lenZ, curXCutoffLower, curXCutoffUpper, zCutoffLower,
+                                                                                   zCutoffUpper, nucleon_mass, a[aIdx], l2Points, zPoints, yPoints, phiPoints,
+                                                                                   gsl_complex_rect(0.19, 0), eta, threadIdx);
 
             }
             else
@@ -115,7 +115,7 @@ void ScatteringProcessHandler<ScatteringType>::store_scattering_amplitude(std::s
         std::ofstream data_file;
         data_file.open(fnamestrstream.str(), std::ofstream::out | std::ios::trunc);
 
-        data_file << "a,tau,z,PK,QQ,h,f,|scattering_amp|2" << std::endl;
+        data_file << "a,X,z,PK,QQ,h,f,|scattering_amp|2" << std::endl;
 
         for(int aIdx = 0; aIdx < lenA; aIdx++)
         {
@@ -130,10 +130,9 @@ void ScatteringProcessHandler<ScatteringType>::store_scattering_amplitude(std::s
 
 
 template<class ScatteringType>
-gsl_complex ScatteringProcessHandler<ScatteringType>::calcAAt(int aIdx)
+double ScatteringProcessHandler<ScatteringType>::calcAAt(int aIdx)
 {
-    double aImag = aImagCutoffLower + (aImagCutoffUpper - aImagCutoffLower) * ((double) aIdx)/((double) (lenA - 1));
-    return gsl_complex_rect(0, aImag);
+    return aCutoffLower + (aCutoffUpper - aCutoffLower) * ((double) aIdx) / ((double) (lenA - 1));
 }
 
 template<class ScatteringType>
