@@ -8,6 +8,7 @@
 #include "gsl/gsl_matrix.h"
 #include "gsl/gsl_blas.h"
 #include "gsl/gsl_complex_math.h"
+#include "gsl/gsl_linalg.h"
 #include "../../../include/utils/dirac/DiracStructuresHelper.hpp"
 #include "../../../include/utils/math/Commutator.hpp"
 
@@ -167,9 +168,11 @@ TensorBasis::operator std::string() const
     return std::string();
 }
 
-TensorBasis::TensorBasis(ExternalImpulseGrid* externalImpulseGrid) : len(externalImpulseGrid->getLength()), externalImpulseGrid(externalImpulseGrid)
+TensorBasis::TensorBasis(ExternalImpulseGrid* externalImpulseGrid) : len(externalImpulseGrid->getLength())
 {
     tauGrid = new Tensor4<4, 4, 4, 4>* [8];
+    KMatrixGrid = new gsl_matrix_complex*[len];
+    KInverseMatrixGrid = new gsl_matrix_complex*[len];
     for(int i = 0; i < 8; i++)
     {
         tauGrid[i] = new Tensor4<4, 4, 4, 4>[len];
@@ -177,9 +180,15 @@ TensorBasis::TensorBasis(ExternalImpulseGrid* externalImpulseGrid) : len(externa
 
     for(int impulseIdx = 0; impulseIdx < len; impulseIdx++)
     {
+        KMatrixGrid[impulseIdx] = gsl_matrix_complex_alloc(8, 8);
+        KInverseMatrixGrid[impulseIdx] = gsl_matrix_complex_alloc(8, 8);
+
         calculateBasis(impulseIdx, externalImpulseGrid->get_p_f_timelike(impulseIdx), externalImpulseGrid->get_p_i_timelike(impulseIdx),
                        externalImpulseGrid->get_k_f_timelike(impulseIdx),
                        externalImpulseGrid->get_k_i_timelike(impulseIdx), externalImpulseGrid->get_P_timelike(impulseIdx));
+
+        calculateKMatrix(impulseIdx);
+        calculateKMatrixInverse(impulseIdx);
     }
 }
 
@@ -200,12 +209,53 @@ TensorBasis::~TensorBasis()
         delete []tauGrid[i];
     }
 
+    for(int impulseIdx = 0; impulseIdx < len; impulseIdx++)
+    {
+        gsl_matrix_complex_free(KMatrixGrid[impulseIdx]);
+        gsl_matrix_complex_free(KInverseMatrixGrid[impulseIdx]);
+    }
+
     delete []tauGrid;
+    delete []KMatrixGrid;
+    delete []KInverseMatrixGrid;
 }
 
 int TensorBasis::getTensorBasisElementCount() const
 {
     return 8;
+}
+
+void TensorBasis::calculateKMatrix(int impulseIdx)
+{
+    for(int i = 0; i < getTensorBasisElementCount(); i++)
+    {
+        for(int j = 0; j < getTensorBasisElementCount(); j++)
+        {
+            gsl_matrix_complex_set(KMatrixGrid[impulseIdx], i, j, tauGrid[i][impulseIdx].contractTauOther(tauGrid[j][impulseIdx]));
+        }
+    }
+}
+
+void TensorBasis::calculateKMatrixInverse(int impulseIdx)
+{
+    int signum;
+    gsl_permutation* p = gsl_permutation_alloc(8);
+
+    gsl_matrix_complex* LUDecomp = gsl_matrix_complex_alloc(8, 8);
+    gsl_matrix_complex_memcpy(LUDecomp, KMatrixGrid[impulseIdx]);
+
+    gsl_linalg_complex_LU_decomp(LUDecomp, p, &signum);
+    gsl_linalg_complex_LU_invert(LUDecomp, p, KInverseMatrixGrid[impulseIdx]);
+}
+
+gsl_matrix_complex* TensorBasis::K(int impulseIdx)
+{
+    return KMatrixGrid[impulseIdx];
+}
+
+gsl_matrix_complex* TensorBasis::KInv(int impulseIdx)
+{
+    return KInverseMatrixGrid[impulseIdx];
 }
 
 

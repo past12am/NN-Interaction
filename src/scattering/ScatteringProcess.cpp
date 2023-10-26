@@ -78,7 +78,7 @@ gsl_complex ScatteringProcess::integralKernelWrapper(int externalImpulseIdx, int
 
     l_mutex.unlock();
 
-    return integralKernelTensor.contractTauM(*tau_current);
+    return integralKernelTensor.contractTauOther(*tau_current);
 }
 
 void ScatteringProcess::store_scattering_amplitude(int basisElemIdx, double a, std::ofstream& data_file)
@@ -123,7 +123,8 @@ double ScatteringProcess::calcSquaredNormOfScatteringMatrix(int externalImpulseI
     return squared_scattering_matrix_elem;
 }
 
-gsl_matrix_complex* ScatteringProcess::getInverseK(double tau, double z, gsl_complex M)
+
+gsl_matrix_complex* ScatteringProcess::buildInverseK(double tau, double z, gsl_complex M)
 {
     double pref_00 = (pow(z, 2) * (-1.0 + tau) - tau)/((-1.0 + pow(z, 2)) * tau * pow(1.0 + tau, 4));
     gsl_complex elem_00 = gsl_complex_rect(pref_00, 0);
@@ -236,10 +237,12 @@ void ScatteringProcess::build_h_vector(int externalImpulseIdx, gsl_vector_comple
 
 void ScatteringProcess::calculateFormFactors(int XIdx, int zIdx, gsl_complex M, gsl_vector_complex* f)
 {
-    gsl_vector_complex* h = gsl_vector_complex_alloc(8);
-    build_h_vector(externalImpulseGrid.getGridIdx(XIdx, zIdx), h);
+    int externalImpulseIdx = externalImpulseGrid.getGridIdx(XIdx, zIdx);
 
-    gsl_matrix_complex* invK = getInverseK(externalImpulseGrid.calc_tau(XIdx, zIdx), externalImpulseGrid.calcZAt(zIdx), M);
+    gsl_vector_complex* h = gsl_vector_complex_alloc(8);
+    build_h_vector(externalImpulseIdx, h);
+
+    gsl_matrix_complex* invK = tensorBasis.KInv(externalImpulseIdx);
 
     gsl_blas_zgemv(CblasNoTrans, GSL_COMPLEX_ONE, invK, h, GSL_COMPLEX_ZERO, f);
     gsl_vector_complex_free(h);

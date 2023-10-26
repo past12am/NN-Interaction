@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 
 
-def plot_form_factor(pd_tau: pd.DataFrame, tensor_basis_elem: str, tensor_basis_elem_idx: int, path=None):
+def plot_form_factor(pd_tau: pd.DataFrame, tensor_basis_elem: str, tensor_basis_elem_idx: int, function_name: str, path=None, save_plot=False):
     # set up a figure twice as wide as it is tall
     fig = plt.figure(figsize=plt.figaspect(0.5))
 
@@ -17,22 +17,22 @@ def plot_form_factor(pd_tau: pd.DataFrame, tensor_basis_elem: str, tensor_basis_
 
     # Subplot real
     ax = fig.add_subplot(1, 2, 1, projection='3d')
-    ax.set_title("$\Re(f(X, z))$")
-    ax.plot_trisurf(pd_tau["X"], pd_tau["z"], np.real(pd_tau["f"]), cmap=cm.coolwarm)
+    ax.set_title(f"$\Re({function_name}(X, z))$")
+    ax.plot_trisurf(pd_tau["X"], pd_tau["z"], np.real(pd_tau[function_name]), cmap=cm.coolwarm)
     ax.set_xlabel("$X$")
     ax.set_ylabel("$z$")
-    ax.set_zlabel("$\Re(f)$")
+    ax.set_zlabel(f"$\Re({function_name})$")
 
 
     # Subplot imag
     ax = fig.add_subplot(1, 2, 2, projection='3d')
-    ax.set_title("$\Im(f(X, z))$")
-    ax.plot_trisurf(pd_tau["X"], pd_tau["z"], np.imag(pd_tau["f"]), cmap=cm.coolwarm)
+    ax.set_title(f"$\Im({function_name}(X, z))$")
+    ax.plot_trisurf(pd_tau["X"], pd_tau["z"], np.imag(pd_tau[function_name]), cmap=cm.coolwarm)
     ax.set_xlabel("$X$")
     ax.set_ylabel("$z$")
-    ax.set_zlabel("$\Im(f)$")
+    ax.set_zlabel(f"$\Im({function_name})$")
 
-    if(path is not None):
+    if(path is not None and save_plot):
         plt.savefig(path + f"/f_{tensor_basis_elem_idx}.png", dpi=200)
     plt.show()
 

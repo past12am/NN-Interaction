@@ -18,11 +18,14 @@ class TensorBasis
     private:
         int len;
         Tensor4<4, 4, 4, 4>** tauGrid;
-
-        ExternalImpulseGrid* externalImpulseGrid;
+        gsl_matrix_complex** KMatrixGrid;
+        gsl_matrix_complex** KInverseMatrixGrid;
 
         void calculateBasis(int impulseIdx, gsl_vector_complex* p_f_timelike, gsl_vector_complex* p_i_timelike, gsl_vector_complex* k_f_timelike, gsl_vector_complex* k_i_timelike, gsl_vector_complex* P_timelike);
         void matProd3Elem(const gsl_matrix_complex* A, const gsl_matrix_complex* B, const gsl_matrix_complex* C,  gsl_matrix_complex* tmp, gsl_matrix_complex* res);
+
+        void calculateKMatrix(int impulseIdx);
+        void calculateKMatrixInverse(int impulseIdx);
 
     public:
         TensorBasis(ExternalImpulseGrid* externalImpulseGrid);
@@ -34,8 +37,9 @@ class TensorBasis
 
         explicit operator std::string() const;
 
-
         Tensor4<4, 4, 4, 4>* tau(int basisElemIdx, int externalImpulseIdx);
+        gsl_matrix_complex* K(int impulseIdx);
+        gsl_matrix_complex* KInv(int impulseIdx);
 };
 
 

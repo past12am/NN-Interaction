@@ -85,7 +85,7 @@ template<int d1, int d2, int d3, int d4> class Tensor4
             return os;
         }
 
-        gsl_complex contractTauM(Tensor4<4, 4, 4, 4> &other)
+        gsl_complex contractTauOther(Tensor4<4, 4, 4, 4> &other)
         {
             gsl_complex res = gsl_complex_rect(0, 0);
 

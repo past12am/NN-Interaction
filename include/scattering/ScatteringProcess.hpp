@@ -50,7 +50,8 @@ class ScatteringProcess
 
         int calcScatteringAmpIdx(int basisElemIdx, int externalImpulseIdx);
 
-        gsl_matrix_complex* getInverseK(double tau, double z, gsl_complex M);
+        [[deprecated("Use Tensor Basis stored inverse K element")]]
+        gsl_matrix_complex* buildInverseK(double tau, double z, gsl_complex M);
 
         void build_h_vector(int externalImpulseIdx, gsl_vector_complex* h);
 
