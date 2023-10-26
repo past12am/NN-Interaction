@@ -19,14 +19,23 @@ ExternalImpulseGrid::ExternalImpulseGrid(int lenX, int lenZ, double XCutoffLower
     p_ext = new gsl_vector_complex*[len];
     q_ext = new gsl_vector_complex*[len];
 
+    q_ext_timelike = new gsl_vector_complex*[len];
+
     Q = new gsl_vector_complex*[len];
     P = new gsl_vector_complex*[len];
     K = new gsl_vector_complex*[len];
+
+    P_timelike = new gsl_vector_complex*[len];
 
     p_i = new gsl_vector_complex*[len];
     p_f = new gsl_vector_complex*[len];
     k_i = new gsl_vector_complex*[len];
     k_f = new gsl_vector_complex*[len];
+
+    p_i_timelike = new gsl_vector_complex*[len];
+    p_f_timelike = new gsl_vector_complex*[len];
+    k_i_timelike = new gsl_vector_complex*[len];
+    k_f_timelike = new gsl_vector_complex*[len];
 
     for(int XIdx = 0; XIdx < lenX; XIdx++)
     {
@@ -41,12 +50,18 @@ ExternalImpulseGrid::ExternalImpulseGrid(int lenX, int lenZ, double XCutoffLower
             calc_p_ext(p_ext[i], X[XIdx], nucleon_mass);
             calc_q_ext(q_ext[i], X[XIdx], nucleon_mass, a);
 
+            q_ext_timelike[i] = gsl_vector_complex_alloc(4);
+            calc_q_ext_timelike(q_ext_timelike[i], X[XIdx], nucleon_mass);
+
             Q[i] = gsl_vector_complex_alloc(4);
             P[i] = gsl_vector_complex_alloc(4);
             K[i] = gsl_vector_complex_alloc(4);
             calc_Q(Q[i], k_ext[i], p_ext[i], q_ext[i]);
             calc_P(P[i], k_ext[i], p_ext[i], q_ext[i]);
             calc_K(K[i], k_ext[i], p_ext[i], q_ext[i]);
+
+            P_timelike[i] = gsl_vector_complex_alloc(4);
+            calc_P(P_timelike[i], k_ext[i], p_ext[i], q_ext_timelike[i]);
 
             p_i[i] = gsl_vector_complex_alloc(4);
             p_f[i] = gsl_vector_complex_alloc(4);
@@ -56,6 +71,15 @@ ExternalImpulseGrid::ExternalImpulseGrid(int lenX, int lenZ, double XCutoffLower
             calc_p_f(p_f[i], k_ext[i], p_ext[i], q_ext[i]);
             calc_k_i(k_i[i], k_ext[i], p_ext[i], q_ext[i]);
             calc_k_f(k_f[i], k_ext[i], p_ext[i], q_ext[i]);
+
+            p_i_timelike[i] = gsl_vector_complex_alloc(4);
+            p_f_timelike[i] = gsl_vector_complex_alloc(4);
+            k_i_timelike[i] = gsl_vector_complex_alloc(4);
+            k_f_timelike[i] = gsl_vector_complex_alloc(4);
+            calc_p_i(p_i_timelike[i], k_ext[i], p_ext[i], q_ext_timelike[i]);
+            calc_p_f(p_f_timelike[i], k_ext[i], p_ext[i], q_ext_timelike[i]);
+            calc_k_i(k_i_timelike[i], k_ext[i], p_ext[i], q_ext_timelike[i]);
+            calc_k_f(k_f_timelike[i], k_ext[i], p_ext[i], q_ext_timelike[i]);
         }
     }
 }
@@ -68,30 +92,62 @@ ExternalImpulseGrid::~ExternalImpulseGrid()
         gsl_vector_complex_free(P[i]);
         gsl_vector_complex_free(K[i]);
 
+        gsl_vector_complex_free(P_timelike[i]);
+
         gsl_vector_complex_free(p_i[i]);
         gsl_vector_complex_free(p_f[i]);
         gsl_vector_complex_free(k_i[i]);
         gsl_vector_complex_free(k_f[i]);
 
+        gsl_vector_complex_free(p_i_timelike[i]);
+        gsl_vector_complex_free(p_f_timelike[i]);
+        gsl_vector_complex_free(k_i_timelike[i]);
+        gsl_vector_complex_free(k_f_timelike[i]);
+
         gsl_vector_complex_free(p_ext[i]);
         gsl_vector_complex_free(k_ext[i]);
         gsl_vector_complex_free(q_ext[i]);
+
+        gsl_vector_complex_free(q_ext_timelike[i]);
     }
 
     delete []Q;
     delete []P;
     delete []K;
 
+    delete []P_timelike;
+
     delete []p_i;
     delete []p_f;
     delete []k_i;
     delete []k_f;
 
+    delete []p_i_timelike;
+    delete []p_f_timelike;
+    delete []k_i_timelike;
+    delete []k_f_timelike;
+
     delete []p_ext;
     delete []k_ext;
     delete []q_ext;
+
+    delete []q_ext_timelike;
 }
 
+void ExternalImpulseGrid::calc_q_ext_timelike(gsl_vector_complex* q_ext_timelike, double X, gsl_complex nucleon_mass)
+{
+    assert(X > 0);
+
+    gsl_vector_complex_set_zero(q_ext_timelike);
+    gsl_vector_complex_set(q_ext_timelike, 3, gsl_complex_rect(1, 0));
+
+    gsl_complex pref = gsl_complex_mul_imag(nucleon_mass, 2.0 * sqrt(1 + X));
+
+    gsl_vector_complex_scale(q_ext_timelike, pref);
+
+    assert(GSL_IMAG(pref) > 0);
+    assert(GSL_REAL(pref) == 0);
+}
 
 void ExternalImpulseGrid::calc_q_ext(gsl_vector_complex* q_ext, double X, gsl_complex nucleon_mass, double a)
 {
@@ -202,6 +258,11 @@ gsl_vector_complex* ExternalImpulseGrid::get_P(int idx)
     return P[idx];
 }
 
+gsl_vector_complex* ExternalImpulseGrid::get_P_timelike(int idx)
+{
+    return P_timelike[idx];
+}
+
 gsl_vector_complex* ExternalImpulseGrid::get_K(int idx)
 {
     return K[idx];
@@ -225,6 +286,26 @@ gsl_vector_complex* ExternalImpulseGrid::get_k_i(int idx)
 gsl_vector_complex* ExternalImpulseGrid::get_k_f(int idx)
 {
     return k_f[idx];
+}
+
+gsl_vector_complex* ExternalImpulseGrid::get_p_i_timelike(int idx)
+{
+    return p_i_timelike[idx];
+}
+
+gsl_vector_complex* ExternalImpulseGrid::get_p_f_timelike(int idx)
+{
+    return p_f_timelike[idx];
+}
+
+gsl_vector_complex* ExternalImpulseGrid::get_k_i_timelike(int idx)
+{
+    return k_i_timelike[idx];
+}
+
+gsl_vector_complex* ExternalImpulseGrid::get_k_f_timelike(int idx)
+{
+    return k_f_timelike[idx];
 }
 
 double ExternalImpulseGrid::calc_tau(int XIdx, int zIdx)

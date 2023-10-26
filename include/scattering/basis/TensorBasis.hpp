@@ -21,7 +21,7 @@ class TensorBasis
 
         ExternalImpulseGrid* externalImpulseGrid;
 
-        void calculateBasis(int impulseIdx, gsl_vector_complex* p_f, gsl_vector_complex* p_i, gsl_vector_complex* k_f, gsl_vector_complex* k_i, gsl_vector_complex* P, gsl_vector_complex* K);
+        void calculateBasis(int impulseIdx, gsl_vector_complex* p_f_timelike, gsl_vector_complex* p_i_timelike, gsl_vector_complex* k_f_timelike, gsl_vector_complex* k_i_timelike, gsl_vector_complex* P_timelike);
         void matProd3Elem(const gsl_matrix_complex* A, const gsl_matrix_complex* B, const gsl_matrix_complex* C,  gsl_matrix_complex* tmp, gsl_matrix_complex* res);
 
     public:

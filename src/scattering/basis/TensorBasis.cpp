@@ -12,29 +12,29 @@
 #include "../../../include/utils/math/Commutator.hpp"
 
 void TensorBasis::calculateBasis(int impulseIdx,
-                                 gsl_vector_complex* p_f, gsl_vector_complex* p_i, gsl_vector_complex* k_f,
-                                 gsl_vector_complex* k_i, gsl_vector_complex* P, gsl_vector_complex* K)
+                                 gsl_vector_complex* p_f_timelike, gsl_vector_complex* p_i_timelike, gsl_vector_complex* k_f_timelike,
+                                 gsl_vector_complex* k_i_timelike, gsl_vector_complex* P_timelike)
 {
     // Positive Energy Projectors
-    gsl_matrix_complex* Lambda_pf = gsl_matrix_complex_alloc(4, 4);
-    Projectors::posEnergyProjector(p_f, Lambda_pf);
+    gsl_matrix_complex* Lambda_pf_timelike = gsl_matrix_complex_alloc(4, 4);
+    Projectors::posEnergyProjector(p_f_timelike, Lambda_pf_timelike);
 
-    gsl_matrix_complex* Lambda_pi = gsl_matrix_complex_alloc(4, 4);
-    Projectors::posEnergyProjector(p_i, Lambda_pi);
+    gsl_matrix_complex* Lambda_pi_timelike = gsl_matrix_complex_alloc(4, 4);
+    Projectors::posEnergyProjector(p_i_timelike, Lambda_pi_timelike);
 
-    gsl_matrix_complex* Lambda_kf = gsl_matrix_complex_alloc(4, 4);
-    Projectors::posEnergyProjector(k_f, Lambda_kf);
+    gsl_matrix_complex* Lambda_kf_timelike = gsl_matrix_complex_alloc(4, 4);
+    Projectors::posEnergyProjector(k_f_timelike, Lambda_kf_timelike);
 
-    gsl_matrix_complex* Lambda_ki = gsl_matrix_complex_alloc(4, 4);
-    Projectors::posEnergyProjector(k_i, Lambda_ki);
+    gsl_matrix_complex* Lambda_ki_timelike = gsl_matrix_complex_alloc(4, 4);
+    Projectors::posEnergyProjector(k_i_timelike, Lambda_ki_timelike);
 
 
     // Dirac Structures
-    gsl_matrix_complex* PSlash = gsl_matrix_complex_alloc(4, 4);
-    DiracStructuresHelper::diracStructures.slash(P, PSlash);
+    gsl_matrix_complex* P_timelike_Slash = gsl_matrix_complex_alloc(4, 4);
+    DiracStructuresHelper::diracStructures.slash(P_timelike, P_timelike_Slash);
 
-    gsl_matrix_complex* KSlash = gsl_matrix_complex_alloc(4, 4);
-    DiracStructuresHelper::diracStructures.slash(K, KSlash);
+    //gsl_matrix_complex* KSlash = gsl_matrix_complex_alloc(4, 4);
+    //DiracStructuresHelper::diracStructures.slash(K, KSlash);
 
 
     // temp variables
@@ -49,14 +49,14 @@ void TensorBasis::calculateBasis(int impulseIdx,
 
     // Tensor Basis
     // tau[0] = Lambda(p_f).1.Lambda(p_i) (x) Lambda(k_f).1.Lambda(k_i)
-    matProd3Elem(Lambda_pf, Projectors::getUnitM(), Lambda_pi, tmp, tmpA);
-    matProd3Elem(Lambda_kf, Projectors::getUnitM(), Lambda_ki, tmp, tmpB);
+    matProd3Elem(Lambda_pf_timelike, Projectors::getUnitM(), Lambda_pi_timelike, tmp, tmpA);
+    matProd3Elem(Lambda_kf_timelike, Projectors::getUnitM(), Lambda_ki_timelike, tmp, tmpB);
     tauGrid[0][impulseIdx] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
 
 
     // tau[1] = Lambda(p_f).1.Lambda(p_i) (x) Lambda(k_f).Slash(P).Lambda(k_i)
     // keep tmpA (same as tau[0])
-    matProd3Elem(Lambda_kf, PSlash, Lambda_ki, tmpC, tmpB);
+    matProd3Elem(Lambda_kf_timelike, P_timelike_Slash, Lambda_ki_timelike, tmpC, tmpB);
     tauGrid[1][impulseIdx] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
 
 
@@ -65,8 +65,8 @@ void TensorBasis::calculateBasis(int impulseIdx,
     gsl_matrix_complex_set_zero(tmpSumB);
     for(int mu = 0; mu < 4; mu++)
     {
-        matProd3Elem(Lambda_pf, DiracStructuresHelper::diracStructures.gamma[mu], Lambda_pi, tmp, tmpA);
-        matProd3Elem(Lambda_kf, DiracStructuresHelper::diracStructures.gamma[mu], Lambda_ki, tmp, tmpB);
+        matProd3Elem(Lambda_pf_timelike, DiracStructuresHelper::diracStructures.gamma[mu], Lambda_pi_timelike, tmp, tmpA);
+        matProd3Elem(Lambda_kf_timelike, DiracStructuresHelper::diracStructures.gamma[mu], Lambda_ki_timelike, tmp, tmpB);
 
         gsl_matrix_complex_add(tmpSumA, tmpA);
         gsl_matrix_complex_add(tmpSumB, tmpB);
@@ -79,8 +79,8 @@ void TensorBasis::calculateBasis(int impulseIdx,
     for(int mu = 0; mu < 4; mu++)
     {
         // tmpA same as for tau[2]
-        Commutator::commutator(DiracStructuresHelper::diracStructures.gamma[mu], PSlash, tmpC);
-        matProd3Elem(Lambda_kf, tmpC, Lambda_ki, tmp, tmpB);
+        Commutator::commutator(DiracStructuresHelper::diracStructures.gamma[mu], P_timelike_Slash, tmpC);
+        matProd3Elem(Lambda_kf_timelike, tmpC, Lambda_ki_timelike, tmp, tmpB);
 
         //gsl_matrix_complex_add(tmpSumA, tmpA);
         gsl_matrix_complex_add(tmpSumB, tmpB);
@@ -89,16 +89,16 @@ void TensorBasis::calculateBasis(int impulseIdx,
 
 
     // tau[4] = Lambda(p_f).gamma5.Lambda(p_i) (x) Lambda(k_f).gamma5.Lambda(k_i)
-    matProd3Elem(Lambda_pf, DiracStructuresHelper::diracStructures.gamma5, Lambda_pi, tmp, tmpA);
-    matProd3Elem(Lambda_kf, DiracStructuresHelper::diracStructures.gamma5, Lambda_ki, tmp, tmpB);
+    matProd3Elem(Lambda_pf_timelike, DiracStructuresHelper::diracStructures.gamma5, Lambda_pi_timelike, tmp, tmpA);
+    matProd3Elem(Lambda_kf_timelike, DiracStructuresHelper::diracStructures.gamma5, Lambda_ki_timelike, tmp, tmpB);
     tauGrid[4][impulseIdx] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
 
 
     // tau[5] = Lambda(p_f).gamma5.Lambda(p_i) (x) Lambda(k_f).gamma5.Slash(P).Lambda(k_i)
     // keep tmpA (same as tau[4])
-    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), DiracStructuresHelper::diracStructures.gamma5, PSlash,
+    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), DiracStructuresHelper::diracStructures.gamma5, P_timelike_Slash,
                    gsl_complex_rect(0, 0), tmpC);
-    matProd3Elem(Lambda_kf, tmpC, Lambda_ki, tmp, tmpB);
+    matProd3Elem(Lambda_kf_timelike, tmpC, Lambda_ki_timelike, tmp, tmpB);
     tauGrid[5][impulseIdx] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
 
 
@@ -110,8 +110,8 @@ void TensorBasis::calculateBasis(int impulseIdx,
         gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), DiracStructuresHelper::diracStructures.gamma5, DiracStructuresHelper::diracStructures.gamma[mu],
                        gsl_complex_rect(0, 0), tmpC);
 
-        matProd3Elem(Lambda_pf, tmpC, Lambda_pi, tmp, tmpA);
-        matProd3Elem(Lambda_kf, tmpC, Lambda_ki, tmp, tmpB);
+        matProd3Elem(Lambda_pf_timelike, tmpC, Lambda_pi_timelike, tmp, tmpA);
+        matProd3Elem(Lambda_kf_timelike, tmpC, Lambda_ki_timelike, tmp, tmpB);
 
         gsl_matrix_complex_add(tmpSumA, tmpA);
         gsl_matrix_complex_add(tmpSumB, tmpB);
@@ -124,10 +124,10 @@ void TensorBasis::calculateBasis(int impulseIdx,
     for(int mu = 0; mu < 4; mu++)
     {
         // using tmpA as working register for tmpB as we already calculated tmpSumA
-        Commutator::commutator(DiracStructuresHelper::diracStructures.gamma[mu], PSlash, tmpA);
+        Commutator::commutator(DiracStructuresHelper::diracStructures.gamma[mu], P_timelike_Slash, tmpA);
         gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), DiracStructuresHelper::diracStructures.gamma5, tmpA,
                        gsl_complex_rect(0, 0), tmpC);
-        matProd3Elem(Lambda_kf, tmpC, Lambda_ki, tmp, tmpB);
+        matProd3Elem(Lambda_kf_timelike, tmpC, Lambda_ki_timelike, tmp, tmpB);
 
         gsl_matrix_complex_add(tmpSumB, tmpB);
     }
@@ -143,14 +143,14 @@ void TensorBasis::calculateBasis(int impulseIdx,
     gsl_matrix_complex_free(tmp);
 
     // Free dirac structures
-    gsl_matrix_complex_free(KSlash);
-    gsl_matrix_complex_free(PSlash);
+    //gsl_matrix_complex_free(KSlash);
+    gsl_matrix_complex_free(P_timelike_Slash);
 
     // Free projectors
-    gsl_matrix_complex_free(Lambda_ki);
-    gsl_matrix_complex_free(Lambda_kf);
-    gsl_matrix_complex_free(Lambda_pi);
-    gsl_matrix_complex_free(Lambda_pf);
+    gsl_matrix_complex_free(Lambda_ki_timelike);
+    gsl_matrix_complex_free(Lambda_kf_timelike);
+    gsl_matrix_complex_free(Lambda_pi_timelike);
+    gsl_matrix_complex_free(Lambda_pf_timelike);
 }
 
 void TensorBasis::matProd3Elem(const gsl_matrix_complex* A, const gsl_matrix_complex* B, const gsl_matrix_complex* C, gsl_matrix_complex* tmp, gsl_matrix_complex* res)
@@ -177,9 +177,9 @@ TensorBasis::TensorBasis(ExternalImpulseGrid* externalImpulseGrid) : len(externa
 
     for(int impulseIdx = 0; impulseIdx < len; impulseIdx++)
     {
-        calculateBasis(impulseIdx, externalImpulseGrid->get_p_f(impulseIdx), externalImpulseGrid->get_p_i(impulseIdx),
-                       externalImpulseGrid->get_k_f(impulseIdx),
-                       externalImpulseGrid->get_k_i(impulseIdx), externalImpulseGrid->get_P(impulseIdx), externalImpulseGrid->get_K(impulseIdx));
+        calculateBasis(impulseIdx, externalImpulseGrid->get_p_f_timelike(impulseIdx), externalImpulseGrid->get_p_i_timelike(impulseIdx),
+                       externalImpulseGrid->get_k_f_timelike(impulseIdx),
+                       externalImpulseGrid->get_k_i_timelike(impulseIdx), externalImpulseGrid->get_P_timelike(impulseIdx));
     }
 }
 

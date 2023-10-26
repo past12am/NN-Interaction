@@ -18,18 +18,29 @@ class ExternalImpulseGrid : public ZXGrid
         gsl_vector_complex** p_ext;
         gsl_vector_complex** k_ext;
 
+        gsl_vector_complex** q_ext_timelike;
+
         gsl_vector_complex** Q;
         gsl_vector_complex** P;
         gsl_vector_complex** K;
+
+        gsl_vector_complex** P_timelike;
 
         gsl_vector_complex** p_i;
         gsl_vector_complex** p_f;
         gsl_vector_complex** k_i;
         gsl_vector_complex** k_f;
 
+        gsl_vector_complex** p_i_timelike;
+        gsl_vector_complex** p_f_timelike;
+        gsl_vector_complex** k_i_timelike;
+        gsl_vector_complex** k_f_timelike;
+
         void calc_k_ext(gsl_vector_complex* k_ext, double X, gsl_complex nucleon_mass, double z);
         void calc_q_ext(gsl_vector_complex* q_ext, double X, gsl_complex nucleon_mass, double a);
         void calc_p_ext(gsl_vector_complex* p_ext, double X, gsl_complex nucleon_mass);
+
+        void calc_q_ext_timelike(gsl_vector_complex* q_ext_timelike, double X, gsl_complex nucleon_mass);
 
         void calc_Q(gsl_vector_complex* Q, const gsl_vector_complex* k_ext, const gsl_vector_complex* p_ext, const gsl_vector_complex* q_ext);
         void calc_P(gsl_vector_complex* P, const gsl_vector_complex* k_ext, const gsl_vector_complex* p_ext, const gsl_vector_complex* q_ext);
@@ -48,10 +59,17 @@ class ExternalImpulseGrid : public ZXGrid
         gsl_vector_complex* get_P(int idx);
         gsl_vector_complex* get_K(int idx);
 
+        gsl_vector_complex* get_P_timelike(int idx);
+
         gsl_vector_complex* get_p_i(int idx);
         gsl_vector_complex* get_p_f(int idx);
         gsl_vector_complex* get_k_i(int idx);
         gsl_vector_complex* get_k_f(int idx);
+
+        gsl_vector_complex* get_p_i_timelike(int idx);
+        gsl_vector_complex* get_p_f_timelike(int idx);
+        gsl_vector_complex* get_k_i_timelike(int idx);
+        gsl_vector_complex* get_k_f_timelike(int idx);
 
         double calc_tau(int XIdx, int zIdx);
 };

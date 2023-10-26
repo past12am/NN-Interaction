@@ -239,7 +239,6 @@ void ScatteringProcess::calculateFormFactors(int XIdx, int zIdx, gsl_complex M, 
     gsl_vector_complex* h = gsl_vector_complex_alloc(8);
     build_h_vector(externalImpulseGrid.getGridIdx(XIdx, zIdx), h);
 
-    // TODO calculate tau for inverse K
     gsl_matrix_complex* invK = getInverseK(externalImpulseGrid.calc_tau(XIdx, zIdx), externalImpulseGrid.calcZAt(zIdx), M);
 
     gsl_blas_zgemv(CblasNoTrans, GSL_COMPLEX_ONE, invK, h, GSL_COMPLEX_ZERO, f);

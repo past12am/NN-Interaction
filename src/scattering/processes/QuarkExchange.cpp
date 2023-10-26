@@ -209,18 +209,18 @@ void QuarkExchange::integralKernel(gsl_vector_complex* l, gsl_vector_complex* Q,
     // Construct M
     for(int alpha = 0; alpha < PhiConj_S_Phi__alpha_delta->size1; alpha++)
     {
-        for(int beta = 0; beta < PhiConj_S_Phi__gamma_beta->size2; beta++)
+        for(int delta = 0; delta < PhiConj_S_Phi__alpha_delta->size2; delta++)
         {
             for(int gamma = 0; gamma < PhiConj_S_Phi__gamma_beta->size1; gamma++)
             {
-                for(int delta = 0; delta < PhiConj_S_Phi__alpha_delta->size2; delta++)
+                for(int beta = 0; beta < PhiConj_S_Phi__gamma_beta->size2; beta++)
                 {
                     gsl_complex kernelElement = gsl_complex_mul(scalar_D_p, scalar_D_k);
                     kernelElement = gsl_complex_mul(kernelElement, gsl_complex_mul(gsl_matrix_complex_get(PhiConj_S_Phi__alpha_delta, alpha, delta),
                                                                                          gsl_matrix_complex_get(PhiConj_S_Phi__gamma_beta,  gamma, beta)));
 
                     //std::cout << kernelElement.dat[0] << "+i " << kernelElement.dat[1] << std::endl;
-                    integralKernelTensor->setElement(alpha, beta, gamma, delta, kernelElement);
+                    integralKernelTensor->setElement(alpha, delta, gamma, beta, kernelElement);
                 }
             }
         }
