@@ -12,27 +12,27 @@
 #include "../../../include/utils/dirac/DiracStructuresHelper.hpp"
 #include "../../../include/utils/math/Commutator.hpp"
 
-void TensorBasis::calculateBasis(int impulseIdx,
-                                 gsl_vector_complex* p_f_timelike, gsl_vector_complex* p_i_timelike, gsl_vector_complex* k_f_timelike,
-                                 gsl_vector_complex* k_i_timelike, gsl_vector_complex* P_timelike)
+void TensorBasis::calculateBasis(int impulseIdx, Tensor4<4, 4, 4, 4>** tauGridCurrent,
+                                 gsl_vector_complex* p_f, gsl_vector_complex* p_i, gsl_vector_complex* k_f,
+                                 gsl_vector_complex* k_i, gsl_vector_complex* P)
 {
     // Positive Energy Projectors
     gsl_matrix_complex* Lambda_pf_timelike = gsl_matrix_complex_alloc(4, 4);
-    Projectors::posEnergyProjector(p_f_timelike, Lambda_pf_timelike);
+    Projectors::posEnergyProjector(p_f, Lambda_pf_timelike);
 
     gsl_matrix_complex* Lambda_pi_timelike = gsl_matrix_complex_alloc(4, 4);
-    Projectors::posEnergyProjector(p_i_timelike, Lambda_pi_timelike);
+    Projectors::posEnergyProjector(p_i, Lambda_pi_timelike);
 
     gsl_matrix_complex* Lambda_kf_timelike = gsl_matrix_complex_alloc(4, 4);
-    Projectors::posEnergyProjector(k_f_timelike, Lambda_kf_timelike);
+    Projectors::posEnergyProjector(k_f, Lambda_kf_timelike);
 
     gsl_matrix_complex* Lambda_ki_timelike = gsl_matrix_complex_alloc(4, 4);
-    Projectors::posEnergyProjector(k_i_timelike, Lambda_ki_timelike);
+    Projectors::posEnergyProjector(k_i, Lambda_ki_timelike);
 
 
     // Dirac Structures
     gsl_matrix_complex* P_timelike_Slash = gsl_matrix_complex_alloc(4, 4);
-    DiracStructuresHelper::diracStructures.slash(P_timelike, P_timelike_Slash);
+    DiracStructuresHelper::diracStructures.slash(P, P_timelike_Slash);
 
     //gsl_matrix_complex* KSlash = gsl_matrix_complex_alloc(4, 4);
     //DiracStructuresHelper::diracStructures.slash(K, KSlash);
@@ -52,13 +52,13 @@ void TensorBasis::calculateBasis(int impulseIdx,
     // tau[0] = Lambda(p_f).1.Lambda(p_i) (x) Lambda(k_f).1.Lambda(k_i)
     matProd3Elem(Lambda_pf_timelike, Projectors::getUnitM(), Lambda_pi_timelike, tmp, tmpA);
     matProd3Elem(Lambda_kf_timelike, Projectors::getUnitM(), Lambda_ki_timelike, tmp, tmpB);
-    tauGrid[0][impulseIdx] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
+    tauGridCurrent[0][impulseIdx] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
 
 
     // tau[1] = Lambda(p_f).1.Lambda(p_i) (x) Lambda(k_f).Slash(P).Lambda(k_i)
     // keep tmpA (same as tau[0])
     matProd3Elem(Lambda_kf_timelike, P_timelike_Slash, Lambda_ki_timelike, tmpC, tmpB);
-    tauGrid[1][impulseIdx] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
+    tauGridCurrent[1][impulseIdx] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
 
 
     // tau[2] = Sum(mu = 1 to 4) Lambda(p_f).gamma[mu].Lambda(p_i) (x) Lambda(k_f).gamma[mu].Lambda(k_i)
@@ -72,7 +72,7 @@ void TensorBasis::calculateBasis(int impulseIdx,
         gsl_matrix_complex_add(tmpSumA, tmpA);
         gsl_matrix_complex_add(tmpSumB, tmpB);
     }
-    tauGrid[2][impulseIdx] = Tensor4<4, 4, 4, 4>(tmpSumA, tmpSumB);
+    tauGridCurrent[2][impulseIdx] = Tensor4<4, 4, 4, 4>(tmpSumA, tmpSumB);
 
 
     // tau[3] = Sum(mu = 1 to 4) Lambda(p_f).gamma[mu].Lambda(p_i) (x) Lambda(k_f).[gamma[mu], Slash(P)].Lambda(k_i)
@@ -86,13 +86,13 @@ void TensorBasis::calculateBasis(int impulseIdx,
         //gsl_matrix_complex_add(tmpSumA, tmpA);
         gsl_matrix_complex_add(tmpSumB, tmpB);
     }
-    tauGrid[3][impulseIdx] = Tensor4<4, 4, 4, 4>(tmpSumA, tmpSumB);
+    tauGridCurrent[3][impulseIdx] = Tensor4<4, 4, 4, 4>(tmpSumA, tmpSumB);
 
 
     // tau[4] = Lambda(p_f).gamma5.Lambda(p_i) (x) Lambda(k_f).gamma5.Lambda(k_i)
     matProd3Elem(Lambda_pf_timelike, DiracStructuresHelper::diracStructures.gamma5, Lambda_pi_timelike, tmp, tmpA);
     matProd3Elem(Lambda_kf_timelike, DiracStructuresHelper::diracStructures.gamma5, Lambda_ki_timelike, tmp, tmpB);
-    tauGrid[4][impulseIdx] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
+    tauGridCurrent[4][impulseIdx] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
 
 
     // tau[5] = Lambda(p_f).gamma5.Lambda(p_i) (x) Lambda(k_f).gamma5.Slash(P).Lambda(k_i)
@@ -100,7 +100,7 @@ void TensorBasis::calculateBasis(int impulseIdx,
     gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), DiracStructuresHelper::diracStructures.gamma5, P_timelike_Slash,
                    gsl_complex_rect(0, 0), tmpC);
     matProd3Elem(Lambda_kf_timelike, tmpC, Lambda_ki_timelike, tmp, tmpB);
-    tauGrid[5][impulseIdx] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
+    tauGridCurrent[5][impulseIdx] = Tensor4<4, 4, 4, 4>(tmpA, tmpB);
 
 
     // tau[6] = Sum(mu = 1 to 4) Lambda(p_f).gamma5.gamma[mu].Lambda(p_i) (x) Lambda(k_f).gamma5.gamma[mu].Lambda(k_i)
@@ -117,7 +117,7 @@ void TensorBasis::calculateBasis(int impulseIdx,
         gsl_matrix_complex_add(tmpSumA, tmpA);
         gsl_matrix_complex_add(tmpSumB, tmpB);
     }
-    tauGrid[6][impulseIdx] = Tensor4<4, 4, 4, 4>(tmpSumA, tmpSumB);
+    tauGridCurrent[6][impulseIdx] = Tensor4<4, 4, 4, 4>(tmpSumA, tmpSumB);
 
 
     // tau[7] = Sum(mu = 1 to 4) Lambda(p_f).gamma5.gamma[mu].Lambda(p_i) (x) Lambda(k_f).gamma5.[gamma[mu], Slash(P)].Lambda(k_i)
@@ -132,7 +132,7 @@ void TensorBasis::calculateBasis(int impulseIdx,
 
         gsl_matrix_complex_add(tmpSumB, tmpB);
     }
-    tauGrid[7][impulseIdx] = Tensor4<4, 4, 4, 4>(tmpSumA, tmpSumB);
+    tauGridCurrent[7][impulseIdx] = Tensor4<4, 4, 4, 4>(tmpSumA, tmpSumB);
 
 
     // Free temporary vars
@@ -171,11 +171,14 @@ TensorBasis::operator std::string() const
 TensorBasis::TensorBasis(ExternalImpulseGrid* externalImpulseGrid) : len(externalImpulseGrid->getLength())
 {
     tauGrid = new Tensor4<4, 4, 4, 4>* [8];
+    tauGridTimelike = new Tensor4<4, 4, 4, 4>* [8];
+
     KMatrixGrid = new gsl_matrix_complex*[len];
     KInverseMatrixGrid = new gsl_matrix_complex*[len];
     for(int i = 0; i < 8; i++)
     {
         tauGrid[i] = new Tensor4<4, 4, 4, 4>[len];
+        tauGridTimelike[i] = new Tensor4<4, 4, 4, 4>[len];
     }
 
     for(int impulseIdx = 0; impulseIdx < len; impulseIdx++)
@@ -183,11 +186,15 @@ TensorBasis::TensorBasis(ExternalImpulseGrid* externalImpulseGrid) : len(externa
         KMatrixGrid[impulseIdx] = gsl_matrix_complex_alloc(8, 8);
         KInverseMatrixGrid[impulseIdx] = gsl_matrix_complex_alloc(8, 8);
 
-        calculateBasis(impulseIdx, externalImpulseGrid->get_p_f_timelike(impulseIdx), externalImpulseGrid->get_p_i_timelike(impulseIdx),
+        calculateBasis(impulseIdx, tauGrid, externalImpulseGrid->get_p_f(impulseIdx), externalImpulseGrid->get_p_i(impulseIdx),
+                       externalImpulseGrid->get_k_f(impulseIdx),
+                       externalImpulseGrid->get_k_i(impulseIdx), externalImpulseGrid->get_P(impulseIdx));
+
+        calculateBasis(impulseIdx, tauGridTimelike, externalImpulseGrid->get_p_f_timelike(impulseIdx), externalImpulseGrid->get_p_i_timelike(impulseIdx),
                        externalImpulseGrid->get_k_f_timelike(impulseIdx),
                        externalImpulseGrid->get_k_i_timelike(impulseIdx), externalImpulseGrid->get_P_timelike(impulseIdx));
 
-        calculateKMatrix(impulseIdx);
+        calculateKMatrix(impulseIdx, tauGrid);
         calculateKMatrixInverse(impulseIdx);
     }
 }
@@ -207,6 +214,7 @@ TensorBasis::~TensorBasis()
     for(int i = 0; i < 8; i++)
     {
         delete []tauGrid[i];
+        delete []tauGridTimelike[i];
     }
 
     for(int impulseIdx = 0; impulseIdx < len; impulseIdx++)
@@ -216,6 +224,7 @@ TensorBasis::~TensorBasis()
     }
 
     delete []tauGrid;
+    delete []tauGridTimelike;
     delete []KMatrixGrid;
     delete []KInverseMatrixGrid;
 }
@@ -225,13 +234,13 @@ int TensorBasis::getTensorBasisElementCount() const
     return 8;
 }
 
-void TensorBasis::calculateKMatrix(int impulseIdx)
+void TensorBasis::calculateKMatrix(int impulseIdx, Tensor4<4, 4, 4, 4>** tauGridCurrent)
 {
     for(int i = 0; i < getTensorBasisElementCount(); i++)
     {
         for(int j = 0; j < getTensorBasisElementCount(); j++)
         {
-            gsl_matrix_complex_set(KMatrixGrid[impulseIdx], i, j, tauGrid[i][impulseIdx].contractTauOther(tauGrid[j][impulseIdx]));
+            gsl_matrix_complex_set(KMatrixGrid[impulseIdx], i, j, tauGridCurrent[i][impulseIdx].contractTauOther(&tauGridCurrent[j][impulseIdx]));
         }
     }
 }

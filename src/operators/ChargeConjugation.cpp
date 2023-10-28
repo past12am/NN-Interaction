@@ -49,7 +49,7 @@ void ChargeConjugation::chargeConj(gsl_matrix_complex* mat)
 void ChargeConjugation::chargeConj(gsl_matrix_complex* mat, int thread_number)
 {
     tmpMutexArray[thread_number].lock();
-    chargeConj(mat, ChargeConjugation::tmpArray[thread_number]);
+    ChargeConjugation::chargeConj(mat, ChargeConjugation::tmpArray[thread_number]);
     tmpMutexArray[thread_number].unlock();
 }
 

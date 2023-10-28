@@ -78,7 +78,8 @@ gsl_complex ScatteringProcess::integralKernelWrapper(int externalImpulseIdx, int
 
     l_mutex.unlock();
 
-    return integralKernelTensor.contractTauOther(*tau_current);
+    gsl_complex kernel_res = integralKernelTensor.contractTauOther(tau_current);
+    return kernel_res;
 }
 
 void ScatteringProcess::store_scattering_amplitude(int basisElemIdx, double a, std::ofstream& data_file)

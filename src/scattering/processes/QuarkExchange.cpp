@@ -4,6 +4,7 @@
 
 #include "../../../include/scattering/processes/QuarkExchange.hpp"
 #include "../../../include/operators/ChargeConjugation.hpp"
+#include "../../../include/utils/print/PrintGSLElements.hpp"
 
 #include <complex>
 #include <gsl/gsl_blas.h>
@@ -171,7 +172,7 @@ void QuarkExchange::integralKernel(gsl_vector_complex* l, gsl_vector_complex* Q,
     gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), matrix_Conj_Phi_pf, S_Phi__alpha_delta, gsl_complex_rect(0, 0), PhiConj_S_Phi__alpha_delta);
 
     // PhiConj_S_Phi__alpha_delta = ChargeConj(Phi(p_r', p_f)) S(k_q) Phi(k_r, k_i)
-
+    //std::string PhiConj_S_Phi__alpha_delta_MatrixStr = PrintGSLElements::print_gsl_matrix_complex(PhiConj_S_Phi__alpha_delta);
 
 
 
@@ -193,6 +194,8 @@ void QuarkExchange::integralKernel(gsl_vector_complex* l, gsl_vector_complex* Q,
     // PhiConj_S_Phi__gamma_beta = ChargeConj(Phi(k_r', k_f)) PhiConj_S_Phi__gamma_beta
     gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), matrix_Conj_Phi_kf, S_Phi__gamma_beta, gsl_complex_rect(0, 0), PhiConj_S_Phi__gamma_beta);
 
+    // PhiConj_S_Phi__gamma_beta = ChargeConj(Phi(k_r', k_f)) S(p_q) Phi(p_r, p_i)
+    //std::string PhiConj_S_Phi__gamma_beta_MatrixStr = PrintGSLElements::print_gsl_matrix_complex(PhiConj_S_Phi__gamma_beta);
 
 
 

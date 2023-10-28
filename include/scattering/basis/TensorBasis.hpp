@@ -17,14 +17,17 @@ class TensorBasis
 {
     private:
         int len;
+
         Tensor4<4, 4, 4, 4>** tauGrid;
+        Tensor4<4, 4, 4, 4>** tauGridTimelike;
+
         gsl_matrix_complex** KMatrixGrid;
         gsl_matrix_complex** KInverseMatrixGrid;
 
-        void calculateBasis(int impulseIdx, gsl_vector_complex* p_f_timelike, gsl_vector_complex* p_i_timelike, gsl_vector_complex* k_f_timelike, gsl_vector_complex* k_i_timelike, gsl_vector_complex* P_timelike);
+        void calculateBasis(int impulseIdx, Tensor4<4, 4, 4, 4>** tauGridCurrent, gsl_vector_complex* p_f, gsl_vector_complex* p_i, gsl_vector_complex* k_f, gsl_vector_complex* k_i, gsl_vector_complex* P);
         void matProd3Elem(const gsl_matrix_complex* A, const gsl_matrix_complex* B, const gsl_matrix_complex* C,  gsl_matrix_complex* tmp, gsl_matrix_complex* res);
 
-        void calculateKMatrix(int impulseIdx);
+        void calculateKMatrix(int impulseIdx, Tensor4<4, 4, 4, 4>** tauGridCurrent);
         void calculateKMatrixInverse(int impulseIdx);
 
     public:
