@@ -155,14 +155,13 @@ void QuarkExchange::integralKernel(gsl_vector_complex* l, gsl_vector_complex* Q,
 
 
     // matrix_Conj_Phi_pf = ChargeConj(Phi(p_r', p_f))
-    Phi_pf->Phi(p_rp, p_f, matrix_Conj_Phi_pf);
-    ChargeConjugation::chargeConj(matrix_Conj_Phi_pf, threadIdx);
+    Phi_pf->Phi(p_rp, p_f, true, threadIdx, matrix_Conj_Phi_pf);
 
     // matrix_S_k = S(k_q)
     S_k->S(k_q,  matrix_S_k);
 
     // matrix_Phi_ki = Phi(k_r, k_i)
-    Phi_ki->Phi(k_r, k_i, matrix_Phi_ki);
+    Phi_ki->Phi(k_r, k_i, false, threadIdx, matrix_Phi_ki);
 
 
     // S_Phi__alpha_delta = S(k_q) Phi(k_r, k_i)
@@ -178,14 +177,13 @@ void QuarkExchange::integralKernel(gsl_vector_complex* l, gsl_vector_complex* Q,
 
 
     // matrix_Conj_Phi_kf = ChargeConj(Phi(k_r', k_f))
-    Phi_pf->Phi(k_rp, k_f, matrix_Conj_Phi_kf);
-    ChargeConjugation::chargeConj(matrix_Conj_Phi_kf, threadIdx);
+    Phi_pf->Phi(k_rp, k_f, true, threadIdx, matrix_Conj_Phi_kf);
 
     // matrix_S_p = S(p_q)
     S_k->S(p_q,  matrix_S_p);
 
     // matrix_Phi_pi = Phi(p_r, p_i)
-    Phi_ki->Phi(p_r, p_i, matrix_Phi_pi);
+    Phi_ki->Phi(p_r, p_i, false, threadIdx, matrix_Phi_pi);
 
 
     // S_Phi__gamma_beta = S(p_q) Phi(p_r, p_i)
