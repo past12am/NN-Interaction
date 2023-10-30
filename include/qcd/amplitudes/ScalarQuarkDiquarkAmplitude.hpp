@@ -19,6 +19,9 @@ class ScalarQuarkDiquarkAmplitude
         gsl_complex c2 = gsl_complex_rect(-0.2, 0);
         gsl_complex c3 = gsl_complex_rect(1.6, 0);
 
+        gsl_vector_complex* p_copy;
+        gsl_vector_complex* P_copy;
+
         gsl_matrix_complex* posEnergyProj;
 
         gsl_complex f(gsl_complex p2);
@@ -34,7 +37,7 @@ class ScalarQuarkDiquarkAmplitude
          * @param P total nucleon momentum on the mass shell (P^2 = -M^2)
          * @param quarkDiquarkAmp return value for the generated propagator matrix
          */
-        void Phi(gsl_vector_complex* p, gsl_vector_complex* P, gsl_matrix_complex* quarkDiquarkAmp);
+        void Phi(gsl_vector_complex* p, gsl_vector_complex* P, bool chargeConj, int threadIdx, gsl_matrix_complex* quarkDiquarkAmp);
 };
 
 
