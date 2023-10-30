@@ -23,6 +23,7 @@ template<int d1, int d2, int d3, int d4> class Tensor4
          * @param A
          * @param B
          */
+         [[deprecated]]
         Tensor4(gsl_matrix_complex* A, gsl_matrix_complex* B)
         {
             for(int i = 0; i < A->size1; i++)
@@ -40,6 +41,7 @@ template<int d1, int d2, int d3, int d4> class Tensor4
             }
         }
 
+        [[deprecated]]
         Tensor4()
         {
             for(int i = 0; i < d1; i++)
@@ -57,6 +59,7 @@ template<int d1, int d2, int d3, int d4> class Tensor4
             }
         }
 
+        [[deprecated]]
         Tensor4(Tensor4 &tensor4)
         {
             for(int i = 0; i < d1; i++)

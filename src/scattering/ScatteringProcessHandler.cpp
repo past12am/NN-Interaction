@@ -115,7 +115,7 @@ void ScatteringProcessHandler<ScatteringType>::store_scattering_amplitude(std::s
         std::ofstream data_file;
         data_file.open(fnamestrstream.str(), std::ofstream::out | std::ios::trunc);
 
-        data_file << "a,X,z,PK,QQ,h,f,|scattering_amp|2" << std::endl;
+        data_file << "a,X,z,PK,QQ,h,f" << std::endl;
 
         for(int aIdx = 0; aIdx < lenA; aIdx++)
         {

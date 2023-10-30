@@ -44,7 +44,7 @@ void Projectors::longitudinalProjector(gsl_vector_complex* P, gsl_matrix_complex
     gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1.0/GSL_REAL(valPSquared), 0.0), &PMatView.matrix, &PMatView.matrix, gsl_complex_rect(0.0, 0.0), longitudProj);
 }
 
-void Projectors::posEnergyProjector(gsl_vector_complex* P, gsl_matrix_complex* posEnergyProj)
+void Projectors::posEnergyProjector(const gsl_vector_complex* P, gsl_matrix_complex* posEnergyProj)
 {
     // Find norm of P
     gsl_complex valPSquared;

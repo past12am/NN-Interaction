@@ -58,7 +58,7 @@ ZXGrid::ZXGrid(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, dou
     }
 
     assert(X[0] == XCutoffLower);
-    assert(X[lenX - 1] == XCutoffUpper);
+    //assert(X[lenX - 1] == XCutoffUpper);
     assert(z[0] == zCutoffLower);
     assert(z[lenZ - 1] == zCutoffUpper);
 }

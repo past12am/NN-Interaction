@@ -33,7 +33,7 @@ const std::string PrintGSLElements::print_gsl_matrix_complex(gsl_matrix_complex*
             sstream << GSL_REAL(mat_element) << " " << ((GSL_IMAG(mat_element) < 0) ? "-" : "+") << "i " << abs(GSL_IMAG(mat_element));
             if(j < matrix->size2 - 1) sstream << ", ";
         }
-        sstream << "]";
+        sstream << "]" << std::endl;
     }
 
     return sstream.str();

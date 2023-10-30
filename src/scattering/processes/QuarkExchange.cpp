@@ -141,7 +141,7 @@ void QuarkExchange::integrate(double l2_cutoff)
 void QuarkExchange::integralKernel(gsl_vector_complex* l, gsl_vector_complex* Q, gsl_vector_complex* K, gsl_vector_complex* P,
                                    gsl_vector_complex* p_f, gsl_vector_complex* p_i,
                                    gsl_vector_complex* k_f, gsl_vector_complex* k_i,
-                                   Tensor4<4, 4, 4, 4>* integralKernelTensor)
+                                   Tensor22<4, 4, 4, 4>* integralKernelTensor)
 {
     calc_k_q(l, Q, k_q);
     calc_p_q(l, Q, p_q);
@@ -209,25 +209,18 @@ void QuarkExchange::integralKernel(gsl_vector_complex* l, gsl_vector_complex* Q,
 
 
 
-    // Construct M
-    for(int alpha = 0; alpha < PhiConj_S_Phi__alpha_delta->size1; alpha++)
-    {
-        for(int delta = 0; delta < PhiConj_S_Phi__alpha_delta->size2; delta++)
-        {
-            for(int gamma = 0; gamma < PhiConj_S_Phi__gamma_beta->size1; gamma++)
-            {
-                for(int beta = 0; beta < PhiConj_S_Phi__gamma_beta->size2; beta++)
-                {
-                    gsl_complex kernelElement = gsl_complex_mul(scalar_D_p, scalar_D_k);
-                    kernelElement = gsl_complex_mul(kernelElement, gsl_complex_mul(gsl_matrix_complex_get(PhiConj_S_Phi__alpha_delta, alpha, delta),
-                                                                                         gsl_matrix_complex_get(PhiConj_S_Phi__gamma_beta,  gamma, beta)));
+    // Scale Tensors by scalar diquarks
+    gsl_matrix_complex_scale(PhiConj_S_Phi__alpha_delta, scalar_D_k);
+    gsl_matrix_complex_scale(PhiConj_S_Phi__gamma_beta, scalar_D_p);
 
-                    //std::cout << kernelElement.dat[0] << "+i " << kernelElement.dat[1] << std::endl;
-                    integralKernelTensor->setElement(alpha, delta, gamma, beta, kernelElement);
-                }
-            }
-        }
-    }
+    // TODO remove
+    //if(!gsl_matrix_complex_isnull(PhiConj_S_Phi__alpha_delta)) {
+    //    std::cout << PrintGSLElements::print_gsl_matrix_complex(PhiConj_S_Phi__alpha_delta) << std::endl;
+    //    int nonsense = 0;
+    //}
+
+
+    integralKernelTensor->set_tensors(PhiConj_S_Phi__alpha_delta, PhiConj_S_Phi__gamma_beta);
 }
 
 void QuarkExchange::calc_k_q(gsl_vector_complex* l, gsl_vector_complex* Q, gsl_vector_complex* k_q)

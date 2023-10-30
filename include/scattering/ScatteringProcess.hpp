@@ -28,7 +28,7 @@ class ScatteringProcess
         gsl_complex* scattering_amplitude_basis_projected;  // h_i
         gsl_complex* form_factors;                          // f_i
 
-        Tensor4<4, 4, 4, 4>* scattering_matrix;
+        Tensor22<4, 4, 4, 4>* scattering_matrix;
 
         ExternalImpulseGrid externalImpulseGrid;
         TensorBasis tensorBasis;
@@ -65,7 +65,7 @@ class ScatteringProcess
         virtual void integralKernel(gsl_vector_complex* l, gsl_vector_complex* Q, gsl_vector_complex* K, gsl_vector_complex* P,
                                     gsl_vector_complex* p_f, gsl_vector_complex* p_i,
                                     gsl_vector_complex* k_f, gsl_vector_complex* k_i,
-                                    Tensor4<4, 4, 4, 4>* integralKernelTensor) = 0;
+                                    Tensor22<4, 4, 4, 4>* integralKernelTensor) = 0;
 
         virtual void integrate(double l2_cutoff) = 0;
 };

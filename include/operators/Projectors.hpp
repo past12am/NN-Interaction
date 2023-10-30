@@ -16,7 +16,7 @@ class Projectors
         static const gsl_matrix_complex* unitM;
 
     public:
-        static void posEnergyProjector(gsl_vector_complex* P, gsl_matrix_complex* posEnergyProj);
+        static void posEnergyProjector(const gsl_vector_complex* P, gsl_matrix_complex* posEnergyProj);
         static void transverseProjector(gsl_vector_complex* P, gsl_matrix_complex* transvProj);
         static void longitudinalProjector(gsl_vector_complex* P, gsl_matrix_complex* longitudProj);
 

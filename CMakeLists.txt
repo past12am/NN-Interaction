@@ -27,6 +27,7 @@ add_executable(NNInteraction main.cpp
         include/operators/ChargeConjugation.hpp
         include/scattering/basis/TensorBasis.hpp
         include/utils/tensor/Tensor4.hpp
+        include/utils/tensor/Tensor22.hpp
         include/utils/math/Commutator.hpp
         include/numerics/Integration.hpp
         include/scattering/impulse/ExternalImpulseGrid.hpp
