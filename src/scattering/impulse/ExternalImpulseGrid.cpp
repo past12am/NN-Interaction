@@ -208,7 +208,7 @@ void ExternalImpulseGrid::calc_P(gsl_vector_complex* P, const gsl_vector_complex
     gsl_vector_complex_add(P, p_ext);
     gsl_vector_complex_add(P, k_ext);
 
-    gsl_vector_complex_scale(P, gsl_complex_rect(2, 0));
+    gsl_vector_complex_scale(P, gsl_complex_rect(0.5, 0));
 }
 
 void ExternalImpulseGrid::calc_K(gsl_vector_complex* K, const gsl_vector_complex* k_ext, const gsl_vector_complex* p_ext, const gsl_vector_complex* q_ext)
@@ -217,7 +217,7 @@ void ExternalImpulseGrid::calc_K(gsl_vector_complex* K, const gsl_vector_complex
     gsl_vector_complex_sub(K, k_ext);
     gsl_vector_complex_sub(K, p_ext);
 
-    gsl_vector_complex_scale(K, gsl_complex_rect(2, 0));
+    gsl_vector_complex_scale(K, gsl_complex_rect(0.5, 0));
 }
 
 void ExternalImpulseGrid::calc_p_i(gsl_vector_complex* p_i, const gsl_vector_complex* k_ext, const gsl_vector_complex* p_ext, const gsl_vector_complex* q_ext)

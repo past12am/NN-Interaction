@@ -78,7 +78,7 @@ gsl_complex ScatteringProcess::integralKernelWrapper(int externalImpulseIdx, int
 
     l_mutex.unlock();
 
-    gsl_complex kernel_res = integralKernelTensor.contractTauOther(tau_current);
+    gsl_complex kernel_res = tau_current->contractTauOther(&integralKernelTensor);
     return kernel_res;
 }
 
