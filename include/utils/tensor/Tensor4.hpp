@@ -85,19 +85,19 @@ template<int d1, int d2, int d3, int d4> class Tensor4
             return os;
         }
 
-        gsl_complex contractTauOther(Tensor4<4, 4, 4, 4>* other)
+        gsl_complex leftContractWith(Tensor4<4, 4, 4, 4>* other)
         {
             gsl_complex res = gsl_complex_rect(0, 0);
 
             for(int alpha = 0; alpha < d1; alpha++)
             {
-                for (int delta = 0; delta < d2; delta++)
+                for (int beta = 0; beta < d2; beta++)
                 {
                     for (int gamma = 0; gamma < d3; gamma++)
                     {
-                        for (int beta = 0; beta < d4; beta++)
+                        for (int delta = 0; delta < d4; delta++)
                         {
-                            res = gsl_complex_add(res, gsl_complex_mul( other->tensor[delta][alpha][beta][gamma], tensor[alpha][delta][gamma][beta]));
+                            res = gsl_complex_add(res, gsl_complex_mul( other->tensor[beta][alpha][delta][gamma], tensor[alpha][beta][gamma][delta]));
                         }
                     }
                 }

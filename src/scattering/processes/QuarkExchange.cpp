@@ -221,7 +221,7 @@ void QuarkExchange::integralKernel(gsl_vector_complex* l, gsl_vector_complex* Q,
                                                                                          gsl_matrix_complex_get(PhiConj_S_Phi__gamma_beta,  gamma, beta)));
 
                     //std::cout << kernelElement.dat[0] << "+i " << kernelElement.dat[1] << std::endl;
-                    integralKernelTensor->setElement(alpha, delta, gamma, beta, kernelElement);
+                    integralKernelTensor->setElement(alpha, beta, gamma, delta, kernelElement);
                 }
             }
         }

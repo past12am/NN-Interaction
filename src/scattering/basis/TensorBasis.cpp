@@ -193,7 +193,7 @@ TensorBasis::TensorBasis(ExternalImpulseGrid* externalImpulseGrid) : len(externa
                        externalImpulseGrid->get_k_f_timelike(impulseIdx),
                        externalImpulseGrid->get_k_i_timelike(impulseIdx), externalImpulseGrid->get_P_timelike(impulseIdx));
 
-        calculateKMatrix(impulseIdx, tauGridTimelike);
+        calculateKMatrix(impulseIdx, tauGrid);
         calculateKMatrixInverse(impulseIdx);
     }
 }
@@ -239,7 +239,8 @@ void TensorBasis::calculateKMatrix(int impulseIdx, Tensor4<4, 4, 4, 4>** tauGrid
     {
         for(int j = 0; j < getTensorBasisElementCount(); j++)
         {
-            gsl_matrix_complex_set(KMatrixGrid[impulseIdx], i, j, tauGridCurrent[i][impulseIdx].contractTauOther(&tauGridCurrent[j][impulseIdx]));
+            gsl_matrix_complex_set(KMatrixGrid[impulseIdx], j, i,
+                                   tauGridCurrent[i][impulseIdx].leftContractWith(&tauGridCurrent[j][impulseIdx]));
         }
     }
 }
