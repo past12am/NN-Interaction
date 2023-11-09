@@ -16,6 +16,7 @@ class PrintGSLElements
     public:
         static const std::string print_gsl_vector_complex(gsl_vector_complex* vec);
         static const std::string print_gsl_matrix_complex(gsl_matrix_complex* matrix);
+        static const std::string print_gsl_matrix_structure(gsl_matrix_complex* matrix, float eps);
 };
 
 

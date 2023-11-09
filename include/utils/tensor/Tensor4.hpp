@@ -179,6 +179,23 @@ template<int d1, int d2, int d3, int d4> class Tensor4
 
             return GSL_REAL(res);
         }
+
+        void setZero()
+        {
+            for(int i = 0; i < d1; i++)
+            {
+                for (int j = 0; j < d2; j++)
+                {
+                    for (int k = 0; k < d3; k++)
+                    {
+                        for (int l = 0; l < d4; l++)
+                        {
+                            tensor[i][j][k][l] = GSL_COMPLEX_ZERO;
+                        }
+                    }
+                }
+            }
+        }
 };
 
 #endif //NNINTERACTION_TENSOR4_HPP
