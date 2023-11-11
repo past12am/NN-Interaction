@@ -98,6 +98,9 @@ template<int d1, int d2, int d3, int d4> class Tensor4
                         for (int delta = 0; delta < d4; delta++)
                         {
                             res = gsl_complex_add(res, gsl_complex_mul( other->tensor[beta][alpha][delta][gamma], tensor[alpha][beta][gamma][delta]));
+
+                            //Out of interest
+                            //res = gsl_complex_add(res, gsl_complex_mul( other->tensor[delta][gamma][beta][alpha], tensor[alpha][beta][gamma][delta]));
                         }
                     }
                 }

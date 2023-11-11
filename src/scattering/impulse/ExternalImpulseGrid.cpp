@@ -156,7 +156,7 @@ void ExternalImpulseGrid::calc_q_ext(gsl_vector_complex* q_ext, double X, gsl_co
     gsl_vector_complex_set_zero(q_ext);
     gsl_vector_complex_set(q_ext, 3, gsl_complex_rect(1, 0));
 
-    gsl_complex pref = gsl_complex_mul_real(nucleon_mass, 2.0 * sqrt(1 + X));
+    gsl_complex pref = gsl_complex_mul_real(nucleon_mass, 2.0 * sqrt(1.0 + X));
     pref = gsl_complex_mul(pref, gsl_complex_sqrt_real(a));
 
     gsl_vector_complex_scale(q_ext, pref);
@@ -223,28 +223,28 @@ void ExternalImpulseGrid::calc_K(gsl_vector_complex* K, const gsl_vector_complex
 void ExternalImpulseGrid::calc_p_i(gsl_vector_complex* p_i, const gsl_vector_complex* k_ext, const gsl_vector_complex* p_ext, const gsl_vector_complex* q_ext)
 {
     gsl_vector_complex_memcpy(p_i, q_ext);
-    gsl_vector_complex_scale(p_i, gsl_complex_rect(1.0/2.0, 0));
+    gsl_vector_complex_scale(p_i, gsl_complex_rect(0.5, 0));
     gsl_vector_complex_add(p_i, k_ext);
 }
 
 void ExternalImpulseGrid::calc_p_f(gsl_vector_complex* p_f, const gsl_vector_complex* k_ext, const gsl_vector_complex* p_ext, const gsl_vector_complex* q_ext)
 {
     gsl_vector_complex_memcpy(p_f, q_ext);
-    gsl_vector_complex_scale(p_f, gsl_complex_rect(1.0/2.0, 0));
+    gsl_vector_complex_scale(p_f, gsl_complex_rect(0.5, 0));
     gsl_vector_complex_add(p_f, p_ext);
 }
 
 void ExternalImpulseGrid::calc_k_i(gsl_vector_complex* k_i, const gsl_vector_complex* k_ext, const gsl_vector_complex* p_ext, const gsl_vector_complex* q_ext)
 {
     gsl_vector_complex_memcpy(k_i, q_ext);
-    gsl_vector_complex_scale(k_i, gsl_complex_rect(1.0/2.0, 0));
+    gsl_vector_complex_scale(k_i, gsl_complex_rect(0.5, 0));
     gsl_vector_complex_sub(k_i, k_ext);
 }
 
 void ExternalImpulseGrid::calc_k_f(gsl_vector_complex* k_f, const gsl_vector_complex* k_ext, const gsl_vector_complex* p_ext, const gsl_vector_complex* q_ext)
 {
     gsl_vector_complex_memcpy(k_f, q_ext);
-    gsl_vector_complex_scale(k_f, gsl_complex_rect(1.0/2.0, 0));
+    gsl_vector_complex_scale(k_f, gsl_complex_rect(0.5, 0));
     gsl_vector_complex_sub(k_f, p_ext);
 }
 
