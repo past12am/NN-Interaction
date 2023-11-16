@@ -34,8 +34,8 @@ void ScalarQuarkDiquarkAmplitude::Phi(gsl_vector_complex* p, gsl_vector_complex*
 
     if(chargeConj)
     {
-        gsl_vector_complex_scale(p_copy, gsl_complex_rect(-1, 0));
-        gsl_vector_complex_scale(P_copy, gsl_complex_rect(-1, 0));
+        gsl_vector_complex_scale(p_copy, gsl_complex_rect(-1.0, 0));
+        gsl_vector_complex_scale(P_copy, gsl_complex_rect(-1.0, 0));
     }
 
     gsl_complex p2;
@@ -52,6 +52,9 @@ void ScalarQuarkDiquarkAmplitude::Phi(gsl_vector_complex* p, gsl_vector_complex*
     if(chargeConj)
     {
         ChargeConjugation::chargeConj(quarkDiquarkAmp, threadIdx);
+
+        // TODO check
+        //gsl_matrix_complex_scale(quarkDiquarkAmp, gsl_complex_rect(-1, 0));
     }
 }
 

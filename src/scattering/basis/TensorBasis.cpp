@@ -229,7 +229,7 @@ TensorBasis::operator std::string() const
     return std::string();
 }
 
-TensorBasis::TensorBasis(ExternalImpulseGrid* externalImpulseGrid) : len(externalImpulseGrid->getLength())
+TensorBasis::TensorBasis(ExternalImpulseGrid* externalImpulseGrid, gsl_complex nucleon_mass) : len(externalImpulseGrid->getLength())
 {
     tauGrid = new Tensor4<4, 4, 4, 4>* [8];
     tauGridTimelike = new Tensor4<4, 4, 4, 4>* [8];
@@ -256,12 +256,25 @@ TensorBasis::TensorBasis(ExternalImpulseGrid* externalImpulseGrid) : len(externa
         //               externalImpulseGrid->get_k_i_timelike(impulseIdx), externalImpulseGrid->get_P_timelike(impulseIdx));
 
 
-        calculateBasis(impulseIdx, tauGridTimelike, externalImpulseGrid->get_p_f_timelike(impulseIdx), externalImpulseGrid->get_p_i_timelike(impulseIdx),
-                       externalImpulseGrid->get_k_f_timelike(impulseIdx),
-                       externalImpulseGrid->get_k_i_timelike(impulseIdx), externalImpulseGrid->get_P_timelike(impulseIdx));
+        //calculateBasis(impulseIdx, tauGridTimelike, externalImpulseGrid->get_p_f_timelike(impulseIdx), externalImpulseGrid->get_p_i_timelike(impulseIdx),
+        //               externalImpulseGrid->get_k_f_timelike(impulseIdx),
+        //               externalImpulseGrid->get_k_i_timelike(impulseIdx), externalImpulseGrid->get_P_timelike(impulseIdx));
 
-        calculateKMatrix(impulseIdx, tauGrid);
-        calculateKMatrixInverse(impulseIdx);
+        //calculateKMatrix(impulseIdx, tauGrid);
+        //calculateKMatrixInverse(impulseIdx);
+    }
+
+    for(int X_idx = 0; X_idx < externalImpulseGrid->getLenX(); X_idx++)
+    {
+        for(int z_idx = 0; z_idx < externalImpulseGrid->getLenZ(); z_idx++)
+        {
+            double X = externalImpulseGrid->getXAt(X_idx);
+            double z = externalImpulseGrid->getZAt(z_idx);
+            double M = GSL_REAL(nucleon_mass);
+
+            int impulseIdx = externalImpulseGrid->getGridIdx(X_idx, z_idx);
+            calculateKMatrixInverseAnalyticTimelikeq(KInverseMatrixGrid[impulseIdx], X, z, M);
+        }
     }
 }
 
@@ -311,8 +324,162 @@ void TensorBasis::calculateKMatrix(int impulseIdx, Tensor4<4, 4, 4, 4>** tauGrid
         }
     }
 
+    /*
+    // Set 0 what should be 0 (< 1E-10)
+    double eps = 1E-10;
+    for(int i = 0; i < KMatrixGrid[impulseIdx]->size1; i++)
+    {
+        for (int j = 0; j < KMatrixGrid[impulseIdx]->size2; j++)
+        {
+            gsl_complex entry = gsl_matrix_complex_get(KMatrixGrid[impulseIdx], i, j);
+
+            if(!(abs(GSL_REAL(entry)) > eps || abs(GSL_IMAG(entry)) > eps))
+                gsl_matrix_complex_set(KMatrixGrid[impulseIdx], i, j, GSL_COMPLEX_ZERO);
+        }
+    }
+     */
+
     //std::cout << "K-Matrix: " << std::endl << PrintGSLElements::print_gsl_matrix_structure(KMatrixGrid[impulseIdx], 1E-10) << std::endl;
     //std::cout << "K-Matrix: " << std::endl << PrintGSLElements::print_gsl_matrix_complex(KMatrixGrid[impulseIdx]) << std::endl << std::endl;
+}
+
+void TensorBasis::calculateKMatrixInverseAnalytic(gsl_matrix_complex* KInv, double X, double z, double M, double a)
+{
+    // TODO Mathematica Kinematics v2 spacelike q
+}
+
+void TensorBasis::calculateKMatrixInverseAnalyticTimelikeq(gsl_matrix_complex* KInv, double X, double z, double M)
+{
+    // TODO: Note that the used analytic expressions are for timelike q
+    //          --> see calculateKMatrixInverseAnalytic
+
+    //[0,0]
+    double entry_00_real = (4.0 * (4.0 + 4.0 * X * (3 + z) + 4 * gsl_pow_3(X) * (-1 + gsl_pow_2(z)) + gsl_pow_2(X) * (5.0 + 6.0 * z + 5.0 * gsl_pow_2(z)))) /
+                (gsl_pow_2(X) * (1.0 + X) * gsl_pow_4(2.0 + X - X * z) * (-1.0 + gsl_pow_2(z)));
+
+    //[0,1]
+    double entry_01_imag = -((4.0 * (2.0 + X * (3.0 + z))) /
+                            (M * gsl_pow_2(X) * (1.0 + X) * gsl_pow_3(-2.0 + X * (-1 + z)) * (-1 + gsl_pow_2(z))));
+
+
+    //[1, 1]
+    double entry_11_real = -((2.0 * (2.0 * gsl_pow_3(X) * gsl_pow_2(-1.0 + z) * (1.0 + z) + 4 * (3.0 + 5.0 * z) -
+                                8.0 * X * (-2.0 - 3.0 * z + gsl_pow_2(z)) +
+                                gsl_pow_2(X) * (5.0 + z - 9.0 * gsl_pow_2(z) + 3.0 * gsl_pow_3(z)))) /
+                            (gsl_pow_2(M) * gsl_pow_2(X) * gsl_pow_2(1.0 + X) * (-1.0 + z) * gsl_pow_2(1.0 + z) * gsl_pow_4(2.0 + X - X * z)));
+
+    //[1, 2]
+    double entry_12_imag = -(((4.0 + 12.0 * z + 16.0 * X * z + gsl_pow_2(X) * (-5.0 + 3.0 * z + gsl_pow_2(z) + gsl_pow_3(z)))) /
+                            (M * gsl_pow_2(X) * gsl_pow_2(1.0 + X) * gsl_pow_3(-2.0 + X * (-1.0 + z)) * (-1.0 + z) * gsl_pow_2(1.0 + z)));
+
+
+    //[2, 2]
+    double entry_22_real = (4.0 + 12.0 * z + 16.0 * X * z + gsl_pow_2(X) * (-5.0 + 3.0 * z + gsl_pow_2(z) + gsl_pow_3(z))) /
+                           (2.0 * gsl_pow_2(X) * gsl_pow_2(1.0 + X) * gsl_pow_2(-2.0 + X * (-1.0 + z)) * (-1.0 + z) * gsl_pow_2(1.0 + z));
+
+
+    //[3, 3]
+    double entry_33_real = 1.0 / (gsl_pow_2(M) * gsl_pow_2(X) * (1.0 + X) * gsl_pow_2(-2.0 + X * (-1.0 + z)) * (-1.0 + gsl_pow_2(z)));
+
+
+    //[1, 4]
+    double entry_14_imag = (16.0 * (2.0 + X * (3.0 + z))) / (M * gsl_pow_2(X) * (1.0 + X) * gsl_pow_4(2.0 + X - X * z) * (-1.0 + gsl_pow_2(z)));
+
+    //[2, 4]
+    double entry_24_real = -((8.0 * (2.0 + X * (3.0 + z))) / (gsl_pow_2(X) * (1.0 + X) * gsl_pow_3(-2.0 + X * (-1.0 + z)) * (-1.0 + gsl_pow_2(z))));
+
+    //[4, 4]
+    double entry_44_real = (4.0 * (4.0 * gsl_pow_3(X) * gsl_pow_2(-1.0 + z) * (1.0 + z) + 4.0 * (7.0 + 9.0 * z)
+                                   + X * (36.0 + 40.0 * z - 12.0 * gsl_pow_2(z))
+                                   + gsl_pow_2(X) * (11.0 - z - 15.0 * gsl_pow_2(z) + 5.0 * gsl_pow_3(z)))) /
+                            (gsl_pow_2(X) * (1.0 + X) * gsl_pow_2(-1.0 + z) * (1.0 + z) * gsl_pow_4(2.0 + X - X * z));
+
+
+    //[5, 5]
+    double entry_55_real = 4.0 / (gsl_pow_2(M) * gsl_pow_2(X) * (1.0 + X) * gsl_pow_2(-2.0 + X * (-1.0 + z)) * (-1.0 +gsl_pow_2(z)));
+
+
+    //[6, 6]
+    double entry_66_real = (4.0 + 8.0 * X + gsl_pow_2(X) * (5.0 + 2.0 * z + gsl_pow_2(z))) /
+                           (2.0 * gsl_pow_2(X) * gsl_pow_2(1.0 + X) * gsl_pow_2(-2.0 + X * (-1.0 + z)) * gsl_pow_2(1.0 + z));
+
+    //[1, 6]
+    double entry_16_imag = -(((2.0 + X * (3.0 + z))) / (M * gsl_pow_2(X) * gsl_pow_2(1.0 + X) * gsl_pow_2(-2.0 + X * (-1.0 + z)) * gsl_pow_2(1.0 + z)));
+
+    //[2, 6]
+    double entry_26_real = (2.0 + X * (3.0 + z)) / (2.0 * gsl_pow_2(X) * gsl_pow_2(1.0 + X) * (-2.0 + X * (-1.0 + z)) * gsl_pow_2(1.0 + z));
+
+    //[4, 6]
+    double entry_46_real = -(4.0 / (gsl_pow_2(X) * (1.0 + X) * gsl_pow_2(-2.0 + X * (-1.0 + z)) * (-1.0 + gsl_pow_2(z))));
+
+
+    //[7, 7]
+    double entry_77_real = -((4.0 + 8.0 * X + 2.0 * gsl_pow_3(X) * (-1.0 + gsl_pow_2(z)) + gsl_pow_2(X) * (3.0 + 2.0 * z + 3.0 * gsl_pow_2(z))) /
+                            (2.0 * gsl_pow_2(M) * gsl_pow_2(X) * gsl_pow_2(1.0 + X) * gsl_pow_2(1.0 + z) * gsl_pow_4(2.0 + X - X * z)));
+
+    //[1, 7]
+    double entry_17_real = gsl_pow_2(2.0 + X * (3.0 + z)) / (gsl_pow_2(M) * gsl_pow_2(X) * gsl_pow_2(1.0 + X) * gsl_pow_2(1.0 + z) * gsl_pow_4(2.0 + X - X * z));
+
+    //[2, 7]
+    double entry_27_imag = (gsl_pow_2(2.0 + X * (3.0 + z))) / (2.0 * M * gsl_pow_2(X) * gsl_pow_2(1.0 + X) * gsl_pow_3(-2.0 + X * (-1.0 + z)) * gsl_pow_2(1.0 + z));
+
+    //[4, 7]
+    double entry_47_imag = -((2.0 * (4.0 + 4.0 * X * (1 + z) + gsl_pow_2(X) * (-3.0 + 2.0 * z + gsl_pow_2(z)))) /
+                            (M * gsl_pow_2(X) * (1.0 + X) * gsl_pow_4(2.0 + X - X * z) * (-1.0 + gsl_pow_2(z))));
+
+    //[6, 7]
+    double entry_67_imag = ((2.0 + X * (3.0 + z))) / (2.0 * M * gsl_pow_2(X) * gsl_pow_2(1.0 + X) * gsl_pow_2(-2.0 + X * (-1.0 + z)) * gsl_pow_2(1.0 + z));
+
+
+    // Set matrix entries
+    gsl_matrix_complex_set_zero(KInv);
+
+    gsl_matrix_complex_set(KInv, 0, 0, gsl_complex_rect(entry_00_real, 0));
+    gsl_matrix_complex_set(KInv, 1, 1, gsl_complex_rect(entry_11_real, 0));
+    gsl_matrix_complex_set(KInv, 2, 2, gsl_complex_rect(entry_22_real, 0));
+    gsl_matrix_complex_set(KInv, 3, 3, gsl_complex_rect(entry_33_real, 0));
+    gsl_matrix_complex_set(KInv, 4, 4, gsl_complex_rect(entry_44_real, 0));
+    gsl_matrix_complex_set(KInv, 5, 5, gsl_complex_rect(entry_55_real, 0));
+    gsl_matrix_complex_set(KInv, 6, 6, gsl_complex_rect(entry_66_real, 0));
+    gsl_matrix_complex_set(KInv, 7, 7, gsl_complex_rect(entry_77_real, 0));
+
+
+    gsl_matrix_complex_set(KInv, 0, 1, gsl_complex_rect(0, entry_01_imag));
+    gsl_matrix_complex_set(KInv, 1, 0, gsl_complex_rect(0, entry_01_imag));
+
+
+    gsl_matrix_complex_set(KInv, 1, 2, gsl_complex_rect(0, entry_12_imag));
+    gsl_matrix_complex_set(KInv, 2, 1, gsl_complex_rect(0, entry_12_imag));
+
+    gsl_matrix_complex_set(KInv, 1, 4, gsl_complex_rect(0, entry_14_imag));
+    gsl_matrix_complex_set(KInv, 4, 1, gsl_complex_rect(0, entry_14_imag));
+
+    gsl_matrix_complex_set(KInv, 1, 6, gsl_complex_rect(0, entry_16_imag));
+    gsl_matrix_complex_set(KInv, 6, 1, gsl_complex_rect(0, entry_16_imag));
+
+    gsl_matrix_complex_set(KInv, 1, 7, gsl_complex_rect(entry_17_real, 0));
+    gsl_matrix_complex_set(KInv, 7, 1, gsl_complex_rect(entry_17_real, 0));
+
+
+    gsl_matrix_complex_set(KInv, 2, 4, gsl_complex_rect(entry_24_real, 0));
+    gsl_matrix_complex_set(KInv, 4, 2, gsl_complex_rect(entry_24_real, 0));
+
+    gsl_matrix_complex_set(KInv, 2, 6, gsl_complex_rect(entry_26_real, 0));
+    gsl_matrix_complex_set(KInv, 6, 2, gsl_complex_rect(entry_26_real, 0));
+
+    gsl_matrix_complex_set(KInv, 2, 7, gsl_complex_rect(0, entry_27_imag));
+    gsl_matrix_complex_set(KInv, 7, 2, gsl_complex_rect(0, entry_27_imag));
+
+
+    gsl_matrix_complex_set(KInv, 4, 6, gsl_complex_rect(entry_46_real, 0));
+    gsl_matrix_complex_set(KInv, 6, 4, gsl_complex_rect(entry_46_real, 0));
+
+    gsl_matrix_complex_set(KInv, 4, 7, gsl_complex_rect(0, entry_47_imag));
+    gsl_matrix_complex_set(KInv, 7, 4, gsl_complex_rect(0, entry_47_imag));
+
+
+    gsl_matrix_complex_set(KInv, 6, 7, gsl_complex_rect(0, entry_67_imag));
+    gsl_matrix_complex_set(KInv, 7, 6, gsl_complex_rect(0, entry_67_imag));
 }
 
 void TensorBasis::calculateKMatrixInverse(int impulseIdx)
@@ -342,7 +509,25 @@ void TensorBasis::calculateKMatrixInverse(int impulseIdx)
         gsl_linalg_complex_LU_invert(LUDecomp, p, KInverseMatrixGrid[impulseIdx]);
     }
 
-    std::cout << "K-Matrix Inverse: " << std::endl << PrintGSLElements::print_gsl_matrix_structure(KInverseMatrixGrid[impulseIdx], 1E-10) << std::endl;
+
+    // Set 0 what should be 0 (< 1E-10)
+    /*
+    double eps = 1E-15;
+    for(int i = 0; i < KInverseMatrixGrid[impulseIdx]->size1; i++)
+    {
+        for (int j = 0; j < KInverseMatrixGrid[impulseIdx]->size2; j++)
+        {
+            gsl_complex entry = gsl_matrix_complex_get(KInverseMatrixGrid[impulseIdx], i, j);
+
+            if(!(abs(GSL_REAL(entry)) > eps || abs(GSL_IMAG(entry)) > eps))
+                gsl_matrix_complex_set(KInverseMatrixGrid[impulseIdx], i, j, GSL_COMPLEX_ZERO);
+        }
+    }
+    */
+
+
+    //std::cout << "K-Matrix Inverse: " << std::endl << PrintGSLElements::print_gsl_matrix_structure(KInverseMatrixGrid[impulseIdx], 1E-10) << std::endl;
+    std::cout << "K-Matrix Inverse: " << std::endl << PrintGSLElements::print_gsl_matrix_complex(KInverseMatrixGrid[impulseIdx]) << std::endl;
 
 }
 

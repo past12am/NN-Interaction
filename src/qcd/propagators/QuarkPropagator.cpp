@@ -5,6 +5,7 @@
 #include <complex>
 #include <gsl/gsl_complex_math.h>
 #include <gsl/gsl_blas.h>
+#include <cassert>
 #include "../../../include/qcd/propagators/QuarkPropagator.hpp"
 #include "../../../include/utils/dirac/DiracStructuresHelper.hpp"
 #include "../../../include/utils/dirac/DiracStructures.hpp"
@@ -16,13 +17,14 @@ gsl_complex QuarkPropagator::M(gsl_complex p2)
 
 gsl_complex QuarkPropagator::A(gsl_complex p2)
 {
-    return gsl_complex_rect(1, 0);
+    return gsl_complex_rect(1.0, 0.0);
 }
 
 void QuarkPropagator::S(gsl_vector_complex* p, gsl_matrix_complex* quarkProp)
 {
     gsl_complex p2;
     gsl_blas_zdotu(p, p, &p2);
+    assert(GSL_REAL(p2) >= 0 && GSL_IMAG(p2) == 0);
 
     // pref = 1/(A(p2) * (p2 + M(p2)^2))
     gsl_complex pref = gsl_complex_div(gsl_complex_rect(1.0, 0), gsl_complex_mul(A(p2), gsl_complex_add(p2, gsl_complex_pow_real(M(p2), 2.0))));
@@ -30,7 +32,7 @@ void QuarkPropagator::S(gsl_vector_complex* p, gsl_matrix_complex* quarkProp)
     DiracStructuresHelper::diracStructures.slash(p, pSlashCurrent);
 
     // pSlash = -i pSlash
-    gsl_matrix_complex_scale(pSlashCurrent, gsl_complex_rect(0, -1));
+    gsl_matrix_complex_scale(pSlashCurrent, gsl_complex_rect(0, -1.0));
 
     // quarkProp = M(p2) * unitM
     gsl_matrix_complex_set_identity(quarkProp);

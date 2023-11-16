@@ -29,9 +29,11 @@ class TensorBasis
 
         void calculateKMatrix(int impulseIdx, Tensor4<4, 4, 4, 4>** tauGridCurrent);
         void calculateKMatrixInverse(int impulseIdx);
+        void calculateKMatrixInverseAnalyticTimelikeq(gsl_matrix_complex* KInv, double X, double z, double M);
+        void calculateKMatrixInverseAnalytic(gsl_matrix_complex* KInv, double X, double z, double M, double a);
 
     public:
-        TensorBasis(ExternalImpulseGrid* externalImpulseGrid);
+        TensorBasis(ExternalImpulseGrid* externalImpulseGrid, gsl_complex nucleon_mass);
         virtual ~TensorBasis();
 
         int getTensorBasisElementCount() const;

@@ -13,7 +13,7 @@
 ScatteringProcess::ScatteringProcess(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, double a, int threadIdx) :
         nucleon_mass(nucleon_mass), threadIdx(threadIdx),
         externalImpulseGrid(lenX, lenZ, XCutoffLower, XCutoffUpper, zCutoffLower, zCutoffUpper, nucleon_mass, a),
-        tensorBasis(&externalImpulseGrid)
+        tensorBasis(&externalImpulseGrid, nucleon_mass)
 {
     scattering_amplitude_basis_projected = new gsl_complex[tensorBasis.getTensorBasisElementCount() * externalImpulseGrid.getLength()];
     form_factors = new gsl_complex[tensorBasis.getTensorBasisElementCount() * externalImpulseGrid.getLength()];
