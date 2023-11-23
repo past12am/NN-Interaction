@@ -273,7 +273,7 @@ TensorBasis::TensorBasis(ExternalImpulseGrid* externalImpulseGrid, gsl_complex n
             double M = GSL_REAL(nucleon_mass);
 
             int impulseIdx = externalImpulseGrid->getGridIdx(X_idx, z_idx);
-            calculateKMatrixInverseAnalyticTimelikeq(KInverseMatrixGrid[impulseIdx], X, z, M);
+            calculateKMatrixInverseAnalytic(KInverseMatrixGrid[impulseIdx], X, z, M, externalImpulseGrid->get_a());
         }
     }
 }
@@ -346,11 +346,149 @@ void TensorBasis::calculateKMatrix(int impulseIdx, Tensor4<4, 4, 4, 4>** tauGrid
 void TensorBasis::calculateKMatrixInverseAnalytic(gsl_matrix_complex* KInv, double X, double z, double M, double a)
 {
     // TODO Mathematica Kinematics v2 spacelike q
+
+    // TODO check used pow is not too inaccurate vs gsl_pow
+
+    // [0, x]
+    double entry_00 = (4.0 * gsl_pow_4(a + X + a * X) * (4.0 * gsl_pow_3(a) * gsl_pow_3(1.0 + X)
+                        - 4.0 * gsl_pow_2(a) * X * gsl_pow_2(1.0 + X) * z
+                        + gsl_pow_3(X) * gsl_pow_2(1.0 + z)
+                        + a * gsl_pow_2(X) * (1.0 + X) * (-7.0 - 2.0 * z + 5.0 * gsl_pow_2(z)))) /
+                      (a * gsl_pow_2(X) * (1.0 + X) * (-1.0 + z) * (1.0 + z) * gsl_pow_4(2.0 * a * (1.0 + X) + X * (1.0 + z)));
+
+
+    double entry_01 = -((4.0 * pow(a + X + a * X, 4.5) * (2.0 * a * (1.0 + X) - X * (1.0 + z))) /
+                       (a * M * gsl_pow_2(X) * (1.0 + X) * (-1.0 + z) * (1 + z) * gsl_pow_3(2 * a * (1.0 + X) + X * (1.0 + z))));
+
+    // [1, x]
+    double entry_11 = (2.0 * gsl_pow_4(a + X + a * X) * (gsl_pow_3(X) * (-1.0 + z) * gsl_pow_2(1.0 + z)
+                                                            + 4 * gsl_pow_3(a) * gsl_pow_3(1.0 + X) * (3.0 + 5.0 * z)
+                                                            + 4 * gsl_pow_2(a) * X * gsl_pow_2(1.0 + X) * (5.0 + 9.0 * z + 2.0 * gsl_pow_2(z))
+                                                            + a * gsl_pow_2(X) * (1.0 + X) * (9.0 + 13.0 * z + 7.0 * gsl_pow_2(z) + 3.0 * gsl_pow_3(z)))) /
+                      (gsl_pow_2(a) * gsl_pow_2(M) * gsl_pow_2(X) * gsl_pow_2(1.0 + X) * (-1.0 + z) * gsl_pow_2(1.0 + z) * gsl_pow_4(2.0 * a * (1.0 + X) + X * (1.0 + z)));
+
+    double entry_12 = -((pow(a + X + a * X, 4.5) * (8.0 * a * X * (1.0 + X) * (1.0 + z)
+                                                    + gsl_pow_2(X) * (-1.0 + z) * gsl_pow_2(1.0 + z)
+                                                    + 4.0 * gsl_pow_2(a) * gsl_pow_2(1.0 + X) * (1.0 + 3.0 * z))) /
+                       (gsl_pow_2(a) * M * gsl_pow_2(X) * gsl_pow_2(1.0 + X) * (-1.0 + z) * gsl_pow_2(1.0 + z) * gsl_pow_3(2.0 * a * (1.0 + X) + X * (1.0 + z))));
+
+    double entry_14 = -((16.0 * pow(a + X + a * X, 5.5) * (2.0 * a * (1.0 + X) - X * (1.0 + z))) /
+                        (a * M * gsl_pow_2(X) * (1.0 + X) * (-1.0 + z) * (1.0 + z) * gsl_pow_4(2.0 * a * (1.0 + X) + X * (1.0 + z))));
+
+    double entry_16 = (pow(a + X + a * X, 4.5) * (2.0 * a * (1.0 + X) - X * (1.0 + z))) /
+                      (gsl_pow_2(a) * M * gsl_pow_2(X) * gsl_pow_2(1.0 + X) * gsl_pow_2(1.0 + z) * gsl_pow_2(2.0 * a * (1.0 + X) + X * (1.0 + z)));
+
+    double entry_17 = -((gsl_pow_5(a + X + a * X) * gsl_pow_2(-2.0 * a * (1.0 + X) + X * (1.0 + z))) /
+                        (gsl_pow_2(a * M * X) * gsl_pow_2(1.0 + X) * gsl_pow_2(1.0 + z) * gsl_pow_4(2.0 * a * (1.0 + X) + X * (1.0 + z))));
+
+    // [2, x]
+    double entry_22 = (gsl_pow_4(a + X + a * X) * (8.0 * a * X * (1.0 + X) * (1.0 + z)
+                                                      + gsl_pow_2(X) * (-1.0 + z) * gsl_pow_2(1 + z)
+                                                      + 4.0 * gsl_pow_2(a) * gsl_pow_2(1.0 + X) * (1.0 + 3.0 * z))) /
+                      (2.0 * gsl_pow_2(a * X) * gsl_pow_2(1.0 + X) * (-1.0 + z) * gsl_pow_2(1.0 + z) * gsl_pow_2(2.0 * a * (1.0 + X) + X * (1.0 + z)));
+
+    double entry_24 = (8.0 * gsl_pow_5(a + X + a * X) * (2.0 * a * (1.0 + X) - X * (1 + z))) /
+                      (a * gsl_pow_2(X) * (1.0 + X) * (-1.0 + z) * (1.0 + z) * gsl_pow_3(2.0 * a * (1.0 + X) + X * (1.0 + z)));
+
+    double entry_26 = -((gsl_pow_4(a + X + a * X) * (2.0 * a * (1.0 + X) - X * (1.0 + z))) /
+                        (2.0 * gsl_pow_2(a * X) * gsl_pow_2(1.0 + X) * gsl_pow_2(1 + z) * (2.0 * a * (1.0 + X) + X * (1.0 + z))));
+
+    double entry_27 = (pow(a + X + a * X, 4.5) * gsl_pow_2(-2.0 * a * (1.0 + X) + X * (1.0 + z))) /
+                      (2.0 * gsl_pow_2(a) * M * gsl_pow_2(X) * gsl_pow_2(1.0 + X) * gsl_pow_2(1.0 + z) * gsl_pow_3(2.0 * a * (1.0 + X) + X * (1.0 + z)));
+
+    // [3, x]
+    double entry_33 = -(gsl_pow_4(a + X + a * X) /
+                       (a * gsl_pow_2(M * X) * (1.0 + X) * (-1.0 + gsl_pow_2(z)) * gsl_pow_2(2.0 * a * (1.0 + X) + X * (1.0 + z))));
+
+    // [4, x]
+    double entry_44 = (4.0 * gsl_pow_4(a + X + a * X) * (gsl_pow_3(X) * (-1.0 + z) * gsl_pow_2(1.0 + z)
+                                                         + 4.0 * gsl_pow_3(a) * gsl_pow_3(1.0 + X) * (7.0 + 9.0 * z)
+                                                         + 4.0 * gsl_pow_2(a) * X * gsl_pow_2(1 + X) * (12.0 + 17.0 * z + 3.0 * gsl_pow_2(z))
+                                                         + a * gsl_pow_2(X) * (1.0 + X) * (23.0 + 27.0 * z + 9.0 * gsl_pow_2(z)
+                                                         + 5.0 * gsl_pow_3(z)))) /
+                      (a * gsl_pow_2(X) * (1.0 + X) * gsl_pow_2(-1.0 + z) * (1.0 + z) * gsl_pow_4(2.0 * a * (1.0 + X) + X * (1.0 + z)));
+
+    double entry_46 = -((4.0 * gsl_pow_5(a + X + a * X)) /
+                        (a * gsl_pow_2(X) * (1.0 + X) * (-1.0 + z) * (1.0 + z) * gsl_pow_2(2.0 * a * (1.0 + X) + X * (1.0 + z))));
+
+    double entry_47 = (2.0 * pow(a + X + a * X, 4.5) * (4.0 * gsl_pow_2(a) * gsl_pow_2(1.0 + X)
+                                                        - 4.0 * a * X * (1.0 + X) * (-1.0 + z)
+                                                        + gsl_pow_2(X) * (-3.0 - 2.0 * z + gsl_pow_2(z)))) /
+                      (a * M * gsl_pow_2(X) * (1.0 + X) * (-1.0 + z) * (1.0 + z) * gsl_pow_4(2.0 * a * (1.0 + X) + X * (1.0 + z)));
+
+    // [5, x]
+    double entry_55 = -((4.0 * gsl_pow_4(a + X + a * X)) /
+                        (a * gsl_pow_2(M) * gsl_pow_2(X) * (1.0 + X) * (-1.0 + gsl_pow_2(z)) * gsl_pow_2(2.0 * a * (1.0 + X) + X * (1.0 + z))));
+
+    // [6, x]
+    double entry_66 = (gsl_pow_4(a + X + a * X) * (4.0 * gsl_pow_2(a) * gsl_pow_2(1.0 + X) + gsl_pow_2(X) * gsl_pow_2(1.0 + z))) /
+                      (2.0 * gsl_pow_2(a * X) * gsl_pow_2(1.0 + X) * gsl_pow_2(1.0 + z) * gsl_pow_2(2.0 * a * (1.0 + X) + X * (1.0 + z)));
+
+    double entry_67 = (pow(a + X + a * X, 4.5) * (-2.0 * a * (1.0 + X) + X * (1.0 + z))) /
+                      (2.0 * gsl_pow_2(a) * M * gsl_pow_2(X) * gsl_pow_2(1.0 + X) * gsl_pow_2(1.0 + z) * gsl_pow_2(2.0 * a * (1.0 + X) + X * (1.0 + z)));
+
+    // [7, x]
+    double entry_77 = (gsl_pow_4(a + X + a * X) * (4.0 * gsl_pow_2(a) * X * gsl_pow_2(1.0 + X)
+                                                      + 4.0 * gsl_pow_3(a) * gsl_pow_3(1.0 + X)
+                                                      + gsl_pow_3(X) * gsl_pow_2(1.0 + z)
+                                                      + a * gsl_pow_2(X) * (1.0 + X) * (-1.0 + 2.0 * z + 3.0 * gsl_pow_2(z)))) /
+                      (2.0 * gsl_pow_2(a * M * X) * gsl_pow_2(1.0 + X) * gsl_pow_2(1.0 + z) * gsl_pow_4(2.0 * a * (1.0 + X) + X * (1.0 + z)));
+
+
+    // Set matrix entries
+    gsl_matrix_complex_set_zero(KInv);
+
+    gsl_matrix_complex_set(KInv, 0, 0, gsl_complex_rect(entry_00, 0));
+    gsl_matrix_complex_set(KInv, 1, 1, gsl_complex_rect(entry_11, 0));
+    gsl_matrix_complex_set(KInv, 2, 2, gsl_complex_rect(entry_22, 0));
+    gsl_matrix_complex_set(KInv, 3, 3, gsl_complex_rect(entry_33, 0));
+    gsl_matrix_complex_set(KInv, 4, 4, gsl_complex_rect(entry_44, 0));
+    gsl_matrix_complex_set(KInv, 5, 5, gsl_complex_rect(entry_55, 0));
+    gsl_matrix_complex_set(KInv, 6, 6, gsl_complex_rect(entry_66, 0));
+    gsl_matrix_complex_set(KInv, 7, 7, gsl_complex_rect(entry_77, 0));
+
+
+    gsl_matrix_complex_set(KInv, 0, 1, gsl_complex_rect(entry_01, 0));
+    gsl_matrix_complex_set(KInv, 1, 0, gsl_complex_rect(entry_01, 0));
+
+
+    gsl_matrix_complex_set(KInv, 1, 2, gsl_complex_rect(entry_12, 0));
+    gsl_matrix_complex_set(KInv, 2, 1, gsl_complex_rect(entry_12, 0));
+
+    gsl_matrix_complex_set(KInv, 1, 4, gsl_complex_rect(entry_14, 0));
+    gsl_matrix_complex_set(KInv, 4, 1, gsl_complex_rect(entry_14, 0));
+
+    gsl_matrix_complex_set(KInv, 1, 6, gsl_complex_rect(entry_16, 0));
+    gsl_matrix_complex_set(KInv, 6, 1, gsl_complex_rect(entry_16, 0));
+
+    gsl_matrix_complex_set(KInv, 1, 7, gsl_complex_rect(entry_17, 0));
+    gsl_matrix_complex_set(KInv, 7, 1, gsl_complex_rect(entry_17, 0));
+
+
+    gsl_matrix_complex_set(KInv, 2, 4, gsl_complex_rect(entry_24, 0));
+    gsl_matrix_complex_set(KInv, 4, 2, gsl_complex_rect(entry_24, 0));
+
+    gsl_matrix_complex_set(KInv, 2, 6, gsl_complex_rect(entry_26, 0));
+    gsl_matrix_complex_set(KInv, 6, 2, gsl_complex_rect(entry_26, 0));
+
+    gsl_matrix_complex_set(KInv, 2, 7, gsl_complex_rect(entry_27, 0));
+    gsl_matrix_complex_set(KInv, 7, 2, gsl_complex_rect(entry_27, 0));
+
+
+    gsl_matrix_complex_set(KInv, 4, 6, gsl_complex_rect(entry_46, 0));
+    gsl_matrix_complex_set(KInv, 6, 4, gsl_complex_rect(entry_46, 0));
+
+    gsl_matrix_complex_set(KInv, 4, 7, gsl_complex_rect(entry_47, 0));
+    gsl_matrix_complex_set(KInv, 7, 4, gsl_complex_rect(entry_47, 0));
+
+
+    gsl_matrix_complex_set(KInv, 6, 7, gsl_complex_rect(entry_67, 0));
+    gsl_matrix_complex_set(KInv, 7, 6, gsl_complex_rect(entry_67, 0));
 }
 
 void TensorBasis::calculateKMatrixInverseAnalyticTimelikeq(gsl_matrix_complex* KInv, double X, double z, double M)
 {
-    // TODO: Note that the used analytic expressions are for timelike q
+    // Note that the used analytic expressions are for timelike q
     //          --> see calculateKMatrixInverseAnalytic
 
     //[0,0]

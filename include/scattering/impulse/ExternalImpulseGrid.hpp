@@ -12,6 +12,8 @@
 class ExternalImpulseGrid : public ZXGrid
 {
     private:
+        double a;
+
         gsl_complex nucleon_mass;
 
         gsl_vector_complex** q_ext;
@@ -72,6 +74,8 @@ class ExternalImpulseGrid : public ZXGrid
         gsl_vector_complex* get_k_f_timelike(int idx);
 
         double calc_tau(int XIdx, int zIdx);
+
+        double get_a() const;
 };
 
 

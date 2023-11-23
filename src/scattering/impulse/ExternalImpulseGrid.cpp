@@ -11,7 +11,7 @@
 #include "gsl/gsl_math.h"
 
 ExternalImpulseGrid::ExternalImpulseGrid(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, double a) :
-        nucleon_mass(nucleon_mass), ZXGrid(lenX, lenZ, XCutoffLower, XCutoffUpper, zCutoffLower, zCutoffUpper)
+        nucleon_mass(nucleon_mass), ZXGrid(lenX, lenZ, XCutoffLower, XCutoffUpper, zCutoffLower, zCutoffUpper), a(a)
 {
     int len = getLength();
 
@@ -323,6 +323,11 @@ double ExternalImpulseGrid::calc_tau(int XIdx, int zIdx)
 
     double tau = GSL_REAL(Q2)/(4.0 * GSL_REAL(M2));
     return tau;
+}
+
+double ExternalImpulseGrid::get_a() const
+{
+    return a;
 }
 
 
