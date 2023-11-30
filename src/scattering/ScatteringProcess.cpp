@@ -79,6 +79,13 @@ gsl_complex ScatteringProcess::integralKernelWrapper(int externalImpulseIdx, int
     l_mutex.unlock();
 
     gsl_complex kernel_res = integralKernelTensor.leftContractWith(tau_current);
+
+    // Set 0 if < 1E-30
+    if(abs(kernel_res.dat[0]) < 1E-30)
+        kernel_res.dat[0] = 0;
+    if(abs(kernel_res.dat[1]) < 1E-30)
+        kernel_res.dat[1] = 0;
+
     return kernel_res;
 }
 

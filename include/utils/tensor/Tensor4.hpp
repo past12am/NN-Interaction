@@ -161,7 +161,6 @@ template<int d1, int d2, int d3, int d4> class Tensor4
                     {
                         for (int l = 0; l < d4; l++)
                         {
-                            // TODO check correct way to contract M with itself (pair of indices of fully reversed)
                             gsl_complex comp_res = gsl_complex_mul(tensor[i][j][k][l], gsl_complex_conjugate(tensor[j][i][l][k]));
                             //gsl_complex comp_res2 = gsl_complex_mul(tensor[i][j][k][l], gsl_complex_conjugate(tensor[l][k][j][i]));
                             // M_alpha,beta;gamma,delta . (M_beta,alpha;delta,gamma)*
@@ -173,7 +172,6 @@ template<int d1, int d2, int d3, int d4> class Tensor4
                 }
             }
 
-            // TODO check if 1E-15 is sufficiently small
             //std::cout << GSL_REAL(res) << " + i " << GSL_IMAG(res) << "   #   " << GSL_REAL(res2) << " + i " << GSL_IMAG(res2) << std::endl;
             //assert(GSL_IMAG(res) < 1E-15);
 

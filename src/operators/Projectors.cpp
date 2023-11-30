@@ -58,7 +58,7 @@ void Projectors::posEnergyProjector(gsl_vector_complex* P, gsl_matrix_complex* p
     DiracStructuresHelper::diracStructures.slash(P, posEnergyProj);
 
     // posEnergyProj = slash(P)/valP
-    gsl_matrix_complex_scale(posEnergyProj, valP);
+    gsl_matrix_complex_scale(posEnergyProj, gsl_complex_div(GSL_COMPLEX_ONE, valP));
 
     // posEnergyProj = (posEnergyProj + unitM)/2
     gsl_matrix_complex_add(posEnergyProj, unitM);

@@ -9,14 +9,16 @@ import matplotlib.pyplot as plt
 
 
 
-def plot_form_factor(pd_tau: pd.DataFrame, tensor_basis_elem: str, tensor_basis_elem_idx: int, function_name: str, path=None, save_plot=False):
+def plot_form_factor(pd_tau: pd.DataFrame, tensor_basis_elem: str, tensor_basis_elem_idx: int, path=None, save_plot=False):
     # set up a figure twice as wide as it is tall
-    fig = plt.figure(figsize=plt.figaspect(0.5))
+    fig = plt.figure(figsize=(10, 9))
 
     fig.suptitle("Tensor Basis Element " + tensor_basis_elem)
 
-    # Subplot real
-    ax = fig.add_subplot(1, 2, 1, projection='3d')
+    function_name = "h"
+
+    # Subplot real h
+    ax = fig.add_subplot(2, 2, 1, projection='3d')
     ax.set_title(f"$\Re({function_name}(X, z))$")
     ax.plot_trisurf(pd_tau["X"], pd_tau["z"], np.real(pd_tau[function_name]), cmap=cm.coolwarm)
     ax.set_xlabel("$X$")
@@ -24,13 +26,34 @@ def plot_form_factor(pd_tau: pd.DataFrame, tensor_basis_elem: str, tensor_basis_
     ax.set_zlabel(f"$\Re({function_name})$")
 
 
-    # Subplot imag
-    ax = fig.add_subplot(1, 2, 2, projection='3d')
+    # Subplot imag h
+    ax = fig.add_subplot(2, 2, 2, projection='3d')
     ax.set_title(f"$\Im({function_name}(X, z))$")
     ax.plot_trisurf(pd_tau["X"], pd_tau["z"], np.imag(pd_tau[function_name]), cmap=cm.coolwarm)
     ax.set_xlabel("$X$")
     ax.set_ylabel("$z$")
     ax.set_zlabel(f"$\Im({function_name})$")
+
+
+
+    function_name = "f"
+
+    # Subplot real f
+    ax = fig.add_subplot(2, 2, 3, projection='3d')
+    ax.set_title(f"$\Re({function_name}(X, z))$")
+    ax.plot_trisurf(pd_tau["X"], pd_tau["z"], np.real(pd_tau[function_name]), cmap=cm.coolwarm)
+    ax.set_xlabel("$X$")
+    ax.set_ylabel("$z$")
+    ax.set_zlabel(f"$\Re({function_name})$")
+
+    # Subplot imag f
+    ax = fig.add_subplot(2, 2, 4, projection='3d')
+    ax.set_title(f"$\Im({function_name}(X, z))$")
+    ax.plot_trisurf(pd_tau["X"], pd_tau["z"], np.imag(pd_tau[function_name]), cmap=cm.coolwarm)
+    ax.set_xlabel("$X$")
+    ax.set_ylabel("$z$")
+    ax.set_zlabel(f"$\Im({function_name})$")
+
 
     if(path is not None and save_plot):
         plt.savefig(path + f"/f_{tensor_basis_elem_idx}.png", dpi=200)

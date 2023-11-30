@@ -17,6 +17,30 @@ void TensorBasis::calculateBasis(int impulseIdx, Tensor4<4, 4, 4, 4>** tauGridCu
                                  gsl_vector_complex* p_f, gsl_vector_complex* p_i, gsl_vector_complex* k_f,
                                  gsl_vector_complex* k_i, gsl_vector_complex* P)
 {
+    /*
+     * Note the differnce for the Lambda_pf via Mathematica and C++ (they should be equal)
+     * C++ PrintGSLElements::print_gsl_matrix_complex(Lambda_pf)    =
+     *      [     1.0076 +i 0          ,           0 +i 0          ,           0 -i 0.15304    ,           0 +i 0          ]
+     *      [          0 +i 0          ,      1.0076 +i 0          ,           0 +i 0          ,           0 +i 0.15304    ]
+     *      [          0 +i 0.15304    ,           0 +i 0          ,  -0.0075896 +i 0          ,           0 +i 0          ]
+     *      [          0 +i 0          ,           0 -i 0.15304    ,           0 +i 0          ,  -0.0075896 +i 0          ]
+     *
+     * Mathematica:
+     *      {{0.978714,         0,                  0. - 0.144338 I,     0},
+     *       {0,                0.978714,           0,                   0. + 0.144338 I},
+     *       {0. + 0.144338 I,  0,                  0.0212864,           0},
+     *       {0,                0. - 0.144338 I,    0,                   0.0212864}}
+     *
+     *
+     *
+     * However, the p_f from C++ and Mathematica match
+     *         Mathematica      C++
+     *          0                   0 +i 0
+     *          0                   0 +i 0
+     *          0.297254            0.297254 +i 0
+     *          0.98588             0.98588 +i 0
+     */
+
     // Positive Energy Projectors
     gsl_matrix_complex* Lambda_pf = gsl_matrix_complex_alloc(4, 4);
     Projectors::posEnergyProjector(p_f, Lambda_pf);
@@ -272,6 +296,17 @@ TensorBasis::TensorBasis(ExternalImpulseGrid* externalImpulseGrid, gsl_complex n
             double z = externalImpulseGrid->getZAt(z_idx);
             double M = GSL_REAL(nucleon_mass);
 
+            // @Commit: investigate: tauGrid[0].tensor[0][0][0][0] is different from mathematica expression by ~ 0.1                is fixed now
+            /*
+             * \[Tau]1\[LetterSpace]0 = \[Tau][1] /. { a -> 1, M -> 0.93999999999999995, X -> 0.10000000000000001, z -> -0.99990000000000001} // Simplify ;
+             * \[Tau]1\[LetterSpace]0[[1, 1, 1, 1]]
+             *      = 0.878061
+             *
+             *      Note: same goes for z = 0, and therefore most probably for all grid points
+             *
+             *
+             * tau(0, externalImpulseGrid->getGridIdx(X_idx, z_idx)).tensor[0][0][0][0] = 0.9837001396596482
+             */
             int impulseIdx = externalImpulseGrid->getGridIdx(X_idx, z_idx);
             calculateKMatrixInverseAnalytic(KInverseMatrixGrid[impulseIdx], X, z, M, externalImpulseGrid->get_a());
         }
@@ -345,8 +380,6 @@ void TensorBasis::calculateKMatrix(int impulseIdx, Tensor4<4, 4, 4, 4>** tauGrid
 
 void TensorBasis::calculateKMatrixInverseAnalytic(gsl_matrix_complex* KInv, double X, double z, double M, double a)
 {
-    // TODO Mathematica Kinematics v2 spacelike q
-
     // TODO check used pow is not too inaccurate vs gsl_pow
 
     // [0, x]
@@ -629,7 +662,6 @@ void TensorBasis::calculateKMatrixInverse(int impulseIdx)
     gsl_matrix_complex_memcpy(LUDecomp, KMatrixGrid[impulseIdx]);
 
     gsl_linalg_complex_LU_decomp(LUDecomp, p, &signum);
-    // TODO check why K gets singulary
     gsl_complex det = gsl_linalg_complex_LU_det(LUDecomp, signum);
 
     // Calc Determinant Manually

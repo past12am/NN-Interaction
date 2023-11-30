@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+import sys
+
 from extrapolation.SchlessingerPointMethod import SchlessingerPointMethod
 from visualization.plotM2 import plot_result, plot_form_factor
 
@@ -27,7 +29,7 @@ def plot_abs_squared():
     plot_result(pd_tau, idx_selector, "/data_run8/", True)
 
 
-def plot_form_factors(data_path: str, plot_dir: str, z_range: float, X_range: float, function_name: str, save_plot=False):
+def plot_form_factors(data_path: str, plot_dir: str, z_range: float, X_range: float, save_plot=False):
 
     pd_tau_list = list()
     for tauIdx in range(8):
@@ -44,7 +46,7 @@ def plot_form_factors(data_path: str, plot_dir: str, z_range: float, X_range: fl
         pd_tau_list.append(pd_tau)
 
     for tauIdx, pd_tau in enumerate(pd_tau_list):
-        plot_form_factor(pd_tau, tensorBasisNames[tauIdx], tauIdx, function_name, data_path + "/" + plot_dir + "/", save_plot)
+        plot_form_factor(pd_tau, tensorBasisNames[tauIdx], tauIdx, data_path + "/" + plot_dir + "/", save_plot)
 
 
 
@@ -76,6 +78,6 @@ def schlessinger_test():
 
 z_range = 1
 X_range = 0
-function_name = "h"
 
-plot_form_factors("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NNInteraction/data/", "plots_z10", z_range, X_range, function_name, False)
+plot_form_factors(sys.argv[1], "plots_z10", z_range, X_range, False)
+#plot_form_factors("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NNInteractionPython/data/run0", "", z_range, X_range, function_name, False)
