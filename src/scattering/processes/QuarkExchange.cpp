@@ -220,10 +220,10 @@ void QuarkExchange::integralKernel(gsl_vector_complex* l, gsl_vector_complex* Q,
                     kernelElement = gsl_complex_mul(kernelElement, gsl_complex_mul(gsl_matrix_complex_get(PhiConj_S_Phi__alpha_delta, alpha, delta),
                                                                                          gsl_matrix_complex_get(PhiConj_S_Phi__gamma_beta,  gamma, beta)));
                     // Set 0 if < 1E-30
-                    if(abs(kernelElement.dat[0]) < 1E-30)
-                        kernelElement.dat[0] = 0;
-                    if(abs(kernelElement.dat[1]) < 1E-30)
-                        kernelElement.dat[1] = 0;
+                    //if(abs(kernelElement.dat[0]) < 1E-30)
+                    //    kernelElement.dat[0] = 0;
+                    //if(abs(kernelElement.dat[1]) < 1E-30)
+                    //    kernelElement.dat[1] = 0;
 
                     integralKernelTensor->setElement(alpha, beta, gamma, delta, kernelElement);
                 }

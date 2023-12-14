@@ -23,13 +23,22 @@ ScatteringProcessHandler<ScatteringType>::ScatteringProcessHandler(int numThread
 
     a = new double[lenA];
 
-    for(int aIdx = 0; aIdx < lenA; aIdx++)
+    if(lenA > 1)
     {
-        a[aIdx] = calcAAt(aIdx);
+        for(int aIdx = 0; aIdx < lenA; aIdx++)
+        {
+            a[aIdx] = calcAAt(aIdx);
+        }
+
+        assert(a[0] == aCutoffLower);
+        assert(a[lenA - 1] == aCutoffUpper);
+    }
+    else
+    {
+        assert(aCutoffUpper == aCutoffLower);
+        a[0] = aCutoffLower;
     }
 
-    assert(a[0] == aCutoffLower);
-    assert(a[lenA - 1] == aCutoffUpper);
 
 
 
