@@ -25,13 +25,13 @@ template<int d1, int d2, int d3, int d4> class Tensor4
          */
         Tensor4(gsl_matrix_complex* A, gsl_matrix_complex* B)
         {
-            for(int i = 0; i < A->size1; i++)
+            for(size_t i = 0; i < A->size1; i++)
             {
-                for(int j = 0; j < A->size2; j++)
+                for(size_t j = 0; j < A->size2; j++)
                 {
-                    for(int k = 0; k < B->size1; k++)
+                    for(size_t k = 0; k < B->size1; k++)
                     {
-                        for(int l = 0; l < B->size2; l++)
+                        for(size_t l = 0; l < B->size2; l++)
                         {
                             tensor[i][j][k][l] = gsl_complex_mul(gsl_matrix_complex_get(A, i, j), gsl_matrix_complex_get(B, k, l));
                         }

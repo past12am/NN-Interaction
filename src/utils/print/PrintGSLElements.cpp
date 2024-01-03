@@ -11,7 +11,7 @@
 const std::string PrintGSLElements::print_gsl_vector_complex(gsl_vector_complex* vec)
 {
     std::stringstream sstream;
-    for(int i = 0; i < vec->size; i++)
+    for(size_t i = 0; i < vec->size; i++)
     {
         gsl_complex vec_element = gsl_vector_complex_get(vec, i);
         sstream << GSL_REAL(vec_element) << " " << ((GSL_IMAG(vec_element) < 0) ? "-" : "+") << "i " << abs(GSL_IMAG(vec_element)) << "   |   ";
@@ -24,10 +24,10 @@ const std::string PrintGSLElements::print_gsl_vector_complex(gsl_vector_complex*
 const std::string PrintGSLElements::print_gsl_matrix_complex(gsl_matrix_complex* matrix)
 {
     std::stringstream sstream;
-    for(int i = 0; i < matrix->size1; i++)
+    for(size_t i = 0; i < matrix->size1; i++)
     {
         sstream << "[";
-        for(int j = 0; j < matrix->size2; j++)
+        for(size_t j = 0; j < matrix->size2; j++)
         {
             gsl_complex mat_element = gsl_matrix_complex_get(matrix, i, j);
 
@@ -49,9 +49,9 @@ const std::string PrintGSLElements::print_gsl_matrix_structure(gsl_matrix_comple
     gsl_matrix* res = gsl_matrix_alloc(matrix->size1, matrix->size2);
     gsl_matrix_set_zero(res);
 
-    for(int i = 0; i < matrix->size1; i++)
+    for(size_t i = 0; i < matrix->size1; i++)
     {
-        for (int j = 0; j < matrix->size2; j++)
+        for (size_t j = 0; j < matrix->size2; j++)
         {
             gsl_complex entry = gsl_matrix_complex_get(matrix, i, j);
 
@@ -63,10 +63,10 @@ const std::string PrintGSLElements::print_gsl_matrix_structure(gsl_matrix_comple
 
 
     std::stringstream sstream;
-    for(int i = 0; i < matrix->size1; i++)
+    for(size_t i = 0; i < matrix->size1; i++)
     {
         sstream << "[";
-        for(int j = 0; j < matrix->size2; j++)
+        for(size_t j = 0; j < matrix->size2; j++)
         {
             sstream << std::setw(2) << std::setprecision(1) << gsl_matrix_get(res, i, j);
             if(j < matrix->size2 - 1) sstream << ", ";

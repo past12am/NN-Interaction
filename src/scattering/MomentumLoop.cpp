@@ -14,9 +14,9 @@ MomentumLoop::~MomentumLoop()
 }
 
 MomentumLoop::MomentumLoop(int k2Points, int zPoints, int yPoints, int phiPoints) : gaussLegendreIntegrator_k2(k2Points),
-                                                                                    gaussChebyshevIntegrator_z(zPoints),
                                                                                     gaussLegendreIntegrator_y(yPoints),
-                                                                                    gaussLegendreIntegrator_phi(phiPoints)
+                                                                                    gaussLegendreIntegrator_phi(phiPoints),
+                                                                                    gaussChebyshevIntegrator_z(zPoints)
 {
 
 }

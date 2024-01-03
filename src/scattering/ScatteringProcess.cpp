@@ -11,7 +11,7 @@
 
 
 ScatteringProcess::ScatteringProcess(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, int threadIdx) :
-        nucleon_mass(nucleon_mass), threadIdx(threadIdx),
+        threadIdx(threadIdx), nucleon_mass(nucleon_mass),
         externalImpulseGrid(lenX, lenZ, XCutoffLower, XCutoffUpper, zCutoffLower, zCutoffUpper, nucleon_mass),
         tensorBasis(&externalImpulseGrid, nucleon_mass)
 {

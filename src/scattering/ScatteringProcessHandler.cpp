@@ -14,11 +14,11 @@ ScatteringProcessHandler<ScatteringType>::ScatteringProcessHandler(int numThread
                                                                    double XCutoffLower, double XCutoffUpper,
                                                                    double ZCutoffLower, double ZCutoffUpper,
                                                                    const gsl_complex nucleonMass) :
-        numThreads(numThreads), lenX(lenX), lenZ(lenZ), lenA(lenA), l2Points(l2Points), zPoints(zPoints), yPoints(yPoints),
-        phiPoints(phiPoints), eta(eta), aCutoffLower(aCutoffLower), aCutoffUpper(aCutoffUpper), nucleon_mass(nucleonMass)
+        numThreads(numThreads), lenX(lenX), lenZ(lenZ), l2Points(l2Points), zPoints(zPoints), yPoints(yPoints),
+        phiPoints(phiPoints), eta(eta), nucleon_mass(nucleonMass)
 {
-    subgridScatteringProcess = new ScatteringType*[numThreads * lenA];
-    subgridIntegrationThread = new std::thread*[numThreads * lenA];
+    subgridScatteringProcess = new ScatteringType*[numThreads];
+    subgridIntegrationThread = new std::thread*[numThreads];
 
 
 

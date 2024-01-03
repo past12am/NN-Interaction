@@ -19,7 +19,7 @@ void Projectors::transverseProjector(gsl_vector_complex* P, gsl_matrix_complex* 
 {
     // valPSquared = |P|^2
     gsl_complex valPSquared;
-    gsl_blas_zdotc(P, P, &valPSquared);
+    gsl_blas_zdotu(P, P, &valPSquared);
 
     assert(GSL_IMAG(valPSquared) == 0);
 
@@ -35,7 +35,7 @@ void Projectors::longitudinalProjector(gsl_vector_complex* P, gsl_matrix_complex
 {
     // valPSquared = |P|^2
     gsl_complex valPSquared;
-    gsl_blas_zdotc(P, P, &valPSquared);
+    gsl_blas_zdotu(P, P, &valPSquared);
 
     assert(GSL_IMAG(valPSquared) == 0);
 
@@ -48,10 +48,10 @@ void Projectors::posEnergyProjector(gsl_vector_complex* P, gsl_matrix_complex* p
 {
     // Find norm of P
     gsl_complex valPSquared;
-    gsl_blas_zdotc(P, P, &valPSquared);
+    gsl_blas_zdotu(P, P, &valPSquared);
     gsl_complex valP = gsl_complex_sqrt(valPSquared);
-    assert(GSL_IMAG(valP) == 0);
-    assert(GSL_REAL(valP) > 0);
+    assert(GSL_IMAG(valP) > 0);
+    assert(GSL_REAL(valP) == 0);
 
 
     // posEnergyProj = slash(P)
@@ -64,7 +64,7 @@ void Projectors::posEnergyProjector(gsl_vector_complex* P, gsl_matrix_complex* p
     gsl_matrix_complex_add(posEnergyProj, unitM);
     gsl_matrix_complex_scale(posEnergyProj, gsl_complex_rect(0.5, 0));
 
-    // posEnergyProj = (unitM + slash(P)/valP)/2
+    // posEnergyProj = 1/2 * (unitM + slash(P)/valP)
 }
 
 const gsl_matrix_complex* Projectors::getUnitM()

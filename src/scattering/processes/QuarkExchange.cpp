@@ -17,8 +17,8 @@
 
 QuarkExchange::QuarkExchange(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double ZCutoffLower, double ZCutoffUpper,
                              gsl_complex nucleon_mass, double eta, int k2Points, int zPoints, int yPoints, int phiPoints, int threadIdx) :
-                                        eta(eta),
                                         ScatteringProcess(lenX, lenZ, XCutoffLower, XCutoffUpper, ZCutoffLower, ZCutoffUpper, nucleon_mass, threadIdx),
+                                        eta(eta),
                                         momentumLoop(k2Points, zPoints, yPoints, phiPoints)
 {
     tmp1 = gsl_vector_complex_alloc(4);
@@ -208,13 +208,13 @@ void QuarkExchange::integralKernel(gsl_vector_complex* k, gsl_vector_complex* l,
 
 
     // Construct M
-    for(int alpha = 0; alpha < GammaConj_S_Gamma__alpha_delta->size1; alpha++)
+    for(size_t alpha = 0; alpha < GammaConj_S_Gamma__alpha_delta->size1; alpha++)
     {
-        for(int delta = 0; delta < GammaConj_S_Gamma__alpha_delta->size2; delta++)
+        for(size_t delta = 0; delta < GammaConj_S_Gamma__alpha_delta->size2; delta++)
         {
-            for(int gamma = 0; gamma < GammaConj_S_Gamma__gamma_beta->size1; gamma++)
+            for(size_t gamma = 0; gamma < GammaConj_S_Gamma__gamma_beta->size1; gamma++)
             {
-                for(int beta = 0; beta < GammaConj_S_Gamma__gamma_beta->size2; beta++)
+                for(size_t beta = 0; beta < GammaConj_S_Gamma__gamma_beta->size2; beta++)
                 {
                     gsl_complex kernelElement = gsl_complex_mul(gsl_complex_mul(scalar_D_p,
                                                                                    scalar_D_k),

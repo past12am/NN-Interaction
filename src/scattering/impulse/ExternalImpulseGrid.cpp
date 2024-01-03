@@ -11,7 +11,7 @@
 #include "gsl/gsl_math.h"
 
 ExternalImpulseGrid::ExternalImpulseGrid(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass) :
-        nucleon_mass(nucleon_mass), ZXGrid(lenX, lenZ, XCutoffLower, XCutoffUpper, zCutoffLower, zCutoffUpper)
+        ZXGrid(lenX, lenZ, XCutoffLower, XCutoffUpper, zCutoffLower, zCutoffUpper), nucleon_mass(nucleon_mass)
 {
     int len = getLength();
 

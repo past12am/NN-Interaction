@@ -26,8 +26,6 @@ ScalarQuarkDiquarkAmplitude::~ScalarQuarkDiquarkAmplitude()
 
 void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_complex* P, bool chargeConj, int threadIdx, gsl_matrix_complex* quarkDiquarkAmp)
 {
-    // TODO check charge conjugation
-
     // Charge Conjugation
     //  ChargeConj(Phi(p, P)) = C Phi(-p, -P)^T C^T
 
@@ -54,9 +52,6 @@ void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_comple
     if(chargeConj)
     {
         ChargeConjugation::chargeConj(quarkDiquarkAmp, threadIdx);
-
-        // TODO check
-        //gsl_matrix_complex_scale(quarkDiquarkAmp, gsl_complex_rect(-1, 0));
     }
 }
 
