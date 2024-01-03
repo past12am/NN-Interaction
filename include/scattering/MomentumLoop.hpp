@@ -13,18 +13,18 @@
 class MomentumLoop
 {
     private:
-        GaussLegendre gaussLegendreIntegrator_l2;
+        GaussLegendre gaussLegendreIntegrator_k2;
         GaussLegendre gaussLegendreIntegrator_y;
         GaussLegendre gaussLegendreIntegrator_phi;
         GaussChebyshev gaussChebyshevIntegrator_z;
 
     public:
-        gsl_complex l2Integral(const std::function<gsl_complex(double, double, double, double)>& f, double lowerIntegrationBound, double upperIntegrationBound);
-        gsl_complex zIntegral(double l2, const std::function<gsl_complex(double, double, double, double)>& f);
-        gsl_complex yIntegral(double l2, double z, const std::function<gsl_complex(double, double, double, double)>& f);
-        gsl_complex phiIntegral(double l2, double z, double y, const std::function<gsl_complex(double, double, double, double)>& f);
+        gsl_complex k2Integral(const std::function<gsl_complex(double, double, double, double)>& k2, double lowerIntegrationBound, double upperIntegrationBound);
+        gsl_complex zIntegral(double k2, const std::function<gsl_complex(double, double, double, double)>& f);
+        gsl_complex yIntegral(double k2, double z, const std::function<gsl_complex(double, double, double, double)>& f);
+        gsl_complex phiIntegral(double k2, double z, double y, const std::function<gsl_complex(double, double, double, double)>& f);
 
-        MomentumLoop(int l2Points, int zPoints, int yPoints, int phiPoints);
+        MomentumLoop(int k2Points, int zPoints, int yPoints, int phiPoints);
         virtual ~MomentumLoop();
 };
 

@@ -13,16 +13,16 @@ class LoopImpulseGrid
     private:
         int length;
 
-        double l2_grid_start;
-        double l2_grid_center;
-        double l2_grid_end;
+        double k2_grid_start;
+        double k2_grid_center;
+        double k2_grid_end;
 
-        double* l2;
+        double* k2;
 
         void populateGridLogarithmicDistribution();
 
     public:
-        LoopImpulseGrid(int lenReal, double l2_grid_start, double l2_grid_center, double l2_grid_end);
+        LoopImpulseGrid(int length, double k2_grid_start, double k2_grid_center, double k2_grid_end);
         virtual ~LoopImpulseGrid();
 
         int getLength() const;
