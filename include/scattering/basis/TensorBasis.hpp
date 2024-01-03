@@ -17,17 +17,20 @@ class TensorBasis
 {
     private:
         int len;
+        static const int basis_size = 5;
 
         Tensor4<4, 4, 4, 4>** tauGrid;
-        Tensor4<4, 4, 4, 4>** tauGridTimelike;
+        Tensor4<4, 4, 4, 4>** TGrid;
 
         gsl_matrix_complex** KMatrixGrid;
         gsl_matrix_complex** KInverseMatrixGrid;
 
-        void calculateBasis(int impulseIdx, Tensor4<4, 4, 4, 4>** tauGridCurrent, gsl_vector_complex* p_f, gsl_vector_complex* p_i, gsl_vector_complex* k_f, gsl_vector_complex* k_i, gsl_vector_complex* P);
+        void calculateBasis(int impulseIdx, Tensor4<4, 4, 4, 4>** tauGridCurrent, gsl_vector_complex* p_f, gsl_vector_complex* p_i, gsl_vector_complex* k_f, gsl_vector_complex* k_i);
+        void calculateSymAsymBasis(int impulseIdx);
+
         void matProd3Elem(const gsl_matrix_complex* A, const gsl_matrix_complex* B, const gsl_matrix_complex* C,  gsl_matrix_complex* tmp, gsl_matrix_complex* res);
 
-        void calculateKMatrix(int impulseIdx, Tensor4<4, 4, 4, 4>** tauGridCurrent);
+        void calculateKMatrix(int impulseIdx, Tensor4<4, 4, 4, 4>** basis);
         void calculateKMatrixInverse(int impulseIdx);
         void calculateKMatrixInverseAnalyticTimelikeq(gsl_matrix_complex* KInv, double X, double z, double M);
         void calculateKMatrixInverseAnalytic(gsl_matrix_complex* KInv, double X, double z, double M, double a);
@@ -37,12 +40,13 @@ class TensorBasis
         virtual ~TensorBasis();
 
         int getTensorBasisElementCount() const;
-        Tensor4<4, 4, 4, 4>* tauGridAt(int basisElemIdx);
-
-
-        explicit operator std::string() const;
 
         Tensor4<4, 4, 4, 4>* tau(int basisElemIdx, int externalImpulseIdx);
+        Tensor4<4, 4, 4, 4>* T(int basisElemIdx, int externalImpulseIdx);
+        Tensor4<4, 4, 4, 4>* basisTensor(int basisElemIdx, int externalImpulseIdx);
+
+        Tensor4<4, 4, 4, 4>** basisGrid();
+
         gsl_matrix_complex* K(int impulseIdx);
         gsl_matrix_complex* KInv(int impulseIdx);
 };

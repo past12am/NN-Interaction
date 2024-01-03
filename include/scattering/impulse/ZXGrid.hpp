@@ -17,25 +17,24 @@ class ZXGrid
         double XCutoffLower;
         double XCutoffUpper;
 
-        double zCutoffLower;
-        double zCutoffUpper;
+        double ZCutoffLower;
+        double ZCutoffUpper;
 
         double* X;
-        double* z;
+        double* Z;
 
 
     public:
-        ZXGrid(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper);
-
+        ZXGrid(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double ZCutoffLower, double ZCutoffUpper);
         virtual ~ZXGrid();
 
-        double calcZAt(int zIdx);
+        double calcZAt(int ZIdx);
         double calcXAt(int XIdx);
 
-        double getZAt(int zIdx);
+        double getZAt(int ZIdx);
         double getXAt(int XIdx);
 
-        int getGridIdx(int XIdx, int zIdx);
+        int getGridIdx(int XIdx, int ZIdx);
 
         int getLenX() const;
         int getLenZ() const;

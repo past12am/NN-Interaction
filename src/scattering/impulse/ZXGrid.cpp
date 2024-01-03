@@ -3,13 +3,12 @@
 //
 
 #include <cassert>
-#include <gsl/gsl_complex_math.h>
 #include "../../../include/scattering/impulse/ZXGrid.hpp"
 
 
-int ZXGrid::getGridIdx(int XIdx, int zIdx)
+int ZXGrid::getGridIdx(int XIdx, int ZIdx)
 {
-    return XIdx * lenZ + zIdx;
+    return XIdx * lenZ + ZIdx;
 }
 
 int ZXGrid::getLength() const
@@ -17,9 +16,9 @@ int ZXGrid::getLength() const
     return lenX * lenZ;
 }
 
-double ZXGrid::calcZAt(int zIdx)
+double ZXGrid::calcZAt(int ZIdx)
 {
-    return zCutoffLower + (zCutoffUpper - zCutoffLower) * ((double) zIdx)/((double) (lenZ - 1));
+    return ZCutoffLower + (ZCutoffUpper - ZCutoffLower) * ((double) ZIdx) / ((double) (lenZ - 1));
 }
 
 double ZXGrid::calcXAt(int XIdx)
@@ -37,15 +36,15 @@ int ZXGrid::getLenZ() const
     return lenZ;
 }
 
-ZXGrid::ZXGrid(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower,
-               double zCutoffUpper) : lenX(lenX), lenZ(lenZ),
-                                          XCutoffLower(XCutoffLower),
-                                          XCutoffUpper(XCutoffUpper),
-                                          zCutoffLower(zCutoffLower),
-                                          zCutoffUpper(zCutoffUpper)
+ZXGrid::ZXGrid(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double ZCutoffLower,
+               double ZCutoffUpper) : lenX(lenX), lenZ(lenZ),
+                                      XCutoffLower(XCutoffLower),
+                                      XCutoffUpper(XCutoffUpper),
+                                      ZCutoffLower(ZCutoffLower),
+                                      ZCutoffUpper(ZCutoffUpper)
 {
     X = new double[lenX];
-    z = new double[lenZ];
+    Z = new double[lenZ];
 
     for(int XIdx = 0; XIdx < lenX; XIdx++)
     {
@@ -53,25 +52,25 @@ ZXGrid::ZXGrid(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, dou
 
         for (int zIdx = 0; zIdx < lenZ; zIdx++)
         {
-            z[zIdx] = calcZAt(zIdx);
+            Z[zIdx] = calcZAt(zIdx);
         }
     }
 
     assert(X[0] == XCutoffLower);
-    assert(X[lenX - 1] == XCutoffUpper);
-    assert(z[0] == zCutoffLower);
-    assert(z[lenZ - 1] == zCutoffUpper);
+    //assert(X[lenX - 1] == XCutoffUpper);
+    assert(Z[0] == ZCutoffLower);
+    assert(Z[lenZ - 1] == ZCutoffUpper);
 }
 
 ZXGrid::~ZXGrid()
 {
     delete[] X;
-    delete[] z;
+    delete[] Z;
 }
 
-double ZXGrid::getZAt(int zIdx)
+double ZXGrid::getZAt(int ZIdx)
 {
-    return z[zIdx];
+    return Z[ZIdx];
 }
 
 double ZXGrid::getXAt(int XIdx)

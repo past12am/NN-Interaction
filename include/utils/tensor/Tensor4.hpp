@@ -148,6 +148,46 @@ template<int d1, int d2, int d3, int d4> class Tensor4
             return *this;
         }
 
+        Tensor4<d1, d2, d3, d4> operator+(const Tensor4<d1, d2, d3, d4>& other)
+        {
+            Tensor4<d1, d2, d3, d4> res = Tensor4<d1, d2, d3, d4>();
+            for(int i = 0; i < d1; i++)
+            {
+                for (int j = 0; j < d2; j++)
+                {
+                    for (int k = 0; k < d3; k++)
+                    {
+                        for (int l = 0; l < d4; l++)
+                        {
+                            res.setElement(i, j, k, l, gsl_complex_add(tensor[i][j][k][l], other.tensor[i][j][k][l]));
+                        }
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        Tensor4<d1, d2, d3, d4> operator-(const Tensor4<d1, d2, d3, d4>& other)
+        {
+            Tensor4<d1, d2, d3, d4> res = Tensor4<d1, d2, d3, d4>();
+            for(int i = 0; i < d1; i++)
+            {
+                for (int j = 0; j < d2; j++)
+                {
+                    for (int k = 0; k < d3; k++)
+                    {
+                        for (int l = 0; l < d4; l++)
+                        {
+                            res.setElement(i, j, k, l, gsl_complex_sub(tensor[i][j][k][l], other.tensor[i][j][k][l]));
+                        }
+                    }
+                }
+            }
+
+            return res;
+        }
+
         double absSquare()
         {
             gsl_complex res = gsl_complex_rect(0, 0);
