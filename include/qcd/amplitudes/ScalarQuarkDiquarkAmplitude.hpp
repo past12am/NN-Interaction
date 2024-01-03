@@ -37,7 +37,7 @@ class ScalarQuarkDiquarkAmplitude
          * @param P total nucleon momentum on the mass shell (P^2 = -M^2)
          * @param quarkDiquarkAmp return value for the generated propagator matrix
          */
-        void Phi(gsl_vector_complex* p, gsl_vector_complex* P, bool chargeConj, int threadIdx, gsl_matrix_complex* quarkDiquarkAmp);
+        void Gamma(gsl_vector_complex* p, gsl_vector_complex* P, bool chargeConj, int threadIdx, gsl_matrix_complex* quarkDiquarkAmp);
 };
 
 

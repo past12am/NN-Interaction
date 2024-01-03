@@ -12,7 +12,7 @@
 
 gsl_complex QuarkPropagator::M(gsl_complex p2)
 {
-    return gsl_complex_rect(0.5, 0); // GeV
+    return gsl_complex_rect(0.55, 0); // GeV
 }
 
 gsl_complex QuarkPropagator::A(gsl_complex p2)
@@ -24,7 +24,6 @@ void QuarkPropagator::S(gsl_vector_complex* p, gsl_matrix_complex* quarkProp)
 {
     gsl_complex p2;
     gsl_blas_zdotu(p, p, &p2);
-    assert(GSL_REAL(p2) >= 0 && GSL_IMAG(p2) == 0);
 
     // pref = 1/(A(p2) * (p2 + M(p2)^2))
     gsl_complex pref = gsl_complex_div(gsl_complex_rect(1.0, 0), gsl_complex_mul(A(p2), gsl_complex_add(p2, gsl_complex_pow_real(M(p2), 2.0))));
@@ -50,7 +49,7 @@ QuarkPropagator::~QuarkPropagator()
     gsl_matrix_complex_free(pSlashCurrent);
 }
 
-QuarkPropagator::QuarkPropagator(gsl_complex renorm_point) : renorm_point(renorm_point)
+QuarkPropagator::QuarkPropagator()
 {
     pSlashCurrent = gsl_matrix_complex_alloc(4, 4);
 }

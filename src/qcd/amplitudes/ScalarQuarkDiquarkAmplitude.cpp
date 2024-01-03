@@ -24,8 +24,10 @@ ScalarQuarkDiquarkAmplitude::~ScalarQuarkDiquarkAmplitude()
     gsl_matrix_complex_free(posEnergyProj);
 }
 
-void ScalarQuarkDiquarkAmplitude::Phi(gsl_vector_complex* p, gsl_vector_complex* P, bool chargeConj, int threadIdx, gsl_matrix_complex* quarkDiquarkAmp)
+void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_complex* P, bool chargeConj, int threadIdx, gsl_matrix_complex* quarkDiquarkAmp)
 {
+    // TODO check charge conjugation
+
     // Charge Conjugation
     //  ChargeConj(Phi(p, P)) = C Phi(-p, -P)^T C^T
 
