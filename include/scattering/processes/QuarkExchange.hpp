@@ -59,7 +59,8 @@ class QuarkExchange : public ScatteringProcess
         gsl_vector_complex* p_rp;
 
 
-        gsl_vector_complex* tmp1;
+        gsl_vector_complex* lmr_half;
+        gsl_vector_complex* lpr_half;
 
 
         void calc_k_q(gsl_vector_complex* k, gsl_vector_complex* l, gsl_vector_complex* r, gsl_vector_complex* P, gsl_vector_complex* k_q);
