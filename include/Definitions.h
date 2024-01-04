@@ -11,26 +11,44 @@
 
 # define BASIS Basis::T
 
-# define DIQUARK_TYPE_1 DiquarkType::scalar
-# define DIQUARK_TYPE_2 DiquarkType::scalar
+# define DIQUARK_TYPE_1 DiquarkType::SCALAR
+# define DIQUARK_TYPE_2 DiquarkType::SCALAR
 
 # define AMPLITUDE_ISOSPIN 0
 
-# define QUARK_EXCHANGE_DATA_DIRNAME = "quark_exchange/"
-# define DIQUARK_EXCHANGE_DATA_DIRNAME = "diquark_exchange/"
+#define SCATTERING_PROCESS_TYPE ScatteringProcessType::DIQUARK_EXCHANGE
+
+enum class ScatteringProcessType
+{
+        QUARK_EXCHANGE,
+        DIQUARK_EXCHANGE
+};
+
+inline std::ostream& operator<<(std::ostream& os, ScatteringProcessType scatteringType)
+{
+    switch (scatteringType) {
+        case ScatteringProcessType::QUARK_EXCHANGE      :  os << "quark_exchange";
+            break;
+        case ScatteringProcessType::DIQUARK_EXCHANGE    : os << "diquark_exchange";
+            break;
+        default         : os.setstate(std::ios_base::failbit);
+    }
+    return os;
+}
+
 
 enum class DiquarkType
 {
-    scalar = 0,
-    axialvector = 1
+    SCALAR = 0,
+    AXIALVECTOR = 1
 };
 
 inline std::ostream& operator<<(std::ostream& os, DiquarkType dqtype)
 {
     switch (dqtype) {
-        case DiquarkType::scalar        :  os << "scalar";
+        case DiquarkType::SCALAR        :  os << "scalar";
             break;
-        case DiquarkType::axialvector   : os << "axialvector";
+        case DiquarkType::AXIALVECTOR   : os << "axialvector";
             break;
         default         : os.setstate(std::ios_base::failbit);
     }

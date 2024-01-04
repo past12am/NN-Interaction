@@ -5,9 +5,11 @@
 #include <gsl/gsl_blas.h>
 #include "../../../include/scattering/processes/DiquarkExchange.hpp"
 
-DiquarkExchange::DiquarkExchange(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double ZCutoffLower,
-                                 double ZCutoffUpper, const gsl_complex &nucleon_mass, int threadIdx)
-: ScatteringProcess(lenX, lenZ, XCutoffLower, XCutoffUpper, ZCutoffLower, ZCutoffUpper, nucleon_mass, threadIdx)
+DiquarkExchange::DiquarkExchange(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double ZCutoffLower, double ZCutoffUpper,
+                                 gsl_complex nucleon_mass, double eta, int k2Points, int zPoints, int yPoints, int phiPoints, int threadIdx) :
+        ScatteringProcess(lenX, lenZ, XCutoffLower, XCutoffUpper, ZCutoffLower, ZCutoffUpper, nucleon_mass, threadIdx),
+        eta(eta),
+        momentumLoop(k2Points, zPoints, yPoints, phiPoints)
 {
     lmr_half = gsl_vector_complex_alloc(4);
     lpr_half = gsl_vector_complex_alloc(4);

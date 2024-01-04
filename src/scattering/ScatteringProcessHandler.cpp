@@ -9,9 +9,9 @@
 #include "../../include/scattering/ScatteringProcessHandler.hpp"
 #include "../../include/scattering/processes/QuarkExchange.hpp"
 #include "../../include/Definitions.h"
+#include "../../include/scattering/processes/DiquarkExchange.hpp"
 
-template<class ScatteringType>
-ScatteringProcessHandler<ScatteringType>::ScatteringProcessHandler(int numThreads, int lenX, int lenZ,
+ScatteringProcessHandler::ScatteringProcessHandler(int numThreads, int lenX, int lenZ,
                                                                    int l2Points, int zPoints, int yPoints, int phiPoints,
                                                                    double eta,
                                                                    double XCutoffLower, double XCutoffUpper,
@@ -20,7 +20,7 @@ ScatteringProcessHandler<ScatteringType>::ScatteringProcessHandler(int numThread
         numThreads(numThreads), lenX(lenX), lenZ(lenZ), l2Points(l2Points), zPoints(zPoints), yPoints(yPoints),
         phiPoints(phiPoints), eta(eta), nucleon_mass(nucleonMass)
 {
-    subgridScatteringProcess = new ScatteringType*[numThreads];
+    subgridScatteringProcess = new ScatteringProcess*[numThreads];
     subgridIntegrationThread = new std::thread*[numThreads];
 
 
@@ -40,7 +40,7 @@ ScatteringProcessHandler<ScatteringType>::ScatteringProcessHandler(int numThread
         double curXCutoffLower = completeZXGrid.getXAt(threadIdx * numXPerThread);
         double curXCutoffUpper = completeZXGrid.getXAt((threadIdx + 1) * numXPerThread - 1);
 
-        if(typeid(ScatteringType) == typeid(QuarkExchange))
+        if(SCATTERING_PROCESS_TYPE == ScatteringProcessType::QUARK_EXCHANGE)
         {
             subgridScatteringProcess[threadIdx] = new QuarkExchange(numXPerThread, lenZ,
                                                                     curXCutoffLower, curXCutoffUpper,
@@ -48,6 +48,15 @@ ScatteringProcessHandler<ScatteringType>::ScatteringProcessHandler(int numThread
                                                                     nucleon_mass, eta,
                                                                     l2Points, zPoints, yPoints, phiPoints,
                                                                     threadIdx);
+        }
+        else if (SCATTERING_PROCESS_TYPE == ScatteringProcessType::DIQUARK_EXCHANGE)
+        {
+            subgridScatteringProcess[threadIdx] = new DiquarkExchange(numXPerThread, lenZ,
+                                                                      curXCutoffLower, curXCutoffUpper,
+                                                                      ZCutoffLower, ZCutoffUpper,
+                                                                      nucleon_mass, eta,
+                                                                      l2Points, zPoints, yPoints, phiPoints,
+                                                                      threadIdx);
         }
         else
         {
@@ -58,8 +67,7 @@ ScatteringProcessHandler<ScatteringType>::ScatteringProcessHandler(int numThread
 }
 
 
-template<class ScatteringType>
-ScatteringProcessHandler<ScatteringType>::~ScatteringProcessHandler()
+ScatteringProcessHandler::~ScatteringProcessHandler()
 {
     for (int threadIdx = 0; threadIdx < numThreads; threadIdx++)
     {
@@ -69,8 +77,7 @@ ScatteringProcessHandler<ScatteringType>::~ScatteringProcessHandler()
     delete[] subgridScatteringProcess;
 }
 
-template<class ScatteringType>
-void ScatteringProcessHandler<ScatteringType>::calculateScattering(double k2_cutoff)
+void ScatteringProcessHandler::calculateScattering(double k2_cutoff)
 {
     for (int threadIdx = 0; threadIdx < numThreads; threadIdx++)
     {
@@ -85,8 +92,7 @@ void ScatteringProcessHandler<ScatteringType>::calculateScattering(double k2_cut
     }
 }
 
-template<class ScatteringType>
-void ScatteringProcessHandler<ScatteringType>::store_scattering_amplitude(std::string data_path)
+void ScatteringProcessHandler::store_scattering_amplitude(std::string data_path)
 {
     // Find/Create new specificaation-datapath
     //  BASE-b_I-x_DQ-y-z
@@ -95,13 +101,19 @@ void ScatteringProcessHandler<ScatteringType>::store_scattering_amplitude(std::s
     //               z in {scalar, axialvector} ... Diquark Type of Diquark 2
     //               b in {tau, T} ... Basis Type (tau ... simple dirac basis, T ... Sym/Asym Basis)
 
+    // Check for specification directory and create if needed
     std::ostringstream calc_spec_dir_strstream;
     calc_spec_dir_strstream << data_path << "/";
     calc_spec_dir_strstream << "BASE-" << BASIS << "_I-" << AMPLITUDE_ISOSPIN << "_DQ-" << DIQUARK_TYPE_1 << "-" << DIQUARK_TYPE_2 << "/";
 
+
+    // Check for process specific directory and create if needed
+    calc_spec_dir_strstream << SCATTERING_PROCESS_TYPE << "/";
+
+
+    // Check for run directory and create new
     std::string calc_spec_dir_str = calc_spec_dir_strstream.str();
     std::string cur_run_dir = calc_spec_dir_str;
-
     if(std::filesystem::is_directory(calc_spec_dir_str))
     {
         // Find latest run
@@ -174,5 +186,3 @@ void ScatteringProcessHandler<ScatteringType>::store_scattering_amplitude(std::s
         }
     }
 }
-
-template class ScatteringProcessHandler<QuarkExchange>;

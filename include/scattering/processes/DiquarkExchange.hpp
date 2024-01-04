@@ -75,8 +75,8 @@ class DiquarkExchange : public ScatteringProcess
         void calc_p_rp(gsl_vector_complex* k, gsl_vector_complex* l, gsl_vector_complex* r, gsl_vector_complex* p_rp);
 
     public:
-        DiquarkExchange(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double ZCutoffLower,
-                        double ZCutoffUpper, const gsl_complex &nucleon_mass, int threadIdx);
+        DiquarkExchange(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double ZCutoffLower, double ZCutoffUpper,
+                        gsl_complex nucleon_mass, double eta, int k2Points, int zPoints, int yPoints, int phiPoints, int threadIdx);
         ~DiquarkExchange() override;
 
 

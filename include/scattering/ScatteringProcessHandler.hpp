@@ -9,7 +9,7 @@
 #include <thread>
 #include "ScatteringProcess.hpp"
 
-template<class ScatteringType>
+
 class ScatteringProcessHandler
 {
     private:
@@ -31,7 +31,7 @@ class ScatteringProcessHandler
         gsl_complex nucleon_mass;
 
         std::thread** subgridIntegrationThread;
-        ScatteringType** subgridScatteringProcess;
+        ScatteringProcess** subgridScatteringProcess;
 
 
     public:

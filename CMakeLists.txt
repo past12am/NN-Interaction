@@ -62,7 +62,9 @@ add_executable(NNInteraction main.cpp
         src/numerics/integration/GaussChebyshev.cpp
         src/numerics/integration/GaussLegendre.cpp
         src/numerics/polynomials/LegendrePolynomials.cpp
-        src/numerics/roots/NewtonRootFinder.cpp src/utils/print/PrintGSLElements.cpp include/utils/print/PrintGSLElements.hpp src/scattering/ScatteringProcessHandler.cpp include/scattering/ScatteringProcessHandler.hpp src/scattering/impulse/ZXGrid.cpp include/scattering/impulse/ZXGrid.hpp include/Definitions.h)
+        src/numerics/roots/NewtonRootFinder.cpp src/utils/print/PrintGSLElements.cpp include/utils/print/PrintGSLElements.hpp src/scattering/ScatteringProcessHandler.cpp include/scattering/ScatteringProcessHandler.hpp src/scattering/impulse/ZXGrid.cpp include/scattering/impulse/ZXGrid.hpp include/Definitions.h
+        src/scattering/processes/DiquarkExchange.cpp
+        include/scattering/processes/DiquarkExchange.hpp)
 
 target_link_libraries(NNInteraction GSL::gsl jsoncpp)
 #target_link_libraries(NNInteraction "${TORCH_LIBRARIES}")
