@@ -7,11 +7,14 @@ project(NNInteraction)
 #include_directories(SYSTEM ${TORCH_INCLUDE_DIRS})
 #list(APPEND CMAKE_PREFIX_PATH "/Volumes/libs/cpp/libtorch")
 
+set(GCC_COVERAGE_COMPILE_FLAGS "-Wall")
+
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
 #set(CMAKE_CUDA_COMPILER nvcc)
 
 find_package(GSL REQUIRED)
+find_package(jsoncpp REQUIRED)
 #find_package(Torch REQUIRED)
 
 add_executable(NNInteraction main.cpp
@@ -60,5 +63,6 @@ add_executable(NNInteraction main.cpp
         src/numerics/integration/GaussLegendre.cpp
         src/numerics/polynomials/LegendrePolynomials.cpp
         src/numerics/roots/NewtonRootFinder.cpp src/utils/print/PrintGSLElements.cpp include/utils/print/PrintGSLElements.hpp src/scattering/ScatteringProcessHandler.cpp include/scattering/ScatteringProcessHandler.hpp src/scattering/impulse/ZXGrid.cpp include/scattering/impulse/ZXGrid.hpp include/Definitions.h)
-target_link_libraries(NNInteraction GSL::gsl)
+
+target_link_libraries(NNInteraction GSL::gsl jsoncpp)
 #target_link_libraries(NNInteraction "${TORCH_LIBRARIES}")

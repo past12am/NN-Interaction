@@ -3,6 +3,9 @@
 //
 
 #include <fstream>
+#include <json/json.h>
+#include <filesystem>
+
 #include "../../include/scattering/ScatteringProcessHandler.hpp"
 #include "../../include/scattering/processes/QuarkExchange.hpp"
 #include "../../include/Definitions.h"
@@ -85,14 +88,70 @@ void ScatteringProcessHandler<ScatteringType>::calculateScattering(double k2_cut
 template<class ScatteringType>
 void ScatteringProcessHandler<ScatteringType>::store_scattering_amplitude(std::string data_path)
 {
+    // Find/Create new specificaation-datapath
+    //  BASE-b_I-x_DQ-y-z
+    //          with x in {0, 1} ... Amplitude Isospin
+    //               y in {scalar, axialvector} ... Diquark Type of Diquark 1
+    //               z in {scalar, axialvector} ... Diquark Type of Diquark 2
+    //               b in {tau, T} ... Basis Type (tau ... simple dirac basis, T ... Sym/Asym Basis)
+
+    std::ostringstream calc_spec_dir_strstream;
+    calc_spec_dir_strstream << data_path << "/";
+    calc_spec_dir_strstream << "BASE-" << BASIS << "_I-" << AMPLITUDE_ISOSPIN << "_DQ-" << DIQUARK_TYPE_1 << "-" << DIQUARK_TYPE_2 << "/";
+
+    std::string calc_spec_dir_str = calc_spec_dir_strstream.str();
+    std::string cur_run_dir = calc_spec_dir_str;
+
+    if(std::filesystem::is_directory(calc_spec_dir_str))
+    {
+        // Find latest run
+        int latest_run = 0;
+        for (const auto & entry : std::filesystem::directory_iterator(calc_spec_dir_str))
+        {
+            if(!entry.is_directory())
+                continue;
+
+            std::string cur_entry_path = entry.path().string();
+
+            int last_occ = cur_entry_path.find_last_of('_');
+            latest_run = std::atoi(cur_entry_path.substr(last_occ + 1, cur_entry_path.length()).c_str());
+        }
+
+        cur_run_dir += "/run_" + std::to_string(latest_run + 1) + "/";
+    }
+    else
+    {
+        // Create directory and first run
+        cur_run_dir += "/run_0/";
+    }
+
+    std::filesystem::create_directories(cur_run_dir);
+
+
+    // Store dictionary with basic run specifications
+    std::ostringstream specfnamestrstream;
+    specfnamestrstream << cur_run_dir << "/spec.json";
+
+    Json::Value spec_json_root;
+    spec_json_root["basis"] = (std::ostringstream() << BASIS).str();
+    spec_json_root["amplitude_isospin"] = AMPLITUDE_ISOSPIN;
+    spec_json_root["diquark_type_1"] = (std::ostringstream() << DIQUARK_TYPE_1).str();
+    spec_json_root["diquark_type_2"] = (std::ostringstream() << DIQUARK_TYPE_2).str();
+
+    std::ofstream spec_data_file;
+    spec_data_file.open(specfnamestrstream.str(), std::ofstream::out | std::ios::trunc);
+    spec_data_file << spec_json_root;
+    spec_data_file.close();
+
+
     for(int basisElemIdx = 0; basisElemIdx < ((ScatteringProcess*) subgridScatteringProcess[0])->getTensorBasis()->getTensorBasisElementCount(); basisElemIdx++)
     {
         std::ostringstream fnamestrstream;
-        fnamestrstream << data_path;
+        fnamestrstream << cur_run_dir;
 
-        if(BASIS == 0)
+        if(BASIS == Basis::tau)
             fnamestrstream << "/tau_";
-        else if(BASIS == 1)
+        else if(BASIS == Basis::T)
             fnamestrstream << "/T_";
         else
         {

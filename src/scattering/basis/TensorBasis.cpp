@@ -331,9 +331,9 @@ gsl_matrix_complex* TensorBasis::KInv(int impulseIdx)
 
 Tensor4<4, 4, 4, 4>** TensorBasis::basisGrid()
 {
-    if(BASIS == 0)
+    if(BASIS == Basis::tau)
         return tauGrid;
-    else if (BASIS == 1)
+    else if (BASIS == Basis::T)
         return TGrid;
 
     return nullptr;
