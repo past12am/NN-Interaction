@@ -1,19 +1,18 @@
 //
-// Created by past12am on 8/3/23.
+// Created by past12am on 04/01/24.
 //
 
-#ifndef NNINTERACTION_QUARKEXCHANGE_HPP
-#define NNINTERACTION_QUARKEXCHANGE_HPP
+#ifndef NNINTERACTION_DIQUARKEXCHANGE_HPP
+#define NNINTERACTION_DIQUARKEXCHANGE_HPP
 
 
-#include <mutex>
+#include "../ScatteringProcess.hpp"
 #include "../../qcd/propagators/QuarkPropagator.hpp"
 #include "../../qcd/propagators/ScalarDiquarkPropagator.hpp"
 #include "../../qcd/amplitudes/ScalarQuarkDiquarkAmplitude.hpp"
-#include "../ScatteringProcess.hpp"
 #include "../MomentumLoop.hpp"
 
-class QuarkExchange : public ScatteringProcess
+class DiquarkExchange : public ScatteringProcess
 {
     private:
         double eta;
@@ -32,19 +31,21 @@ class QuarkExchange : public ScatteringProcess
 
         MomentumLoop momentumLoop;
 
+
         // Temporary Variables --> Lock when multithreading or create multiple
-        gsl_matrix_complex* GammaConj_S_Gamma__alpha_delta;
-        gsl_matrix_complex* GammaConj_S_Gamma__gamma_beta;
+        gsl_matrix_complex* GammaConj_S_Gamma__alpha_beta;
+        gsl_matrix_complex* S_Gamma__alpha_beta;
 
-        gsl_matrix_complex* S_Gamma__alpha_delta;
+        gsl_matrix_complex* GammaConj_S_Gamma__gamma_delta;
+        gsl_matrix_complex* S_Gamma__gamma_delta;
+
         gsl_matrix_complex* matrix_Conj_Gamma_pf;
-        gsl_matrix_complex* matrix_S_k;
-        gsl_matrix_complex* matrix_Gamma_ki;
-
-        gsl_matrix_complex* S_Gamma__gamma_beta;
-        gsl_matrix_complex* matrix_Conj_Gamma_kf;
         gsl_matrix_complex* matrix_S_p;
         gsl_matrix_complex* matrix_Gamma_pi;
+
+        gsl_matrix_complex* matrix_Conj_Gamma_kf;
+        gsl_matrix_complex* matrix_S_k;
+        gsl_matrix_complex* matrix_Gamma_ki;
 
 
         // Temporary Variables for loop impulse --> Lock when multithreading or create multiple
@@ -73,21 +74,18 @@ class QuarkExchange : public ScatteringProcess
         void calc_p_r(gsl_vector_complex* k, gsl_vector_complex* l, gsl_vector_complex* r, gsl_vector_complex* p_r);
         void calc_p_rp(gsl_vector_complex* k, gsl_vector_complex* l, gsl_vector_complex* r, gsl_vector_complex* p_rp);
 
-
-
     public:
-        QuarkExchange(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double ZCutoffLower, double ZCutoffUpper,
-                      gsl_complex nucleon_mass, double eta, int k2Points, int zPoints, int yPoints, int phiPoints, int threadIdx);
-        ~QuarkExchange() override;
+        DiquarkExchange(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double ZCutoffLower,
+                        double ZCutoffUpper, const gsl_complex &nucleon_mass, int threadIdx);
+        ~DiquarkExchange() override;
 
 
-        void integralKernel(gsl_vector_complex* k, gsl_vector_complex* l, gsl_vector_complex* r, gsl_vector_complex* P,
-                            gsl_vector_complex* p_f, gsl_vector_complex* p_i,
-                            gsl_vector_complex* k_f, gsl_vector_complex* k_i,
-                            Tensor4<4, 4, 4, 4>* integralKernelTensor) override;
+        void integralKernel(gsl_vector_complex *k, gsl_vector_complex *l, gsl_vector_complex *r, gsl_vector_complex *P,
+                            gsl_vector_complex *p_f, gsl_vector_complex *p_i, gsl_vector_complex *k_f,
+                            gsl_vector_complex *k_i, Tensor4<4, 4, 4, 4> *integralKernelTensor) override;
 
         gsl_complex integrate_process(int basisElemIdx, int externalImpulseIdx, double k2_cutoff) override;
 };
 
 
-#endif //NNINTERACTION_QUARKEXCHANGE_HPP
+#endif //NNINTERACTION_DIQUARKEXCHANGE_HPP

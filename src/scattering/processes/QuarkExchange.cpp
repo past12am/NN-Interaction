@@ -98,49 +98,6 @@ QuarkExchange::~QuarkExchange()
     delete S_p;
 }
 
-void QuarkExchange::integrate(double k2_cutoff)
-{
-    int num_progress_char = 100;
-    int progress = 0;
-    int total = tensorBasis.getTensorBasisElementCount() * externalImpulseGrid.getLength();
-
-    double avg_time = 0;
-    clock_t clock_at_start = clock();
-    clock_t clock_at_end = clock();
-
-    std::cout << "Thread " << threadIdx << " calculates " << tensorBasis.getTensorBasisElementCount() * externalImpulseGrid.getLength() << " grid points" << std::endl;
-
-    for(int basisElemIdx = 0; basisElemIdx < tensorBasis.getTensorBasisElementCount(); basisElemIdx++)
-    {
-        // Integrate each Scattering Matrix element for each choice of external Impulse
-        for (int externalImpulseIdx = 0; externalImpulseIdx < externalImpulseGrid.getLength(); externalImpulseIdx++)
-        {
-            progress = basisElemIdx * externalImpulseGrid.getLength() + externalImpulseIdx;
-            avg_time = (clock_at_end - clock_at_start)/(progress + 1);
-
-            std::cout << "Thread " << threadIdx << "-->   Basis Element [" << std::string(((double) progress/total) * num_progress_char, '#') << std::string((1.0 - (double) progress/total) * num_progress_char, '-').c_str() << "]    --> "
-                << ((clock_at_end - clock_at_start)/CLOCKS_PER_SEC)/60 << " of " << ((avg_time * total)/CLOCKS_PER_SEC)/60 << "\t" << std::flush;
-
-
-
-            std::function<gsl_complex(double, double, double, double)> scatteringMatrixIntegrand = [=, this](double k2, double z, double y, double phi) -> gsl_complex {
-                return integralKernelWrapper(externalImpulseIdx, basisElemIdx, threadIdx, k2, z, y, phi);
-            };
-
-            gsl_complex res = momentumLoop.k2Integral(scatteringMatrixIntegrand, 0, k2_cutoff);
-            res = gsl_complex_mul_real(res, 1.0/pow(2.0 * std::numbers::pi, 4) * 0.5);
-
-            //assert(GSL_IMAG(res) == 0);
-
-            scattering_amplitude_basis_projected[calcScatteringAmpIdx(basisElemIdx, externalImpulseIdx)] = res;
-
-            std::cout << "Basis[" << basisElemIdx << "], basisIdx=" << externalImpulseIdx << ": " << GSL_REAL(res) << " + i " << GSL_IMAG(res) << std::endl;
-
-            clock_at_end = clock();
-        }
-    }
-}
-
 // Note on notation: p_rp == p_r^' (p_r^prime)
 void QuarkExchange::integralKernel(gsl_vector_complex* k, gsl_vector_complex* l, gsl_vector_complex* r, gsl_vector_complex* P,
                                    gsl_vector_complex* p_f, gsl_vector_complex* p_i,
@@ -160,6 +117,7 @@ void QuarkExchange::integralKernel(gsl_vector_complex* k, gsl_vector_complex* l,
     gsl_vector_complex_scale(lpr_half, gsl_complex_rect(0.5, 0));
 
 
+    // Calculate internal impulses
     calc_k_q(k, l, r, P, k_q);
     calc_p_q(k, l, r, P, p_q);
     calc_k_d(k, l, r, P, k_d);
@@ -170,6 +128,9 @@ void QuarkExchange::integralKernel(gsl_vector_complex* k, gsl_vector_complex* l,
     calc_p_r(k, l, r, p_r);
     calc_p_rp(k, l, r, p_rp);
 
+
+
+    // Calculate tensor-valued integral Kernel
 
     // matrix_Conj_Gamma_pf = ChargeConj(Gamma(p_r', p_f))
     Gamma_pf->Gamma(p_rp, p_f, true, threadIdx, matrix_Conj_Gamma_pf);
@@ -248,7 +209,18 @@ void QuarkExchange::integralKernel(gsl_vector_complex* k, gsl_vector_complex* l,
     }
 }
 
-// TODO possible performance increase --> (l+-r)/2 pre-calc for all used internal momenta
+gsl_complex QuarkExchange::integrate_process(int basisElemIdx, int externalImpulseIdx, double k2_cutoff)
+{
+    std::function<gsl_complex(double, double, double, double)> scatteringMatrixIntegrand = [=, this](double k2, double z, double y, double phi) -> gsl_complex {
+        return integralKernelWrapper(externalImpulseIdx, basisElemIdx, threadIdx, k2, z, y, phi);
+    };
+
+    gsl_complex res = momentumLoop.k2Integral(scatteringMatrixIntegrand, 0, k2_cutoff);
+    res = gsl_complex_mul_real(res, 1.0/pow(2.0 * std::numbers::pi, 4) * 0.5);
+
+    return res;
+}
+
 void QuarkExchange::calc_k_q(gsl_vector_complex* k, gsl_vector_complex* l, gsl_vector_complex* r, gsl_vector_complex* P, gsl_vector_complex* k_q)
 {
     // k_q = eta/2 * P

@@ -91,6 +91,40 @@ gsl_complex ScatteringProcess::integralKernelWrapper(int externalImpulseIdx, int
     return kernel_res;
 }
 
+void ScatteringProcess::integrate(double k2_cutoff)
+{
+    int num_progress_char = 100;
+    int progress = 0;
+    int total = tensorBasis.getTensorBasisElementCount() * externalImpulseGrid.getLength();
+
+    double avg_time = 0;
+    clock_t clock_at_start = clock();
+    clock_t clock_at_end = clock();
+
+    std::cout << "Thread " << threadIdx << " calculates " << tensorBasis.getTensorBasisElementCount() * externalImpulseGrid.getLength() << " grid points" << std::endl;
+
+    for(int basisElemIdx = 0; basisElemIdx < tensorBasis.getTensorBasisElementCount(); basisElemIdx++)
+    {
+        // Integrate each Scattering Matrix element for each choice of external Impulse
+        for (int externalImpulseIdx = 0; externalImpulseIdx < externalImpulseGrid.getLength(); externalImpulseIdx++)
+        {
+            progress = basisElemIdx * externalImpulseGrid.getLength() + externalImpulseIdx;
+            avg_time = (clock_at_end - clock_at_start)/(progress + 1);
+
+            std::cout << "Thread " << threadIdx << "-->   Basis Element [" << std::string(((double) progress/total) * num_progress_char, '#') << std::string((1.0 - (double) progress/total) * num_progress_char, '-').c_str() << "]    --> "
+                      << ((clock_at_end - clock_at_start)/CLOCKS_PER_SEC)/60 << " of " << ((avg_time * total)/CLOCKS_PER_SEC)/60 << "\t" << std::flush;
+
+
+            gsl_complex res = integrate_process(basisElemIdx, externalImpulseIdx, k2_cutoff);
+            scattering_amplitude_basis_projected[calcScatteringAmpIdx(basisElemIdx, externalImpulseIdx)] = res;
+
+            std::cout << "Basis[" << basisElemIdx << "], basisIdx=" << externalImpulseIdx << ": " << GSL_REAL(res) << " + i " << GSL_IMAG(res) << std::endl;
+
+            clock_at_end = clock();
+        }
+    }
+}
+
 void ScatteringProcess::store_scattering_amplitude(int basisElemIdx, std::ofstream& data_file)
 {
     for(int XIdx = 0; XIdx < externalImpulseGrid.getLenX(); XIdx++)

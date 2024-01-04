@@ -55,12 +55,16 @@ class ScatteringProcess
 
         gsl_complex integralKernelWrapper(int externalImpulseIdx, int basisElemIdx, int threadIdx, double k2, double z, double y, double phi);
 
+        virtual void integrate(double k2_cutoff);
+
+
         virtual void integralKernel(gsl_vector_complex* k, gsl_vector_complex* l, gsl_vector_complex* r, gsl_vector_complex* P,
                                     gsl_vector_complex* p_f, gsl_vector_complex* p_i,
                                     gsl_vector_complex* k_f, gsl_vector_complex* k_i,
                                     Tensor4<4, 4, 4, 4>* integralKernelTensor) = 0;
 
-        virtual void integrate(double k2_cutoff) = 0;
+        virtual gsl_complex integrate_process(int basisElemIdx, int externalImpulseIdx, double k2_cutoff) = 0;
+
 };
 
 #endif //NNINTERACTION_SCATTERINGPROCESS_HPP
