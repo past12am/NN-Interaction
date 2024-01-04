@@ -18,7 +18,7 @@ class ScatteringProcessHandler
         int lenX;
         int lenZ;
 
-        int l2Points;
+        int k2Points;
         int zPoints;
         int yPoints;
         int phiPoints;

@@ -19,19 +19,19 @@ def plot_form_factor(pd_tau: pd.DataFrame, tensor_basis_elem: str, tensor_basis_
 
     # Subplot real h
     ax = fig.add_subplot(2, 2, 1, projection='3d')
-    ax.set_title(f"$\Re({function_name}(X, z))$")
-    ax.plot_trisurf(pd_tau["X"], pd_tau["z"], np.real(pd_tau[function_name]), cmap=cm.coolwarm)
+    ax.set_title(f"$\Re({function_name}(X, Z))$")
+    ax.plot_trisurf(pd_tau["X"], pd_tau["Z"], np.real(pd_tau[function_name]), cmap=cm.coolwarm)
     ax.set_xlabel("$X$")
-    ax.set_ylabel("$z$")
+    ax.set_ylabel("$Z$")
     ax.set_zlabel(f"$\Re({function_name})$")
 
 
     # Subplot imag h
     ax = fig.add_subplot(2, 2, 2, projection='3d')
-    ax.set_title(f"$\Im({function_name}(X, z))$")
-    ax.plot_trisurf(pd_tau["X"], pd_tau["z"], np.imag(pd_tau[function_name]), cmap=cm.coolwarm)
+    ax.set_title(f"$\Im({function_name}(X, Z))$")
+    ax.plot_trisurf(pd_tau["X"], pd_tau["Z"], np.imag(pd_tau[function_name]), cmap=cm.coolwarm)
     ax.set_xlabel("$X$")
-    ax.set_ylabel("$z$")
+    ax.set_ylabel("$Z$")
     ax.set_zlabel(f"$\Im({function_name})$")
 
 
@@ -40,18 +40,18 @@ def plot_form_factor(pd_tau: pd.DataFrame, tensor_basis_elem: str, tensor_basis_
 
     # Subplot real f
     ax = fig.add_subplot(2, 2, 3, projection='3d')
-    ax.set_title(f"$\Re({function_name}(X, z))$")
-    ax.plot_trisurf(pd_tau["X"], pd_tau["z"], np.real(pd_tau[function_name]), cmap=cm.coolwarm)
+    ax.set_title(f"$\Re({function_name}(X, Z))$")
+    ax.plot_trisurf(pd_tau["X"], pd_tau["Z"], np.real(pd_tau[function_name]), cmap=cm.coolwarm)
     ax.set_xlabel("$X$")
-    ax.set_ylabel("$z$")
+    ax.set_ylabel("$Z$")
     ax.set_zlabel(f"$\Re({function_name})$")
 
     # Subplot imag f
     ax = fig.add_subplot(2, 2, 4, projection='3d')
-    ax.set_title(f"$\Im({function_name}(X, z))$")
-    ax.plot_trisurf(pd_tau["X"], pd_tau["z"], np.imag(pd_tau[function_name]), cmap=cm.coolwarm)
+    ax.set_title(f"$\Im({function_name}(X, Z))$")
+    ax.plot_trisurf(pd_tau["X"], pd_tau["Z"], np.imag(pd_tau[function_name]), cmap=cm.coolwarm)
     ax.set_xlabel("$X$")
-    ax.set_ylabel("$z$")
+    ax.set_ylabel("$Z$")
     ax.set_zlabel(f"$\Im({function_name})$")
 
 
@@ -63,9 +63,9 @@ def plot_form_factor(pd_tau: pd.DataFrame, tensor_basis_elem: str, tensor_basis_
 def plot_result(pd_tau, idx_selector, img_path=None, perf_norm=False):
     fig = plt.figure()
     ax = plt.axes(projection ='3d')
-    ax.plot_trisurf(pd_tau["X"][idx_selector], pd_tau["z"][idx_selector], ((1.0/(2 * (2 * math.pi)**4))**2 if perf_norm else 1) * pd_tau["|scattering_amp|2"][idx_selector])
+    ax.plot_trisurf(pd_tau["X"][idx_selector], pd_tau["Z"][idx_selector], ((1.0/(2 * (2 * math.pi)**4))**2 if perf_norm else 1) * pd_tau["|scattering_amp|2"][idx_selector])
     ax.set_xlabel("X / 1")
-    ax.set_ylabel("z / 1")
+    ax.set_ylabel("Z / 1")
     ax.set_zlabel("$|M|^2$")
     if img_path is not None:
         plt.savefig(img_path + "/NN-Scattering.png", dpi=400)

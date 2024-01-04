@@ -12,13 +12,13 @@
 #include "../../include/scattering/processes/DiquarkExchange.hpp"
 
 ScatteringProcessHandler::ScatteringProcessHandler(int numThreads, int lenX, int lenZ,
-                                                                   int l2Points, int zPoints, int yPoints, int phiPoints,
-                                                                   double eta,
-                                                                   double XCutoffLower, double XCutoffUpper,
-                                                                   double ZCutoffLower, double ZCutoffUpper,
-                                                                   const gsl_complex nucleonMass) :
-        numThreads(numThreads), lenX(lenX), lenZ(lenZ), l2Points(l2Points), zPoints(zPoints), yPoints(yPoints),
-        phiPoints(phiPoints), eta(eta), nucleon_mass(nucleonMass)
+                                                   int k2Points, int zPoints, int yPoints, int phiPoints,
+                                                   double eta,
+                                                   double XCutoffLower, double XCutoffUpper,
+                                                   double ZCutoffLower, double ZCutoffUpper,
+                                                   const gsl_complex nucleonMass) :
+    numThreads(numThreads), lenX(lenX), lenZ(lenZ), k2Points(k2Points), zPoints(zPoints), yPoints(yPoints),
+    phiPoints(phiPoints), eta(eta), nucleon_mass(nucleonMass)
 {
     subgridScatteringProcess = new ScatteringProcess*[numThreads];
     subgridIntegrationThread = new std::thread*[numThreads];
@@ -46,7 +46,7 @@ ScatteringProcessHandler::ScatteringProcessHandler(int numThreads, int lenX, int
                                                                     curXCutoffLower, curXCutoffUpper,
                                                                     ZCutoffLower, ZCutoffUpper,
                                                                     nucleon_mass, eta,
-                                                                    l2Points, zPoints, yPoints, phiPoints,
+                                                                    k2Points, zPoints, yPoints, phiPoints,
                                                                     threadIdx);
         }
         else if (SCATTERING_PROCESS_TYPE == ScatteringProcessType::DIQUARK_EXCHANGE)
@@ -55,7 +55,7 @@ ScatteringProcessHandler::ScatteringProcessHandler(int numThreads, int lenX, int
                                                                       curXCutoffLower, curXCutoffUpper,
                                                                       ZCutoffLower, ZCutoffUpper,
                                                                       nucleon_mass, eta,
-                                                                      l2Points, zPoints, yPoints, phiPoints,
+                                                                      k2Points, zPoints, yPoints, phiPoints,
                                                                       threadIdx);
         }
         else
