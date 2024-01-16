@@ -92,7 +92,18 @@ void ScatteringProcessHandler::calculateScattering(double k2_cutoff)
     }
 }
 
-void ScatteringProcessHandler::store_scattering_amplitude(std::string data_path)
+void ScatteringProcessHandler::store_scattering_amplitude(std::string data_path,
+                                                          int lenX,
+                                                          int lenZ,
+                                                          double X_lower,
+                                                          double X_upper,
+                                                          double Z_lower,
+                                                          double Z_upper,
+                                                          double loop_cutoff,
+                                                          int k2_integration_points,
+                                                          int z_integration_points,
+                                                          int y_integration_points,
+                                                          int phi_integration_points)
 {
     // Find/Create new specificaation-datapath
     //  BASE-b_I-x_DQ-y-z
@@ -126,7 +137,12 @@ void ScatteringProcessHandler::store_scattering_amplitude(std::string data_path)
             std::string cur_entry_path = entry.path().string();
 
             int last_occ = cur_entry_path.find_last_of('_');
-            latest_run = std::atoi(cur_entry_path.substr(last_occ + 1, cur_entry_path.length()).c_str());
+            int cur_latest_run = std::atoi(cur_entry_path.substr(last_occ + 1, cur_entry_path.length()).c_str());
+
+            if(cur_latest_run > latest_run)
+            {
+                latest_run = cur_latest_run;
+            }
         }
 
         cur_run_dir += "/run_" + std::to_string(latest_run + 1) + "/";
@@ -149,6 +165,15 @@ void ScatteringProcessHandler::store_scattering_amplitude(std::string data_path)
     spec_json_root["amplitude_isospin"] = AMPLITUDE_ISOSPIN;
     spec_json_root["diquark_type_1"] = (std::ostringstream() << DIQUARK_TYPE_1).str();
     spec_json_root["diquark_type_2"] = (std::ostringstream() << DIQUARK_TYPE_2).str();
+    spec_json_root["X_points"] = std::to_string(lenX);
+    spec_json_root["Z_points"] = std::to_string(lenZ);
+    spec_json_root["X_range"] = (std::ostringstream() << "[" << X_lower << ", " << X_upper << "]").str();
+    spec_json_root["Z_range"] = (std::ostringstream() << "[" << Z_lower << ", " << Z_upper << "]").str();
+    spec_json_root["loop_cutoff"] = std::to_string(loop_cutoff);
+    spec_json_root["k2_integration_points"] = std::to_string(k2_integration_points);
+    spec_json_root["z_integration_points"] = std::to_string(z_integration_points);
+    spec_json_root["y_integration_points"] = std::to_string(y_integration_points);
+    spec_json_root["phi_integration_points"] = std::to_string(phi_integration_points);
 
     std::ofstream spec_data_file;
     spec_data_file.open(specfnamestrstream.str(), std::ofstream::out | std::ios::trunc);

@@ -38,13 +38,34 @@ int main(int argc, char *argv[])
 
     int numThreads = NUM_THREADS;
     int lenX = 12;
-    int lenZ = 15;
+    int lenZ = 12;
 
-    ScatteringProcessHandler<QuarkExchange> scatteringProcessHandler(numThreads, lenX, lenZ, 200, 40, 7, 7,
-                                                                     eta, X_lower, X_upper,
-                                                                     Z_lower, Z_upper, M_nucleon);
-    scatteringProcessHandler.calculateScattering(1E4);
-    scatteringProcessHandler.store_scattering_amplitude(argv[1]);
+    double loop_cutoff = 1E4;
+
+    int k2_integration_points = 32;
+    int z_integration_points = 16;
+    int y_integration_points = 16;
+    int phi_integration_points = 10;
+
+    ScatteringProcessHandler scatteringProcessHandler(numThreads, lenX, lenZ,
+                                                      k2_integration_points, z_integration_points,
+                                                      y_integration_points, phi_integration_points,
+                                                      eta, X_lower, X_upper,
+                                                      Z_lower, Z_upper, M_nucleon);
+
+    scatteringProcessHandler.calculateScattering(loop_cutoff);
+    scatteringProcessHandler.store_scattering_amplitude(argv[1],
+                                                        lenX,
+                                                        lenZ,
+                                                        X_lower,
+                                                        X_upper,
+                                                        Z_lower,
+                                                        Z_upper,
+                                                        loop_cutoff,
+                                                        k2_integration_points,
+                                                        z_integration_points,
+                                                        y_integration_points,
+                                                        phi_integration_points);
 
     return 0;
 }

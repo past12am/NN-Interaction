@@ -1,0 +1,9 @@
+diquark_1_type;diquark_2_type;amplitude_isospin;flavor_factor
+scalar;scalar;0;-1
+scalar;axialvector;0;1
+axialvector;scalar;0;1
+axialvector;axialvector;0;1/3
+scalar;scalar;1;1
+scalar;axialvector;1;1/3
+axialvector;scalar;1;1/3
+axialvector;axialvector;1;5/9

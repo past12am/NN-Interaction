@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 import sys
 
-from visualization.plotM2 import plot_result, plot_form_factor
+from visualization.plotting import plot_result, plot_form_factor, plot_full_amplitude
 
 
 tensorBasisNamesTau = {
@@ -27,20 +27,20 @@ tensorBasisNamesT = {
 }
 
 
-def plot_form_factors(data_path: str, plot_dir: str, z_range: float, X_range: float, save_plot=False):
+def plot_form_factors(data_path: str, tensorbase_type: str, z_range: float, X_range: float, process_type: str, save_plot=False):
 
-    pd_tau_list = list()
-    for tauIdx in range(5):
-        pd_tau = pd.read_csv(data_path + f"/T_{tauIdx}.txt")
-        pd_tau = pd_tau.map(lambda s: complex(s.replace('i', 'j')) if(isinstance(s, str)) else s)
+    pd_ff_list = list()
+    for base_idx in range(5):
+        pd_ff = pd.read_csv(data_path + f"/{tensorbase_type}_{base_idx}.txt")
+        pd_ff = pd_ff.map(lambda s: complex(s.replace('i', 'j')) if(isinstance(s, str)) else s)
 
-        idx_selector = np.where(np.logical_and(np.abs(np.array(pd_tau["Z"])) < z_range, np.array(pd_tau["X"]) > X_range))[0]
-        pd_tau = pd_tau.iloc[idx_selector]
+        idx_selector = np.where(np.logical_and(np.abs(np.array(pd_ff["Z"])) < z_range, np.array(pd_ff["X"]) > X_range))[0]
+        pd_ff = pd_ff.iloc[idx_selector]
 
-        pd_tau_list.append(pd_tau)
+        pd_ff_list.append(pd_ff)
 
-    for tauIdx, pd_tau in enumerate(pd_tau_list):
-        plot_form_factor(pd_tau, tensorBasisNamesT[tauIdx], tauIdx, data_path + "/" + plot_dir + "/", save_plot)
+    for base_idx, pd_ff in enumerate(pd_ff_list):
+        plot_form_factor(pd_ff, tensorBasisNamesT[base_idx], base_idx, data_path + f"/{process_type}_F{base_idx + 1}" , save_plot)
 
 
 def load_dirac_space_form_factors(data_path: str, tensorbase_type: str, Z_range: float, X_range: float):
@@ -88,7 +88,7 @@ def load_flavor_space_form_factors(flavor_data_path: str, amplitude_isospin, dq_
 
 
 
-def full_amplitude_symmetric_basis(data_path, tensorbase_type, amplitude_isospin, dq_1_type, dq_2_type):
+def full_amplitude_symmetric_basis(data_path, tensorbase_type, amplitude_isospin, dq_1_type, dq_2_type, Z_range, X_range_upper, savefig: bool=False):
     # Check that both quark, and diquark data is accessible
     data_path_quark_exchange = data_path + "/quark_exchange/"
     if(not os.path.isdir(data_path_quark_exchange)):
@@ -100,8 +100,11 @@ def full_amplitude_symmetric_basis(data_path, tensorbase_type, amplitude_isospin
 
 
     # Find latest run
-    data_path_quark_exchange_latest = data_path_quark_exchange + find_latest_run_dir(data_path_quark_exchange) + "/"
-    data_path_diquark_exchange_latest = data_path_diquark_exchange + find_latest_run_dir(data_path_diquark_exchange) + "/"
+    latest_run_dir_quark = find_latest_run_dir(data_path_quark_exchange)
+    latest_run_dir_diquark = find_latest_run_dir(data_path_diquark_exchange)
+
+    data_path_quark_exchange_latest = data_path_quark_exchange + latest_run_dir_quark + "/"
+    data_path_diquark_exchange_latest = data_path_diquark_exchange + latest_run_dir_diquark + "/"
 
     if(data_path_quark_exchange_latest is None or data_path_diquark_exchange_latest is None):
         exit(-1)
@@ -163,8 +166,13 @@ def full_amplitude_symmetric_basis(data_path, tensorbase_type, amplitude_isospin
         pd_form_factors[i]["f"] *= 1/2
 
     # Plot full amplitude
+    pd_form_factors_restricted = list()
     for base_idx, pd_ff in enumerate(pd_form_factors):
-        plot_form_factor(pd_ff, tensorBasisNamesT[base_idx], base_idx, "", False)
+        idx_selector = np.where(np.logical_and(np.abs(np.array(pd_ff["Z"])) <= Z_range, np.array(pd_ff["X"]) <= X_range_upper))[0]
+        pd_ff = pd_ff.iloc[idx_selector]
+        pd_form_factors_restricted.append(pd_ff)
+
+    plot_full_amplitude(pd_form_factors_restricted, tensorBasisNamesT, f"{data_path}/plots/quark_{latest_run_dir_quark}_diquark_{latest_run_dir_diquark}.png", savefig)
     
 
 
@@ -181,11 +189,21 @@ def find_latest_run_dir(run_dirs_path: str):
         cur_run_dir_idx = int(run_directory[run_directory.find("_")+1 : ])
         if(cur_run_dir_idx >= run_dir_idx):
             latest_run_dir = run_directory
+            run_dir_idx = cur_run_dir_idx
     
     return latest_run_dir
 
 
 
+
+def plot_dirac_space_dressing_functions(data_path: str, tensorbase_type: str, process_type: str, run: str=None, savefig: bool=False):
+    z_range = 1
+    X_range = 0
+
+    process_data_path = data_path + process_type + "/"
+    process_data_path += find_latest_run_dir(process_data_path) + "/" if run is None else run + "/"
+
+    plot_form_factors(process_data_path, tensorbase_type, z_range, X_range, process_type, savefig)
 
 
 
@@ -201,12 +219,17 @@ def main():
     dq_1_type = "scalar"    #sys.argv[2]
     dq_2_type = "scalar"    #sys.argv[3]
 
+    Z_range = 1
+    X_range_upper = 0.6
+
 
     # Construct directory fitting specs
     data_path = data_base_path + f"/BASE-{tensorbase_type}_I-{amplitude_isospin}_DQ-{dq_1_type}-{dq_2_type}/"
 
     # Postprocess full symmetric amplitude
-    full_amplitude_symmetric_basis(data_path, tensorbase_type, amplitude_isospin, dq_1_type, dq_2_type)
+    full_amplitude_symmetric_basis(data_path, tensorbase_type, amplitude_isospin, dq_1_type, dq_2_type, Z_range, X_range_upper, savefig=True)
+
+    #plot_dirac_space_dressing_functions(data_path, tensorbase_type, "diquark_exchange", savefig=True)
 
 
 
@@ -216,15 +239,3 @@ def main():
 if __name__ == "__main__":
     main()
     exit()
-
-"""
-z_range = 1
-X_range = 0
-
-
-#cur_path = sys.argv[1]
-cur_path = "/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NNInteraction/data/BASE-T_I-0_DQ-scalar-scalar/diquark_exchange/run_0/"
-
-plot_form_factors(cur_path, "plots_z10", z_range, X_range, False)
-#plot_form_factors("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NNInteractionPython/data/run0", "", z_range, X_range, function_name, False)
-"""

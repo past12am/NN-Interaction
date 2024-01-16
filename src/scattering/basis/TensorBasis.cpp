@@ -16,21 +16,30 @@
 
 void TensorBasis::calculateBasis(int impulseIdx, Tensor4<4, 4, 4, 4>** tauGridCurrent,
                                  gsl_vector_complex* p_f, gsl_vector_complex* p_i, gsl_vector_complex* k_f,
-                                 gsl_vector_complex* k_i)
+                                 gsl_vector_complex* k_i, bool build_charge_conj_tensors)
 {
     // Positive Energy Projectors
     gsl_matrix_complex* Lambda_pf = gsl_matrix_complex_alloc(4, 4);
-    Projectors::posEnergyProjector(p_f, Lambda_pf);
-
     gsl_matrix_complex* Lambda_pi = gsl_matrix_complex_alloc(4, 4);
-    Projectors::posEnergyProjector(p_i, Lambda_pi);
-
     gsl_matrix_complex* Lambda_kf = gsl_matrix_complex_alloc(4, 4);
-    Projectors::posEnergyProjector(k_f, Lambda_kf);
-
     gsl_matrix_complex* Lambda_ki = gsl_matrix_complex_alloc(4, 4);
-    Projectors::posEnergyProjector(k_i, Lambda_ki);
 
+    if(!build_charge_conj_tensors)
+    {
+        // Build normal tau base
+        Projectors::posEnergyProjector(p_f, Lambda_pf);
+        Projectors::posEnergyProjector(p_i, Lambda_pi);
+        Projectors::posEnergyProjector(k_f, Lambda_kf);
+        Projectors::posEnergyProjector(k_i, Lambda_ki);
+    }
+    else
+    {
+        // swap the positive energy projectors --> pf -> pi, kf -> ki
+        Projectors::posEnergyProjector(p_i, Lambda_pf);
+        Projectors::posEnergyProjector(p_f, Lambda_pi);
+        Projectors::posEnergyProjector(k_i, Lambda_kf);
+        Projectors::posEnergyProjector(k_f, Lambda_ki);
+    }
 
 
     // temp variables
@@ -188,11 +197,13 @@ void TensorBasis::matProd3Elem(const gsl_matrix_complex* A, const gsl_matrix_com
 TensorBasis::TensorBasis(ExternalImpulseGrid* externalImpulseGrid, gsl_complex nucleon_mass) : len(externalImpulseGrid->getLength())
 {
     tauGrid = new Tensor4<4, 4, 4, 4>* [basis_size];
+    tauPrimeGrid = new Tensor4<4, 4, 4, 4>* [basis_size];
     TGrid = new Tensor4<4, 4, 4, 4>* [basis_size];
 
     for(int i = 0; i < basis_size; i++)
     {
         tauGrid[i] = new Tensor4<4, 4, 4, 4>[len];
+        tauPrimeGrid[i] = new Tensor4<4, 4, 4, 4>[len];
         TGrid[i] = new Tensor4<4, 4, 4, 4>[len];
     }
 
@@ -200,7 +211,11 @@ TensorBasis::TensorBasis(ExternalImpulseGrid* externalImpulseGrid, gsl_complex n
     {
         calculateBasis(impulseIdx, tauGrid, externalImpulseGrid->get_p_f(impulseIdx), externalImpulseGrid->get_p_i(impulseIdx),
                        externalImpulseGrid->get_k_f(impulseIdx),
-                       externalImpulseGrid->get_k_i(impulseIdx));
+                       externalImpulseGrid->get_k_i(impulseIdx), false);
+
+        calculateBasis(impulseIdx, tauPrimeGrid, externalImpulseGrid->get_p_f(impulseIdx), externalImpulseGrid->get_p_i(impulseIdx),
+                       externalImpulseGrid->get_k_f(impulseIdx),
+                       externalImpulseGrid->get_k_i(impulseIdx), true);
 
         calculateSymAsymBasis(impulseIdx);
     }
@@ -219,6 +234,8 @@ TensorBasis::TensorBasis(ExternalImpulseGrid* externalImpulseGrid, gsl_complex n
         calculateKMatrix(impulseIdx, basisGrid());
         calculateKMatrixInverse(impulseIdx);
     }
+
+    // TODO construct tau_prime
 }
 
 TensorBasis::~TensorBasis()
@@ -258,9 +275,9 @@ void TensorBasis::calculateKMatrix(int impulseIdx, Tensor4<4, 4, 4, 4>** basis)
         }
     }
 
-    /*
-    // Set 0 what should be 0 (< 1E-10)
-    double eps = 1E-10;
+
+    // Set 0 what should be 0 (< 1E-15)
+    double eps = 1E-15;
     for(int i = 0; i < KMatrixGrid[impulseIdx]->size1; i++)
     {
         for (int j = 0; j < KMatrixGrid[impulseIdx]->size2; j++)
@@ -271,10 +288,10 @@ void TensorBasis::calculateKMatrix(int impulseIdx, Tensor4<4, 4, 4, 4>** basis)
                 gsl_matrix_complex_set(KMatrixGrid[impulseIdx], i, j, GSL_COMPLEX_ZERO);
         }
     }
-     */
+
 
     //std::cout << "K-Matrix: " << std::endl << PrintGSLElements::print_gsl_matrix_structure(KMatrixGrid[impulseIdx], 1E-10) << std::endl;
-    //std::cout << "K-Matrix: " << std::endl << PrintGSLElements::print_gsl_matrix_complex(KMatrixGrid[impulseIdx]) << std::endl << std::endl;
+    std::cout << "K-Matrix: " << std::endl << PrintGSLElements::print_gsl_matrix_complex(KMatrixGrid[impulseIdx]) << std::endl << std::endl;
 }
 
 void TensorBasis::calculateKMatrixInverse(int impulseIdx)
@@ -300,7 +317,7 @@ void TensorBasis::calculateKMatrixInverse(int impulseIdx)
 
 
     // Set 0 what should be 0 (< 1E-10)
-    /*
+
     double eps = 1E-15;
     for(int i = 0; i < KInverseMatrixGrid[impulseIdx]->size1; i++)
     {
@@ -312,7 +329,7 @@ void TensorBasis::calculateKMatrixInverse(int impulseIdx)
                 gsl_matrix_complex_set(KInverseMatrixGrid[impulseIdx], i, j, GSL_COMPLEX_ZERO);
         }
     }
-    */
+
 
 
     //std::cout << "K-Matrix Inverse: " << std::endl << PrintGSLElements::print_gsl_matrix_structure(KInverseMatrixGrid[impulseIdx], 1E-10) << std::endl;
@@ -344,6 +361,11 @@ Tensor4<4, 4, 4, 4>* TensorBasis::tau(int basisElemIdx, int externalImpulseIdx)
     return &(tauGrid[basisElemIdx][externalImpulseIdx]);
 }
 
+Tensor4<4, 4, 4, 4>* TensorBasis::tauPrime(int basisElemIdx, int externalImpulseIdx)
+{
+    return &(tauPrimeGrid[basisElemIdx][externalImpulseIdx]);
+}
+
 Tensor4<4, 4, 4, 4>* TensorBasis::T(int basisElemIdx, int externalImpulseIdx)
 {
     return &(TGrid[basisElemIdx][externalImpulseIdx]);
@@ -352,6 +374,11 @@ Tensor4<4, 4, 4, 4>* TensorBasis::T(int basisElemIdx, int externalImpulseIdx)
 Tensor4<4, 4, 4, 4>* TensorBasis::basisTensor(int basisElemIdx, int externalImpulseIdx)
 {
     return &(basisGrid()[basisElemIdx][externalImpulseIdx]);
+}
+
+void TensorBasis::calculateRMatrixInverse(int impulseIdx)
+{
+
 }
 
 

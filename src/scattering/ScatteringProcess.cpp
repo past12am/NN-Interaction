@@ -65,7 +65,7 @@ gsl_complex ScatteringProcess::integralKernelWrapper(int externalImpulseIdx, int
     calc_k(k2, z, y, phi, k);
 
     // get basis Element
-    Tensor4<4, 4, 4, 4>* currentBasisElement = tensorBasis.tau(basisElemIdx, externalImpulseIdx);
+    Tensor4<4, 4, 4, 4>* currentBasisElement = tensorBasis.basisTensor(basisElemIdx, externalImpulseIdx);
 
     // get Tensor
     Tensor4<4, 4, 4, 4> integralKernelTensor = Tensor4<4, 4, 4, 4>();

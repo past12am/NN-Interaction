@@ -9,8 +9,7 @@ import matplotlib.pyplot as plt
 
 
 
-def plot_form_factor(pd_tau: pd.DataFrame, tensor_basis_elem: str, tensor_basis_elem_idx: int, path=None, save_plot=False):
-    # set up a figure twice as wide as it is tall
+def plot_form_factor(pd_tau: pd.DataFrame, tensor_basis_elem: str, tensor_basis_elem_idx: int, fig_path=None, save_plot=False):
     fig = plt.figure(figsize=(10, 9))
 
     fig.suptitle("Tensor Basis Element " + tensor_basis_elem)
@@ -55,8 +54,29 @@ def plot_form_factor(pd_tau: pd.DataFrame, tensor_basis_elem: str, tensor_basis_
     ax.set_zlabel(f"$\Im({function_name})$")
 
 
-    if(path is not None and save_plot):
-        plt.savefig(path + f"/f_{tensor_basis_elem_idx}.png", dpi=200)
+    if(fig_path is not None and save_plot):
+        plt.savefig(fig_path, dpi=200)
+    plt.show()
+
+
+def plot_full_amplitude(pd_ff_list, tensor_basis_names, fig_path: str, savefig: bool=False):
+    fig = plt.figure(figsize=(17, 5), constrained_layout=True)
+
+    for basis_idx, pd_ff in enumerate(pd_ff_list):
+        ax = fig.add_subplot(1, 5, basis_idx + 1, projection='3d')
+        ax.set_title(tensor_basis_names[basis_idx])
+        ax.plot_trisurf(pd_ff["X"], pd_ff["Z"], np.real(pd_ff["f"]), cmap=cm.coolwarm)
+        ax.set_xlabel("$X$")
+        ax.set_ylabel("$Z$")
+        ax.set_zlabel(f"$F_{basis_idx}(X, Z)$")
+
+
+    wspace = 0.4   # the amount of width reserved for blank space between subplots
+
+    fig.subplots_adjust(wspace=wspace, top=0.95, bottom=0.05, left=0.05, right=0.95)
+
+    if(savefig):
+        plt.savefig(fig_path, dpi=600)
     plt.show()
 
 
