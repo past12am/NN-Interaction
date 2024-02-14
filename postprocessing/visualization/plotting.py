@@ -90,3 +90,55 @@ def plot_result(pd_tau, idx_selector, img_path=None, perf_norm=False):
     if img_path is not None:
         plt.savefig(img_path + "/NN-Scattering.png", dpi=400)
     plt.show()
+
+
+
+
+
+def plot_full_amplitude_np(X: np.ndarray, Z: np.ndarray, F: np.ndarray, tensor_basis_names, fig_path: str):
+    fig = plt.figure(figsize=(17, 5), constrained_layout=True)
+
+    for basis_idx in range(F.shape[2]):
+        ax = fig.add_subplot(1, 5, basis_idx + 1, projection='3d')
+        ax.set_title(tensor_basis_names[basis_idx])
+        ax.plot_trisurf(X, Z, F[:, :, basis_idx].flatten(), cmap=cm.coolwarm)
+        ax.set_xlabel("$X$")
+        ax.set_ylabel("$Z$")
+        ax.set_zlabel(f"$F_{basis_idx}(X, Z)$")
+
+
+    wspace = 0.4   # the amount of width reserved for blank space between subplots
+
+    fig.subplots_adjust(wspace=wspace, top=0.95, bottom=0.05, left=0.05, right=0.95)
+
+    if(fig_path is not None):
+        plt.savefig(fig_path, dpi=600)
+    plt.show()
+
+
+def plot_form_factor_np(X: np.ndarray, Z: np.ndarray, dressing_f: np.ndarray, dressing_f_name: str, tensor_basis_elem: str, fig_path=None, save_plot=False):
+    fig = plt.figure(figsize=(10, 5))
+
+    fig.suptitle("Tensor Basis Element " + tensor_basis_elem)
+
+    # Subplot real h
+    ax = fig.add_subplot(1, 2, 1, projection='3d')
+    ax.set_title(f"$\Re({dressing_f_name}(X, Z))$")
+    ax.plot_trisurf(X, Z, np.real(dressing_f.flatten()), cmap=cm.coolwarm)
+    ax.set_xlabel("$X$")
+    ax.set_ylabel("$Z$")
+    ax.set_zlabel(f"$\Re({dressing_f_name})$")
+
+
+    # Subplot imag h
+    ax = fig.add_subplot(1, 2, 2, projection='3d')
+    ax.set_title(f"$\Im({dressing_f_name}(X, Z))$")
+    ax.plot_trisurf(X, Z, np.imag(dressing_f.flatten()), cmap=cm.coolwarm)
+    ax.set_xlabel("$X$")
+    ax.set_ylabel("$Z$")
+    ax.set_zlabel(f"$\Im({dressing_f_name})$")
+
+
+    if(fig_path is not None and save_plot):
+        plt.savefig(fig_path, dpi=200)
+    plt.show()
