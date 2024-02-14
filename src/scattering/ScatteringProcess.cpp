@@ -65,7 +65,7 @@ gsl_complex ScatteringProcess::integralKernelWrapper(int externalImpulseIdx, int
     calc_k(k2, z, y, phi, k);
 
     // get basis Element
-    Tensor4<4, 4, 4, 4>* currentBasisElement = tensorBasis.basisTensor(basisElemIdx, externalImpulseIdx);
+    Tensor4<4, 4, 4, 4>* currentBasisProjectionElement = tensorBasis.basisTensorProjection(basisElemIdx, externalImpulseIdx);
 
     // get Tensor
     Tensor4<4, 4, 4, 4> integralKernelTensor = Tensor4<4, 4, 4, 4>();
@@ -78,7 +78,7 @@ gsl_complex ScatteringProcess::integralKernelWrapper(int externalImpulseIdx, int
 
     k_mutex.unlock();
 
-    gsl_complex kernel_res = integralKernelTensor.leftContractWith(currentBasisElement);
+    gsl_complex kernel_res = integralKernelTensor.leftContractWith(currentBasisProjectionElement);
 
     // Set 0 if < 1E-30
     /*
@@ -177,9 +177,30 @@ void ScatteringProcess::calculateFormFactors(int XIdx, int ZIdx, gsl_complex M, 
     gsl_vector_complex* h = gsl_vector_complex_alloc(tensorBasis.getTensorBasisElementCount());
     build_h_vector(externalImpulseIdx, h);
 
-    gsl_matrix_complex* invK = tensorBasis.KInv(externalImpulseIdx);
+    gsl_matrix_complex* h2fMatrix;
 
-    gsl_blas_zgemv(CblasNoTrans, GSL_COMPLEX_ONE, invK, h, GSL_COMPLEX_ZERO, f);
+    if(INVERT_STRATEGY == InvertStrategy::NUMERIC_MATRIX_INVERSE)
+    {
+        gsl_matrix_complex* invK = tensorBasis.KInv(externalImpulseIdx);
+        h2fMatrix = invK;
+
+        // TODO store which basis we used --> thus to which tensors the f_i belong
+    }
+    else if(INVERT_STRATEGY == InvertStrategy::ANALYTIC)
+    {
+        // TODO sanity checks, that analytic inverse strategy fits other set params (in main function before calculation start)
+        //      we need ANALYTIC --> BASIS = tau, PROJECTION_BASIS = tau_prime
+        gsl_matrix_complex* invR = tensorBasis.RInv(externalImpulseIdx);
+        h2fMatrix = invR;
+    }
+    else
+    {
+        // TODO more clean exit strategy
+        exit(2);
+    }
+
+
+    gsl_blas_zgemv(CblasNoTrans, GSL_COMPLEX_ONE, h2fMatrix, h, GSL_COMPLEX_ZERO, f);
     gsl_vector_complex_free(h);
 }
 

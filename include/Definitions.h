@@ -9,14 +9,35 @@
 
 #define NUM_THREADS 6
 
-# define BASIS Basis::T
+# define BASIS Basis::tau
+# define PROJECTION_BASIS Basis::tau_prime
 
 # define DIQUARK_TYPE_1 DiquarkType::SCALAR
 # define DIQUARK_TYPE_2 DiquarkType::SCALAR
 
 # define AMPLITUDE_ISOSPIN 0
 
-#define SCATTERING_PROCESS_TYPE ScatteringProcessType::DIQUARK_EXCHANGE
+#define SCATTERING_PROCESS_TYPE ScatteringProcessType::QUARK_EXCHANGE
+
+#define INVERT_STRATEGY InvertStrategy::ANALYTIC
+
+enum class InvertStrategy
+{
+        ANALYTIC,
+        NUMERIC_MATRIX_INVERSE
+};
+
+inline std::ostream& operator<<(std::ostream& os, InvertStrategy invertStrategy)
+{
+    switch (invertStrategy) {
+        case InvertStrategy::ANALYTIC               :  os << "analytic";
+            break;
+        case InvertStrategy::NUMERIC_MATRIX_INVERSE : os << "numeric_matrix_inverse";
+            break;
+        default: os.setstate(std::ios_base::failbit);
+    }
+    return os;
+}
 
 enum class ScatteringProcessType
 {
@@ -59,15 +80,18 @@ inline std::ostream& operator<<(std::ostream& os, DiquarkType dqtype)
 enum class Basis
 {
     tau = 0,
-    T = 1
+    T = 1,
+    tau_prime = 2
 };
 
 inline std::ostream& operator<<(std::ostream& os, Basis basis)
 {
     switch (basis) {
-        case Basis::tau : os << "tau";
+        case Basis::tau         : os << "tau";
             break;
-        case Basis::T   : os << "T";
+        case Basis::T           : os << "T";
+            break;
+        case Basis::tau_prime   : os << "tau_prime";
             break;
         default         : os.setstate(std::ios_base::failbit);
     }

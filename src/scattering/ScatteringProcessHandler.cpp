@@ -175,6 +175,9 @@ void ScatteringProcessHandler::store_scattering_amplitude(std::string data_path,
     spec_json_root["y_integration_points"] = std::to_string(y_integration_points);
     spec_json_root["phi_integration_points"] = std::to_string(phi_integration_points);
 
+    spec_json_root["projection_basis"] = (std::ostringstream() << PROJECTION_BASIS).str();
+    spec_json_root["invert_strategy"] = (std::ostringstream() << INVERT_STRATEGY).str();
+
     std::ofstream spec_data_file;
     spec_data_file.open(specfnamestrstream.str(), std::ofstream::out | std::ios::trunc);
     spec_data_file << spec_json_root;
@@ -190,6 +193,8 @@ void ScatteringProcessHandler::store_scattering_amplitude(std::string data_path,
             fnamestrstream << "/tau_";
         else if(BASIS == Basis::T)
             fnamestrstream << "/T_";
+        else if(BASIS == Basis::tau_prime)
+            fnamestrstream << "/tauprime_";
         else
         {
             std::cout << "Unknown Basis " << BASIS << std::endl;

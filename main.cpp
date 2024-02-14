@@ -45,7 +45,29 @@ int main(int argc, char *argv[])
     int k2_integration_points = 32;
     int z_integration_points = 16;
     int y_integration_points = 16;
-    int phi_integration_points = 10;
+    int phi_integration_points = 24;
+
+
+    // Sanity Checks
+    // TODO sanity checks, that analytic inverse strategy fits other set params (in main function before calculation start)
+    //      we need ANALYTIC --> BASIS = tau, PROJECTION_BASIS = tau_prime
+    if(INVERT_STRATEGY == InvertStrategy::ANALYTIC)
+    {
+        if(!(PROJECTION_BASIS == Basis::tau_prime && BASIS == Basis::tau))
+        {
+            std::cout << "Invalid combination of invert strategy and basis for dressing function, we need --> BASIS = tau, PROJECTION_BASIS = tau_prime" << std::endl;
+            exit(2);
+        }
+    }
+    else if (INVERT_STRATEGY == InvertStrategy::NUMERIC_MATRIX_INVERSE)
+    {
+        if(PROJECTION_BASIS != BASIS)
+        {
+            std::cout << "Need Projection Basis == Basis" << std::endl;
+            exit(2);
+        }
+    }
+
 
     ScatteringProcessHandler scatteringProcessHandler(numThreads, lenX, lenZ,
                                                       k2_integration_points, z_integration_points,
@@ -66,6 +88,7 @@ int main(int argc, char *argv[])
                                                         z_integration_points,
                                                         y_integration_points,
                                                         phi_integration_points);
+    // TODO store basis
 
     return 0;
 }

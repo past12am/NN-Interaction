@@ -165,8 +165,6 @@ void TensorBasis::calculateBasis(int impulseIdx, Tensor4<4, 4, 4, 4>** tauGridCu
 
 void TensorBasis::calculateSymAsymBasis(int impulseIdx)
 {
-    // TODO check this works (operator overloading for Tensor might need adaption --> does the copy constructor work for return values?)
-
     // S1
     TGrid[0][impulseIdx] = tauGrid[0][impulseIdx] + tauGrid[1][impulseIdx] - tauGrid[4][impulseIdx] * gsl_complex_rect(1.0/3.0, 0);
 
@@ -220,6 +218,23 @@ TensorBasis::TensorBasis(ExternalImpulseGrid* externalImpulseGrid, gsl_complex n
         calculateSymAsymBasis(impulseIdx);
     }
 
+    // Calculate R matrix inverse
+    RInverseMatrixGrid = new gsl_matrix_complex*[len];
+    for(int XIdx = 0; XIdx < externalImpulseGrid->getLenX(); XIdx++)
+    {
+        double X = externalImpulseGrid->getXAt(XIdx);
+
+        for (int ZIdx = 0; ZIdx < externalImpulseGrid->getLenZ(); ZIdx++)
+        {
+            double Z = externalImpulseGrid->getZAt(ZIdx);
+
+            int externalImpulseIdx = externalImpulseGrid->getGridIdx(XIdx, ZIdx);
+            RInverseMatrixGrid[externalImpulseIdx] = gsl_matrix_complex_alloc(basis_size, basis_size);
+
+            calculateRMatrixInverse(RInverseMatrixGrid[externalImpulseIdx], X, Z);
+        }
+    }
+
 
 
 
@@ -234,8 +249,6 @@ TensorBasis::TensorBasis(ExternalImpulseGrid* externalImpulseGrid, gsl_complex n
         calculateKMatrix(impulseIdx, basisGrid());
         calculateKMatrixInverse(impulseIdx);
     }
-
-    // TODO construct tau_prime
 }
 
 TensorBasis::~TensorBasis()
@@ -278,9 +291,9 @@ void TensorBasis::calculateKMatrix(int impulseIdx, Tensor4<4, 4, 4, 4>** basis)
 
     // Set 0 what should be 0 (< 1E-15)
     double eps = 1E-15;
-    for(int i = 0; i < KMatrixGrid[impulseIdx]->size1; i++)
+    for(size_t i = 0; i < KMatrixGrid[impulseIdx]->size1; i++)
     {
-        for (int j = 0; j < KMatrixGrid[impulseIdx]->size2; j++)
+        for (size_t j = 0; j < KMatrixGrid[impulseIdx]->size2; j++)
         {
             gsl_complex entry = gsl_matrix_complex_get(KMatrixGrid[impulseIdx], i, j);
 
@@ -319,9 +332,9 @@ void TensorBasis::calculateKMatrixInverse(int impulseIdx)
     // Set 0 what should be 0 (< 1E-10)
 
     double eps = 1E-15;
-    for(int i = 0; i < KInverseMatrixGrid[impulseIdx]->size1; i++)
+    for(size_t i = 0; i < KInverseMatrixGrid[impulseIdx]->size1; i++)
     {
-        for (int j = 0; j < KInverseMatrixGrid[impulseIdx]->size2; j++)
+        for (size_t j = 0; j < KInverseMatrixGrid[impulseIdx]->size2; j++)
         {
             gsl_complex entry = gsl_matrix_complex_get(KInverseMatrixGrid[impulseIdx], i, j);
 
@@ -346,12 +359,29 @@ gsl_matrix_complex* TensorBasis::KInv(int impulseIdx)
     return KInverseMatrixGrid[impulseIdx];
 }
 
+gsl_matrix_complex* TensorBasis::RInv(int impulseIdx)
+{
+    return RInverseMatrixGrid[impulseIdx];
+}
+
 Tensor4<4, 4, 4, 4>** TensorBasis::basisGrid()
 {
     if(BASIS == Basis::tau)
         return tauGrid;
     else if (BASIS == Basis::T)
         return TGrid;
+
+    return nullptr;
+}
+
+Tensor4<4, 4, 4, 4>** TensorBasis::basisProjectionGrid()
+{
+    if(PROJECTION_BASIS == Basis::tau)
+        return tauGrid;
+    else if (PROJECTION_BASIS == Basis::T)
+        return TGrid;
+    else if (PROJECTION_BASIS == Basis::tau_prime)
+        return tauPrimeGrid;
 
     return nullptr;
 }
@@ -376,11 +406,124 @@ Tensor4<4, 4, 4, 4>* TensorBasis::basisTensor(int basisElemIdx, int externalImpu
     return &(basisGrid()[basisElemIdx][externalImpulseIdx]);
 }
 
-void TensorBasis::calculateRMatrixInverse(int impulseIdx)
+Tensor4<4, 4, 4, 4> *TensorBasis::basisTensorProjection(int basisElemIdx, int externalImpulseIdx)
 {
-
+    return &(basisProjectionGrid()[basisElemIdx][externalImpulseIdx]);;
 }
 
+void TensorBasis::calculateRMatrixInverse(gsl_matrix_complex* RInvMatrixCur, double X, double Z)
+{
+    double c = calc_c(X, Z);
+    double d = calc_d(X, Z);
+
+    double n_plus = calc_n_plus(c, d);
+    double n_minus = calc_n_minus(c, d);
+    double g = calc_g(c, n_minus);
+    double h = calc_h(n_minus, c);
+    double k = calc_k(g, n_minus);
+
+    double e1 = calc_e1(c, d, n_plus, n_minus);
+    double e2 = calc_e2(c, d, k, n_plus);
+    double e3 = calc_e3(c, d, n_plus, n_minus);
+    double e4 = calc_e4(c, d, n_plus);
+    double e5 = calc_e5(c, d, n_plus);
+
+    double pref = 1.0 / (2.0 * gsl_pow_2(c * n_plus));
+
+    gsl_matrix_complex_set_zero(RInvMatrixCur);
+
+    gsl_matrix_complex_set(RInvMatrixCur, 0, 0, gsl_complex_rect(e1, 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 0, 1, gsl_complex_rect(-gsl_pow_2(d)/2.0 * n_minus, 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 0, 2, gsl_complex_rect(d * h, 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 0, 3, gsl_complex_rect(gsl_pow_2(d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 0, 4, gsl_complex_rect(d * g, 0));
+
+    gsl_matrix_complex_set(RInvMatrixCur, 1, 0, gsl_complex_rect(-gsl_pow_2(d)/2.0 * n_minus, 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 1, 1, gsl_complex_rect(e2, 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 1, 2, gsl_complex_rect(d * h, 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 1, 3, gsl_complex_rect(gsl_pow_2(d) - n_plus, 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 1, 4, gsl_complex_rect(d * k, 0));
+
+    gsl_matrix_complex_set(RInvMatrixCur, 2, 0, gsl_complex_rect(d * h, 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 2, 1, gsl_complex_rect(d * h, 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 2, 2, gsl_complex_rect(e3, 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 2, 3, gsl_complex_rect(-d * (1.0 + c), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 2, 4, gsl_complex_rect(1.5 * c * n_plus + gsl_pow_2(d), 0));
+
+    gsl_matrix_complex_set(RInvMatrixCur, 3, 0, gsl_complex_rect(gsl_pow_2(d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 3, 1, gsl_complex_rect(gsl_pow_2(d) - n_plus, 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 3, 2, gsl_complex_rect(-d * (1.0 + c), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 3, 3, gsl_complex_rect(e4, 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 3, 4, gsl_complex_rect(-d * (1.0 + c), 0));
+
+    gsl_matrix_complex_set(RInvMatrixCur, 4, 0, gsl_complex_rect(d * g, 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 4, 1, gsl_complex_rect(d * k, 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 4, 2, gsl_complex_rect(1.5 * c * n_plus + gsl_pow_2(d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 4, 3, gsl_complex_rect(-d * (1.0 + c), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 4, 4, gsl_complex_rect(e5, 0));
+
+    gsl_matrix_complex_scale(RInvMatrixCur, gsl_complex_rect(pref, 0));
+}
+
+double TensorBasis::calc_c(double X, double Z)
+{
+    return 0.5 * X * (1.0 - Z);
+}
+
+double TensorBasis::calc_d(double X, double Z)
+{
+    return 1.0 + 0.5 * X * (3.0 + Z);
+}
+
+double TensorBasis::calc_n_plus(double c, double d)
+{
+    return (gsl_pow_2(1.0 + c) - gsl_pow_2(d)) / (2.0 * c);
+}
+
+double TensorBasis::calc_n_minus(double c, double d)
+{
+    return (gsl_pow_2(1.0 - c) - gsl_pow_2(d)) / (2.0 * c);
+}
+
+double TensorBasis::calc_g(double c, double n_minus)
+{
+    return 0.5 * c * n_minus - 1.0;
+}
+
+double TensorBasis::calc_h(double n_minus, double c)
+{
+    return n_minus/2.0 - c;
+}
+
+double TensorBasis::calc_k(double g, double n_minus)
+{
+    return g + n_minus + 2.0;
+}
+
+double TensorBasis::calc_e1(double c, double d, double n_plus, double n_minus)
+{
+    return c * n_plus - gsl_pow_2(d)/2.0 * n_minus;
+}
+
+double TensorBasis::calc_e2(double c, double d, double k, double n_plus)
+{
+    return n_plus/c * (1.0 + 2.0 * c * n_plus) - gsl_pow_2(d) * (1.0 + k)/c;
+}
+
+double TensorBasis::calc_e3(double c, double d, double n_plus, double n_minus)
+{
+    return c * n_plus - n_minus/2.0 + gsl_pow_2(d) - 1;
+}
+
+double TensorBasis::calc_e4(double c, double d, double n_plus)
+{
+    return c * n_plus + gsl_pow_2(d);
+}
+
+double TensorBasis::calc_e5(double c, double d, double n_plus)
+{
+    return c * n_plus * (1.0 - c/2.0) + gsl_pow_2(d);
+}
 
 
 
