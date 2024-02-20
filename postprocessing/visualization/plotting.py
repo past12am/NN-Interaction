@@ -98,10 +98,10 @@ def plot_result(pd_tau, idx_selector, img_path=None, perf_norm=False):
 def plot_full_amplitude_np(X: np.ndarray, Z: np.ndarray, F: np.ndarray, tensor_basis_names, fig_path: str):
     fig = plt.figure(figsize=(17, 5), constrained_layout=True)
 
-    for basis_idx in range(F.shape[2]):
+    for basis_idx in range(F.shape[0]):
         ax = fig.add_subplot(1, 5, basis_idx + 1, projection='3d')
         ax.set_title(tensor_basis_names[basis_idx])
-        ax.plot_trisurf(X, Z, F[:, :, basis_idx].flatten(), cmap=cm.coolwarm)
+        ax.plot_trisurf(X, Z, F[basis_idx, :, :].flatten(), cmap=cm.coolwarm)
         ax.set_xlabel("$X$")
         ax.set_ylabel("$Z$")
         ax.set_zlabel(f"$F_{basis_idx}(X, Z)$")

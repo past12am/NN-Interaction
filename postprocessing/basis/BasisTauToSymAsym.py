@@ -2,7 +2,6 @@ import copy
 
 from typing import List
 
-import pandas as pd
 import numpy as np
 
 
@@ -39,12 +38,12 @@ class BasisTauToSymAsym:
     def build_alternate_basis_numpy(f: np.ndarray):
         base_conv_prefs = np.array([[3/8, 3/8, 0, 0, -6], [1/4, -(1/4), 1/2, -(1/2), 0], [1/8, 1/8, 0, 0, 6], [1/4, -(1/4), -(1/2), 1/2, 0], [0, 0, 1/2, 1/2, 0]])
 
-        f_transformed = np.zeros_like(f)
-        for X_idx in range(f.shape[0]):
-            for Z_idx in range(f.shape[1]):
-                f_transformed[X_idx, Z_idx, :] = np.matmul(base_conv_prefs, f[X_idx, Z_idx, :])
+        F_transformed = np.zeros_like(f)
+        for X_idx in range(f.shape[1]):
+            for Z_idx in range(f.shape[2]):
+                F_transformed[:, X_idx, Z_idx] = np.matmul(base_conv_prefs, f[:, X_idx, Z_idx])
 
-        return f_transformed
+        return F_transformed
 
 
     @staticmethod
@@ -52,8 +51,8 @@ class BasisTauToSymAsym:
         base_conv_prefs = np.array([[1, 1, 1, 1, 0], [1, -1, 1, -1, 0], [0, 1/2, 0, -(1/2), 1], [0, -(1/2), 0, 1/2, 1], [-(1/24), 0, 1/8, 0, 0]])
 
         f_transformed = np.zeros_like(F)
-        for X_idx in range(F.shape[0]):
-            for Z_idx in range(F.shape[1]):
-                f_transformed[X_idx, Z_idx, :] = np.matmul(base_conv_prefs, F[X_idx, Z_idx, :])
+        for X_idx in range(F.shape[1]):
+            for Z_idx in range(F.shape[2]):
+                f_transformed[:, X_idx, Z_idx] = np.matmul(base_conv_prefs, F[:, X_idx, Z_idx])
 
         return f_transformed
