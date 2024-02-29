@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 
 import sys
 
+from scipy.optimize import curve_fit
+
 from data.Dataloader import Dataloader
 
 from basis.BasisTauToRho import BasisTauToRho
@@ -62,6 +64,45 @@ def plotFullSymAmplitude(dataloader_qx, dataloader_dqx):
     plot_full_amplitude_np(dataloader_qx.X, dataloader_qx.Z, F_complete, tensorBasisNamesT, None)
 
 
+def plotAmplitudesPartialWaveExpandedAndOriginal(X: np.ndarray, Z: np.ndarray, V_l: np.ndarray, V: np.ndarray, data_path: str=None):
+    # Build original amplitudes from partial wave expanded ones
+    num_Z_check = 21
+    Z_check_linspace = np.linspace(np.min(Z), np.max(Z), num_Z_check)
+
+    V_qx_check = np.zeros((V.shape[0], V.shape[1], num_Z_check))
+
+    for basis_idx in range(V_l.shape[0]):
+        for X_idx in range(V_l.shape[2]):
+            #V_check = np.polynomial.Legendre(V_qx_l[basis_idx, :, X_idx], domain=[-1, 1])
+        
+            V_qx_check[basis_idx, X_idx, :] = np.polynomial.legendre.legval(Z_check_linspace, V_l[basis_idx, :, X_idx])
+
+        X_qx_extended = np.repeat(X, len(Z))
+        Z_qx_extended = np.tile(Z, len(X))
+
+        X_check_extended = np.repeat(X, num_Z_check)
+        Z_check_linspace_extended = np.tile(Z_check_linspace, len(X))
+
+        plot_form_factor_np(X_qx_extended, Z_qx_extended, V[basis_idx, :, :], "V", tensorBasisNamesRho[basis_idx], fig_path=data_path + f"/rho_{basis_idx + 1}.png", save_plot=False)
+        plot_form_factor_np(X_check_extended, Z_check_linspace_extended, V_qx_check[basis_idx, :, :], "V_{check}", tensorBasisNamesRho[basis_idx], fig_path=data_path + f"/rho_{basis_idx + 1}.png", save_plot=False)
+
+
+def yukawa_potential(q2, c, L2):
+    return c/(q2 + L2)
+
+
+def yukawa_potential_exp_sum(q2, c, L2, a0, b0, a1, b1, offset):
+    return yukawa_potential(q2, c, L2) + a0 * np.exp(b0 * q2) + a1 * np.exp(b1 * q2) + offset
+
+
+
+def FT_yukawa_potential_exp_sum(r, c, L2, a0, b0, a1, b1, offset):
+    """ We used the FT as -1/(2 pi)^3 Integral_-inf^inf{dq f(q^2) e^{i q.r}}"""
+
+    return - c/(4.0 * np.pi) * np.exp(-np.sqrt(L2) * np.abs(r)) / (np.abs(r)) \
+           - 1/(8 * np.sqrt(np.power(np.pi, 3))) * (a0/np.sqrt(np.power(-b0, 3)) * np.exp(np.square(r)/(4.0 * b0)) + a1/np.sqrt(np.power(-b1, 3)) * np.exp(np.square(r)/(4.0 * b1)))
+
+
 def main():
 
     data_base_path = "/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NNInteraction/data/"  #sys.argv[1]
@@ -114,16 +155,33 @@ def main():
 
 
 
-    # partial wave expansion
+    # Partial Wave Expansion
     #       X_qx is already unique, Z_qx can be replaced by wave (s, p, d, ... <=> l = 0, 1, 2, ...)
 
-    degree_fit = 12
+    # 1.) Calculate q^2 from X values and nucleon mass for each of the l (~ Z_values)
+    # TODO load nucleon mass via dataloader from spec.json
+    M_nucleon = 0.94
+
+    # q2 has shape (X, Z)
+    q2 = np.zeros((len(X_qx), len(Z_qx)))
+    q2[:, :] = np.square(M_nucleon) * (2.0 * X_qx[:, None]) * (1.0 - Z_qx[None, :])
+
+    """
+    X_qx_extended = np.repeat(X_qx, len(Z_qx))
+    Z_qx_extended = np.tile(Z_qx, len(X_qx))
+    plot_form_factor_np(X_qx_extended, Z_qx_extended, q2, "q2", "q2")
+    """
+
+    # 2.) Set parameters
+    degree_fit = 3
 
     # V_qx_l has shape (basis, l, X)
     V_qx_l = np.zeros((V_qx.shape[0], degree_fit+1, V_qx.shape[1]))
 
     for basis_idx in range(V_qx.shape[0]):
         for X_idx in range(V_qx.shape[1]):
+
+            # 3.) For each Basis, fit legendre polynomials on Z (= cos(Theta))
             legendreFit = np.polynomial.legendre.Legendre.fit(Z_qx, V_qx[basis_idx, X_idx, :], deg=degree_fit, domain=[-1, 1])
             V_qx_l[basis_idx, :, X_idx] = legendreFit.convert().coef
 
@@ -140,99 +198,60 @@ def main():
             plt.show()
             """
 
-    # Build original amplitudes from partial wave expanded ones
-    num_Z_check = 21
-    Z_check_linspace = np.linspace(np.min(Z_qx), np.max(Z_qx), num_Z_check)
+    # 4.) Check result of partial wave expansion
+    #plotAmplitudesPartialWaveExpandedAndOriginal(X_qx, Z_qx, V_qx_l, V_qx, dataloader_qx.data_path)
 
-    V_qx_check = np.zeros((V_qx.shape[0], V_qx.shape[1], num_Z_check))
+
+
+
+    # Fourier Transformation
+
+    #   1.) Fit partial wave expanded amplitudes with functions of known fourier transform  (Yukawa Potential and additionally sum of exponentials for small q2)
+            
+    #       V_qx_l_fitcoeff has shape (basis, l, coeffs)
+    V_qx_l_fitcoeff = np.zeros((V_qx_l.shape[0], V_qx_l.shape[1], 7))
 
     for basis_idx in range(V_qx_l.shape[0]):
-        for X_idx in range(V_qx_l.shape[2]):
-            #V_check = np.polynomial.Legendre(V_qx_l[basis_idx, :, X_idx], domain=[-1, 1])
-        
-            V_qx_check[basis_idx, X_idx, :] = np.polynomial.legendre.legval(Z_check_linspace, V_qx_l[basis_idx, :, X_idx])
-
-        X_qx_extended = np.repeat(X_qx, len(Z_qx))
-        Z_qx_extended = np.tile(Z_qx, len(X_qx))
-
-        X_check_extended = np.repeat(X_qx, num_Z_check)
-        Z_check_linspace_extended = np.tile(Z_check_linspace, len(X_qx))
-
-        plot_form_factor_np(X_qx_extended, Z_qx_extended, V_qx[basis_idx, :, :], "V", tensorBasisNamesRho[basis_idx], fig_path=dataloader_qx.data_path + f"/rho_{basis_idx + 1}.png", save_plot=False)
-        plot_form_factor_np(X_check_extended, Z_check_linspace_extended, V_qx_check[basis_idx, :, :], "V_{check}", tensorBasisNamesRho[basis_idx], fig_path=dataloader_qx.data_path + f"/rho_{basis_idx + 1}.png", save_plot=False)
-
-
-
-
-    exit()
-    # TODO check that Z_qx_zero_idx needs to be always scalar (--> one Z-value for each iteration --> "replace Z by l")
-    Z_qx_zero_idx = np.argwhere(Z_qx == 0)[0][0]
-
-    # (wave_idx, X_idx, tensorbase_idx)
-    X_partwaves = [X_qx]
-    Z_partwaves = [0]
-    Vi_partwaves = np.array([V_qx[:, Z_qx_zero_idx, :]])
-
-
-    # TODO load nucleon mass via dataloader from spec.json
-    M_nucleon = 0.94
-
-
-    # Fourier Transform V
-    # l ... partial wave
-    Vi_r = np.zeros_like(Vi_partwaves, dtype="complex")
-
-    phi_linspace = np.linspace(0, 2*np.pi, 6)
-    z_linspace = np.linspace(-1, 1, 7)
-
-    q_3_unitvec = np.zeros((Vi_partwaves.shape[1], 3))
-
-    q_idx = 0
-    for z in z_linspace:
-        for phi in phi_linspace:
-            unit_3vec = np.array([np.sqrt(1 - np.square(z)) * np.sin(phi), np.sqrt(1 - np.square(z)) * np.cos(phi), z])
-            q_idx += 1
-
-    for l, (X_partwave, Z_partwave, V_partwave) in enumerate(zip(X_partwaves, Z_partwaves, Vi_partwaves)):
-        q = M_nucleon * np.sqrt(2.0 * X_partwave * (1.0 - Z_partwave))
-
-        q_mirrored = np.zeros(2 * len(q))
-        q_mirrored[:len(q)] = -1 * np.flip(q)
-        q_mirrored[len(q):] = q
-
-
-        for tensorbase_idx in range(V_partwave.shape[-1]):
-            Vi_partwave = V_partwave[..., tensorbase_idx]
-
-            Vi_partwave_mirrored = np.zeros(2 * len(Vi_partwave))
-            Vi_partwave_mirrored[:len(Vi_partwave)] = np.flip(Vi_partwave)
-            Vi_partwave_mirrored[len(Vi_partwave):] = Vi_partwave
-
+        for l in range(V_qx_l.shape[1]):
+            popt, pcov = curve_fit(yukawa_potential_exp_sum, X_qx, V_qx_l[basis_idx, l, :], 
+                                   p0=[1, 1, -1, -2, -1, -2, -0.1], 
+                                   bounds=([-np.inf, 0, -np.inf, -np.inf, -np.inf, -np.inf, -np.inf], [np.inf, np.inf, np.inf, 0, np.inf, 0, np.inf]), 
+                                   maxfev=10000)
             
-            # build -i pi sign(q) function
-            #       as we consider q > 0 for all values of V --> use -i pi
+            V_qx_l_fitcoeff[basis_idx, l, :] = popt
             
-            r_inverse = np.fft.fft(-1j * np.sign(q_mirrored))   # TODO
-            Vi_r[l, :, tensorbase_idx] = -1.0/np.power(2.0 * np.pi, 2) * 1.0/(1j) * np.fft.fft(q * Vi_partwave)
 
-            Vi_r_mirrored = -1.0/np.power(2.0 * np.pi, 2) * 1.0/(1j) * r_inverse * np.fft.fft(q_mirrored * Vi_partwave_mirrored)
+    #   2.) Plot partial wave amplitudes for X in (Log-Log) Plot
+    for basis_idx in range(V_qx_l.shape[0]):
+        fig, axs = plt.subplots(1, 2, figsize=(14, 7))
+
+        for l in range(V_qx_l.shape[1]):
+            axs[0].plot(X_qx, V_qx_l[basis_idx, l, :], label=f"{l}-wave")
+            axs[0].plot(X_qx, yukawa_potential_exp_sum(X_qx, *V_qx_l_fitcoeff[basis_idx, l, :]), label=f"{l}-wave-fit")
+
+            axs[1].loglog(X_qx, V_qx_l[basis_idx, l, :], label=f"{l}-wave")
+            axs[1].loglog(X_qx, yukawa_potential_exp_sum(X_qx, *V_qx_l_fitcoeff[basis_idx, l, :]), label=f"{l}-wave-fit")
+
+        #axs[1].loglog(X_qx, 1.0/np.square(X_qx), label="1/X^2")
+        #axs[1].loglog(X_qx, np.exp(X_qx), label="exp(X)")
+
+        axs[0].legend()
+        axs[1].legend()
+        plt.show()
 
 
-            # 3D FFT --> TODO check this is correct
-            Vi_partwave_xyz = np.meshgrid(Vi_partwave, Vi_partwave, Vi_partwave)[0]
-            Vi_r_3d = np.fft.fftn(Vi_partwave_xyz)
 
+    # 3.) Plot Fourier Transformed Amplitude
+    r_linspace = np.linspace(0.1, 1, 500)
+    for basis_idx in range(V_qx_l.shape[0]):
+        plt.figure()
 
-            # Plot fourier transformed potential
-            plt.figure()
-            #plt.plot(Vi_r[l, :, tensorbase_idx], label="1D FFT")
-            #plt.plot(Vi_r_mirrored)
-            plt.plot(np.real(Vi_r_3d[0, 0, :]), label="3D FFT")
-            plt.legend()
-            plt.show()
+        for l in range(V_qx_l.shape[1]):
+            plt.plot(r_linspace, FT_yukawa_potential_exp_sum(r_linspace, *V_qx_l_fitcoeff[basis_idx, l, :]), label=f"{l}-wave")
 
+        plt.legend()
+        plt.show()
 
-    
 
 
 
