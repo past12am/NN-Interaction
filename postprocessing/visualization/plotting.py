@@ -121,7 +121,7 @@ def plot_form_factor_np(X: np.ndarray, Z: np.ndarray, dressing_f: np.ndarray, dr
 
     fig.suptitle("Tensor Basis Element " + tensor_basis_elem)
 
-    # Subplot real h
+    # Subplot real
     ax = fig.add_subplot(1, 2, 1, projection='3d')
     ax.set_title(f"$\Re({dressing_f_name}(X, Z))$")
     ax.plot_trisurf(X, Z, np.real(dressing_f.flatten()), cmap=cm.coolwarm)
@@ -130,13 +130,63 @@ def plot_form_factor_np(X: np.ndarray, Z: np.ndarray, dressing_f: np.ndarray, dr
     ax.set_zlabel(f"$\Re({dressing_f_name})$")
 
 
-    # Subplot imag h
+    # Subplot imag
     ax = fig.add_subplot(1, 2, 2, projection='3d')
     ax.set_title(f"$\Im({dressing_f_name}(X, Z))$")
     ax.plot_trisurf(X, Z, np.imag(dressing_f.flatten()), cmap=cm.coolwarm)
     ax.set_xlabel("$X$")
     ax.set_ylabel("$Z$")
     ax.set_zlabel(f"$\Im({dressing_f_name})$")
+
+
+    if(fig_path is not None and save_plot):
+        plt.savefig(fig_path, dpi=200)
+    plt.show()
+
+
+
+def plot_form_factor_np_side_by_side(X1: np.ndarray, Z1: np.ndarray, dressing_f1: np.ndarray, dressing_f_name1: str,
+                                     X2: np.ndarray, Z2: np.ndarray, dressing_f2: np.ndarray, dressing_f_name2: str, 
+                                     tensor_basis_elem: str, fig_path=None, save_plot=False):
+    fig = plt.figure(figsize=(10, 9))
+
+    fig.suptitle("Tensor Basis Element " + tensor_basis_elem)
+
+    # Subplot real
+    ax = fig.add_subplot(2, 2, 1, projection='3d')
+    ax.set_title(f"$\Re({dressing_f_name1}(X, Z))$")
+    ax.plot_trisurf(X1, Z1, np.real(dressing_f1.flatten()), cmap=cm.coolwarm)
+    ax.set_xlabel("$X$")
+    ax.set_ylabel("$Z$")
+    ax.set_zlabel(f"$\Re({dressing_f_name1})$")
+
+
+    # Subplot imag
+    ax = fig.add_subplot(2, 2, 2, projection='3d')
+    ax.set_title(f"$\Im({dressing_f_name1}(X, Z))$")
+    ax.plot_trisurf(X1, Z1, np.imag(dressing_f1.flatten()), cmap=cm.coolwarm)
+    ax.set_xlabel("$X$")
+    ax.set_ylabel("$Z$")
+    ax.set_zlabel(f"$\Im({dressing_f_name1})$")
+
+
+
+    # Subplot real
+    ax = fig.add_subplot(2, 2, 3, projection='3d')
+    ax.set_title(f"$\Re({dressing_f_name2}(X, Z))$")
+    ax.plot_trisurf(X2, Z2, np.real(dressing_f2.flatten()), cmap=cm.coolwarm)
+    ax.set_xlabel("$X$")
+    ax.set_ylabel("$Z$")
+    ax.set_zlabel(f"$\Re({dressing_f_name2})$")
+
+
+    # Subplot imag
+    ax = fig.add_subplot(2, 2, 4, projection='3d')
+    ax.set_title(f"$\Im({dressing_f_name2}(X, Z))$")
+    ax.plot_trisurf(X2, Z2, np.imag(dressing_f2.flatten()), cmap=cm.coolwarm)
+    ax.set_xlabel("$X$")
+    ax.set_ylabel("$Z$")
+    ax.set_zlabel(f"$\Im({dressing_f_name2})$")
 
 
     if(fig_path is not None and save_plot):

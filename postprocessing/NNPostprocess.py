@@ -14,8 +14,11 @@ from data.Dataloader import Dataloader
 
 from basis.BasisTauToRho import BasisTauToRho
 
-from visualization.plotting import plot_full_amplitude_np, plot_form_factor_np
+from data.AmplitudeHandler import AmplitudeHandler
+from pwave.PartialWaveExpansion import PartialWaveExpansion
+from visualization.plotting import plot_full_amplitude_np, plot_form_factor_np, plot_form_factor_np_side_by_side
 
+from utils.fitfunctions import *
 
 tensorBasisNamesTau = {
     0: "$1 \otimes 1$",
@@ -83,24 +86,85 @@ def plotAmplitudesPartialWaveExpandedAndOriginal(X: np.ndarray, Z: np.ndarray, V
         X_check_extended = np.repeat(X, num_Z_check)
         Z_check_linspace_extended = np.tile(Z_check_linspace, len(X))
 
-        plot_form_factor_np(X_qx_extended, Z_qx_extended, V[basis_idx, :, :], "V", tensorBasisNamesRho[basis_idx], fig_path=data_path + f"/rho_{basis_idx + 1}.png", save_plot=False)
-        plot_form_factor_np(X_check_extended, Z_check_linspace_extended, V_qx_check[basis_idx, :, :], "V_{check}", tensorBasisNamesRho[basis_idx], fig_path=data_path + f"/rho_{basis_idx + 1}.png", save_plot=False)
+        plot_form_factor_np_side_by_side(X_qx_extended, Z_qx_extended, V[basis_idx, :, :], "V",
+                                         X_check_extended, Z_check_linspace_extended, V_qx_check[basis_idx, :, :], "V_{check}", 
+                                         tensorBasisNamesRho[basis_idx], fig_path=data_path + f"/rho_{basis_idx + 1}.png", save_plot=False)
+        
+
+def plot_pwave_amp_with_fits(V_qx_l, X_qx, V_qx_l_fitcoeff):
+    for basis_idx in range(V_qx_l.shape[0]):
+        fig, axs = plt.subplots(1, 2, figsize=(14, 7))
+
+        for l in range(V_qx_l.shape[1]):
+            axs[0].plot(X_qx, V_qx_l[basis_idx, l, :], label=f"{l}-wave")
+            axs[0].plot(X_qx, yukawa_potential_exp_sum(X_qx, *V_qx_l_fitcoeff[basis_idx, l, :]), label=f"{l}-wave-fit")
+
+            axs[1].loglog(X_qx, V_qx_l[basis_idx, l, :], label=f"{l}-wave")
+            axs[1].loglog(X_qx, yukawa_potential_exp_sum(X_qx, *V_qx_l_fitcoeff[basis_idx, l, :]), label=f"{l}-wave-fit")
+            
+
+        axs[0].set_xlabel("$X$")
+        axs[0].set_ylabel("$V_{l}(X)$")
+
+        axs[1].set_xlabel("$\log X$")
+        axs[1].set_ylabel("$\log V_{l}(X)$")
+
+        axs[0].legend()
+        axs[1].legend()
+        plt.show()
 
 
-def yukawa_potential(q2, c, L2):
-    return c/(q2 + L2)
+def plot_pwave_amp_fits(X_qx_check, V_qx_l_fitcoeff, Ymax: float=None):
+    for basis_idx in range(V_qx_l_fitcoeff.shape[0]):
+        fig, axs = plt.subplots(1, 2, figsize=(14, 7))
+
+        for l in range(V_qx_l_fitcoeff.shape[1]):
+            axs[0].plot(X_qx_check, yukawa_potential_exp_sum(X_qx_check, *V_qx_l_fitcoeff[basis_idx, l, :]), label=f"{l}-wave-fit")
+
+            axs[1].loglog(X_qx_check, yukawa_potential_exp_sum(X_qx_check, *V_qx_l_fitcoeff[basis_idx, l, :]), label=f"{l}-wave-fit")
+            
+
+        axs[0].set_xlabel("$X$")
+        axs[0].set_ylabel("$V_{l}(X)$")
+
+        axs[1].set_xlabel("$\log X$")
+        axs[1].set_ylabel("$\log V_{l}(X)$")
+
+        axs[0].legend()
+        axs[1].legend()
+
+        if Ymax is not None:
+            axs[1].set_ylim(Ymax)
+
+        plt.show()
 
 
-def yukawa_potential_exp_sum(q2, c, L2, a0, b0, a1, b1, offset):
-    return yukawa_potential(q2, c, L2) + a0 * np.exp(b0 * q2) + a1 * np.exp(b1 * q2) + offset
+def plot_pwave_amp_with_interpolation(ampHandler: AmplitudeHandler):
+    X_check = np.linspace(ampHandler.X[0], ampHandler.X[-1], 1000)
+
+    for basis_idx in range(ampHandler.f_l.shape[0]):
+        fig, axs = plt.subplots(1, 2, figsize=(14, 7))
+
+        for l in range(ampHandler.f_l.shape[1]):
+            axs[0].plot(ampHandler.X, ampHandler.f_l[basis_idx, l, :], label=f"f_{l}(X)")
+            axs[0].plot(X_check, ampHandler.f_l_interpolation(basis_idx, l, X_check), label=f"f_{l}(X) interp")
+
+            axs[1].loglog(ampHandler.X, ampHandler.f_l[basis_idx, l, :], label=f"f_{l}(X)")
+            axs[1].loglog(X_check, ampHandler.f_l_interpolation(basis_idx, l, X_check), label=f"f_{l}(X) interp")
+            
+
+        axs[0].set_xlabel("$X$")
+        axs[0].set_ylabel("$f_{l}(X)$")
+
+        axs[1].set_xlabel("$\log X$")
+        axs[1].set_ylabel("$\log f_{l}(X)$")
+
+        axs[0].legend()
+        axs[1].legend()
+
+        plt.show()
 
 
-
-def FT_yukawa_potential_exp_sum(r, c, L2, a0, b0, a1, b1, offset):
-    """ We used the FT as -1/(2 pi)^3 Integral_-inf^inf{dq f(q^2) e^{i q.r}}"""
-
-    return - c/(4.0 * np.pi) * np.exp(-np.sqrt(L2) * np.abs(r)) / (np.abs(r)) \
-           - 1/(8 * np.sqrt(np.power(np.pi, 3))) * (a0/np.sqrt(np.power(-b0, 3)) * np.exp(np.square(r)/(4.0 * b0)) + a1/np.sqrt(np.power(-b1, 3)) * np.exp(np.square(r)/(4.0 * b1)))
 
 
 def main():
@@ -153,12 +217,80 @@ def main():
 
 
 
+    # The FT workaround
+    ampHandler = AmplitudeHandler(X_qx, Z_qx, V_qx)
+
+    ########################### (1) ##############################
+    #Perform Partial Wave Expansion to get f_l(X) from f(X, Z)         (i.e. get V_qx_l[basis, l, X]   from    V_qx[basis, X, Z])
+
+    degree_pwave_exp = 6
+    ampHandler.partial_wave_expand(degree_pwave_exp)
+
+    # Check result of partial wave expansion
+    #plotAmplitudesPartialWaveExpandedAndOriginal(ampHandler.X, ampHandler.Z, ampHandler.f_l, V_qx, dataloader_qx.data_path)
+
+
+
+    
+    ########################### (2) ##############################
+    #Fit f_l(X) for X >>        (i.e. fit V_qx_l[basis, l, X])  for fixed basis, l
+
+    #       V_qx_l_fitcoeff has shape (basis, l, coeffs)
+    ampHandler.fit_large_X_behaviour()
+            
+
+    #       Plot partial wave amplitudes for X in (Log-Log) Plot
+    #plot_pwave_amp_with_fits(ampHandler.f_l, ampHandler.X, ampHandler.f_l_fitcoeff)
+
+
+    # Check Fit behaviour for large X           --> TODO better fit
+    X_qx_check = np.linspace(0, 1E3, 10000)
+    #plot_pwave_amp_fits(X_qx_check, ampHandler.f_l_fitcoeff)
+
+
+
+
+    ########################### (3) ##############################
+    # Plug things together
+    #   -> interpolation for X <= X_max
+    #   -> query fit for X > X_max
+    ampHandler.interpolate_in_X()
+    
+    # Check interpolation
+    #plot_pwave_amp_with_interpolation(ampHandler)
+
+    # Check reconstructed Amplitude
+    X_qx_extended = np.repeat(ampHandler.X, len(ampHandler.Z))
+    Z_qx_extended = np.tile(ampHandler.Z, len(ampHandler.X))
+
+    X_qx_reconst = np.linspace(0.05, 1.5, 20)
+    Z_qx_reconst = np.linspace(-1, 1, 15)
+    V_qx_reconst = np.zeros((V_qx.shape[0], len(X_qx_reconst), len(Z_qx_reconst)))
+
+    X_qx_extended_reconst = np.repeat(X_qx_reconst, len(Z_qx_reconst))
+    Z_qx_extended_reconst = np.tile(Z_qx_reconst, len(X_qx_reconst))
+
+    for basis_idx in range(V_qx.shape[0]):
+        for X_idx in range(X_qx_reconst.shape[0]):
+            for Z_idx in range(Z_qx_reconst.shape[0]):
+                V_qx_reconst[basis_idx, X_idx, Z_idx] = ampHandler.f_at(basis_idx, X_qx_reconst[X_idx], Z_qx_reconst[Z_idx])
+
+    for basis_idx in range(V_qx.shape[0]):
+        plot_form_factor_np_side_by_side(X_qx_extended, Z_qx_extended, V_qx[basis_idx, :, :], "V_orig",
+                                         X_qx_extended_reconst, Z_qx_extended_reconst, V_qx_reconst[basis_idx, :, :], "V_reconst", 
+                                         tensorBasisNamesRho[basis_idx], fig_path=data_path + f"/rho_{basis_idx + 1}.png", save_plot=False)
+
+    exit()
+
+
+
+
 
 
     # Partial Wave Expansion
     #       X_qx is already unique, Z_qx can be replaced by wave (s, p, d, ... <=> l = 0, 1, 2, ...)
 
-    # 1.) Calculate q^2 from X values and nucleon mass for each of the l (~ Z_values)
+    # 1.) Calculate q^2 from X values and nucleon mass for each combination of X and Z
     # TODO load nucleon mass via dataloader from spec.json
     M_nucleon = 0.94
 
@@ -179,27 +311,10 @@ def main():
     V_qx_l = np.zeros((V_qx.shape[0], degree_fit+1, V_qx.shape[1]))
 
     for basis_idx in range(V_qx.shape[0]):
-        for X_idx in range(V_qx.shape[1]):
-
-            # 3.) For each Basis, fit legendre polynomials on Z (= cos(Theta))
-            legendreFit = np.polynomial.legendre.Legendre.fit(Z_qx, V_qx[basis_idx, X_idx, :], deg=degree_fit, domain=[-1, 1])
-            V_qx_l[basis_idx, :, X_idx] = legendreFit.convert().coef
-
-            """
-            plt.figure()
-            plt.plot(Z_qx, V_qx[basis_idx, X_idx, :], label="Amplitudes")
-
-            x_poly, y_poly = legendreFit.linspace()
-            plt.plot(x_poly, y_poly, label="Legendre Fit")
-
-            plt.xlim(np.min(Z_qx), np.max(Z_qx))
-
-            plt.legend()
-            plt.show()
-            """
+        V_qx_l[basis_idx, :] = PartialWaveExpansion(V_qx[basis_idx, :], X_qx, Z_qx, degree_fit).get_f_x()
 
     # 4.) Check result of partial wave expansion
-    #plotAmplitudesPartialWaveExpandedAndOriginal(X_qx, Z_qx, V_qx_l, V_qx, dataloader_qx.data_path)
+    plotAmplitudesPartialWaveExpandedAndOriginal(X_qx, Z_qx, V_qx_l, V_qx, dataloader_qx.data_path)
 
 
 
@@ -208,7 +323,7 @@ def main():
 
     #   1.) Fit partial wave expanded amplitudes with functions of known fourier transform  (Yukawa Potential and additionally sum of exponentials for small q2)
             
-    #       V_qx_l_fitcoeff has shape (basis, l, coeffs)
+    #       V_qx_l_fitcoeff has shape (basis, l, coeffs)     
     V_qx_l_fitcoeff = np.zeros((V_qx_l.shape[0], V_qx_l.shape[1], 7))
 
     for basis_idx in range(V_qx_l.shape[0]):
