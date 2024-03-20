@@ -8,10 +8,10 @@ class SchlessingerPointMethod:
         self.function_vals = function_vals
 
         self.a = np.zeros(len(x_vals) - 1)
-        self.calc_a_coeffs()
+        self.__calc_a_coeffs()
 
 
-    def calc_a_coeffs(self):
+    def __calc_a_coeffs(self):
         for i in range(len(self.x_vals) - 1):
             Z = np.zeros(i + 1)
 
@@ -22,7 +22,7 @@ class SchlessingerPointMethod:
             self.a[i] = Z[i]/(self.x_vals[i + 1] - self.x_vals[i])
 
 
-    def calc_Z0(self, x):
+    def __calc_Z0(self, x):
         Z = np.zeros(len(self.x_vals) + 1)
 
         # range from len(x)-1 to 0 exclusive
@@ -34,7 +34,7 @@ class SchlessingerPointMethod:
 
 
     def calc_value_at(self, x):
-        Z0 = self.calc_Z0(x)
+        Z0 = self.__calc_Z0(x)
         r = self.function_vals[0]/(1 + Z0)
 
         return r
