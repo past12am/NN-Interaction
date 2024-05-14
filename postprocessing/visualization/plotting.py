@@ -147,14 +147,14 @@ def plot_form_factor_np(X: np.ndarray, Z: np.ndarray, dressing_f: np.ndarray, dr
 
 def plot_form_factor_np_side_by_side(X1: np.ndarray, Z1: np.ndarray, dressing_f1: np.ndarray, dressing_f_name1: str, xlabel1: str,
                                      X2: np.ndarray, Z2: np.ndarray, dressing_f2: np.ndarray, dressing_f_name2: str, xlabel2: str, 
-                                     tensor_basis_elem: str, fig_path=None, save_plot=False):
+                                     tensor_basis_elem: str, dressing_f1_params: str="(X, Z)", dressing_f2_params: str="(X, Z)", fig_path=None, save_plot=False):
     fig = plt.figure(figsize=(10, 9))
 
     fig.suptitle("Tensor Basis Element " + tensor_basis_elem)
 
     # Subplot real
     ax = fig.add_subplot(2, 2, 1, projection='3d')
-    ax.set_title(f"$\Re({dressing_f_name1}(X, Z))$")
+    ax.set_title(f"$\Re({dressing_f_name1}{dressing_f1_params})$")
     ax.plot_trisurf(X1, Z1, np.real(dressing_f1.flatten()), cmap=cm.coolwarm)
     ax.set_xlabel(f"${xlabel1}$")
     ax.set_ylabel("$Z$")
@@ -163,7 +163,7 @@ def plot_form_factor_np_side_by_side(X1: np.ndarray, Z1: np.ndarray, dressing_f1
 
     # Subplot imag
     ax = fig.add_subplot(2, 2, 2, projection='3d')
-    ax.set_title(f"$\Im({dressing_f_name1}(X, Z))$")
+    ax.set_title(f"$\Im({dressing_f_name1}{dressing_f1_params})$")
     ax.plot_trisurf(X1, Z1, np.imag(dressing_f1.flatten()), cmap=cm.coolwarm)
     ax.set_xlabel(f"${xlabel1}$")
     ax.set_ylabel("$Z$")
@@ -173,7 +173,7 @@ def plot_form_factor_np_side_by_side(X1: np.ndarray, Z1: np.ndarray, dressing_f1
 
     # Subplot real
     ax = fig.add_subplot(2, 2, 3, projection='3d')
-    ax.set_title(f"$\Re({dressing_f_name2}(X, Z))$")
+    ax.set_title(f"$\Re({dressing_f_name2}{dressing_f2_params})$")
     ax.plot_trisurf(X2, Z2, np.real(dressing_f2.flatten()), cmap=cm.coolwarm)
     ax.set_xlabel(f"${xlabel2}$")
     ax.set_ylabel("$Z$")
@@ -182,7 +182,7 @@ def plot_form_factor_np_side_by_side(X1: np.ndarray, Z1: np.ndarray, dressing_f1
 
     # Subplot imag
     ax = fig.add_subplot(2, 2, 4, projection='3d')
-    ax.set_title(f"$\Im({dressing_f_name2}(X, Z))$")
+    ax.set_title(f"$\Im({dressing_f_name2}{dressing_f2_params})$")
     ax.plot_trisurf(X2, Z2, np.imag(dressing_f2.flatten()), cmap=cm.coolwarm)
     ax.set_xlabel(f"${xlabel2}$")
     ax.set_ylabel("$Z$")

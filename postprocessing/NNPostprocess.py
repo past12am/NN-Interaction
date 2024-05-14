@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import sys
 
 from scipy.optimize import curve_fit
+from pyhank import HankelTransform
 
 from data.Dataloader import Dataloader
 
@@ -102,11 +103,11 @@ def plot_pwave_amp_with_fits(V_qx_l, X_qx, ampHandler: AmplitudeHandler):
                 fit_vals[X_idx] = ampHandler.f_l_at(basis_idx, l, X)
 
 
-            axs[0].plot(X_qx, V_qx_l[basis_idx, l, :], label=f"{l}-wave")
             axs[0].plot(X_qx, fit_vals, label=f"{l}-wave-fit")
+            axs[0].plot(X_qx, V_qx_l[basis_idx, l, :], label=f"{l}-wave", linestyle="-.")
 
-            axs[1].loglog(X_qx, V_qx_l[basis_idx, l, :], label=f"{l}-wave")
             axs[1].loglog(X_qx, fit_vals, label=f"{l}-wave-fit")
+            axs[1].loglog(X_qx, V_qx_l[basis_idx, l, :], label=f"{l}-wave", linestyle="-.")
             
 
         axs[0].set_xlabel("$X$")
@@ -121,11 +122,11 @@ def plot_pwave_amp_with_fits(V_qx_l, X_qx, ampHandler: AmplitudeHandler):
         plt.close()
 
 
-def plot_pwave_amp(f_l, x, xlabel):
+def plot_pwave_amp(f_l, x, xlabel, max_wave: int=None):
     for basis_idx in range(f_l.shape[0]):
         fig, axs = plt.subplots(1, 2, figsize=(14, 7))
 
-        for l in range(f_l.shape[1]):
+        for l in range(f_l.shape[1] if max_wave is None else max_wave):
             axs[0].plot(x, f_l[basis_idx, l, :], label=f"{l}-wave")
 
             axs[1].loglog(x, f_l[basis_idx, l, :], label=f"{l}-wave")
@@ -143,6 +144,41 @@ def plot_pwave_amp(f_l, x, xlabel):
         plt.close()
 
 
+def plot_pwave_amp_fits_seperated(X_qx_check, ampHandler: AmplitudeHandler, Ymax: float=None):
+    for basis_idx in range(ampHandler.f_l.shape[0]):
+        fig, axs = plt.subplots(1, 2, figsize=(14, 7))
+
+        for l in range(ampHandler.f_l.shape[1]):
+            
+            fit_vals = np.zeros_like(X_qx_check)
+            for X_idx, X in enumerate(X_qx_check):
+                fit_vals[X_idx] = ampHandler.f_l_fit(basis_idx, l, X)
+
+            axs[0].plot(X_qx_check, fit_vals, label=f"{l}-wave-fit")
+            axs[1].loglog(X_qx_check, fit_vals, label=f"{l}-wave-fit")
+
+            axs[0].plot(ampHandler.X, ampHandler.f_l[basis_idx, l, :], label=f"{l}-wave", linestyle="-.")
+            axs[1].loglog(ampHandler.X, ampHandler.f_l[basis_idx, l, :], label=f"{l}-wave", linestyle="-.")
+            
+
+        axs[0].set_xlabel("$X$")
+        axs[0].set_ylabel("$V_{l}(X)$")
+
+        axs[1].set_xlabel("$\log X$")
+        axs[1].set_ylabel("$\log V_{l}(X)$")
+
+        axs[0].legend()
+        axs[1].legend()
+
+        #axs[0].set_ylim([-0.001, 0.02])
+
+        if Ymax is not None:
+            axs[1].set_ylim(Ymax)
+
+        plt.show()
+        plt.close()
+
+
 def plot_pwave_amp_fits(X_qx_check, ampHandler: AmplitudeHandler, Ymax: float=None):
     for basis_idx in range(ampHandler.f_l.shape[0]):
         fig, axs = plt.subplots(1, 2, figsize=(14, 7))
@@ -154,7 +190,6 @@ def plot_pwave_amp_fits(X_qx_check, ampHandler: AmplitudeHandler, Ymax: float=No
                 fit_vals[X_idx] = ampHandler.f_l_at(basis_idx, l, X)
 
             axs[0].plot(X_qx_check, fit_vals, label=f"{l}-wave-fit")
-
             axs[1].loglog(X_qx_check, fit_vals, label=f"{l}-wave-fit")
             
 
@@ -254,16 +289,22 @@ def main():
 
 
     # The FT workaround
-    ampHandler = AmplitudeHandlerSchlessinger(X_qx, Z_qx, V_qx)
+    fitonly = True
+    #fitfunc, p0, bounds = yukawa_2_exponentials_fitparams()
+    fitfunc, p0, bounds = yukawa_2_exponentials_fitparams()
+    ampHandler = AmplitudeHandlerFitfunc(X_qx, Z_qx, V_qx, fitfunc, p0, bounds)
 
     ########################### (1) ##############################
     #Perform Partial Wave Expansion to get f_l(X) from f(X, Z)         (i.e. get V_qx_l[basis, l, X]   from    V_qx[basis, X, Z])
 
-    degree_pwave_exp = 6
+    degree_pwave_exp = 4
     ampHandler.partial_wave_expand(degree_pwave_exp)
 
     # Check result of partial wave expansion
-    plotAmplitudesPartialWaveExpandedAndOriginal(ampHandler.X, ampHandler.Z, ampHandler.f_l, V_qx, dataloader_qx.data_path)
+    #plotAmplitudesPartialWaveExpandedAndOriginal(ampHandler.X, ampHandler.Z, ampHandler.f_l, V_qx, dataloader_qx.data_path)
+
+    # Plot partial wave amplitudes
+    #plot_pwave_amp(ampHandler.f_l, ampHandler.X, "X")
 
 
 
@@ -274,18 +315,18 @@ def main():
 
 
     # V_qx_l_fitcoeff has shape (basis, l, coeffs)
-    ampHandler.fit_large_X_behaviour()
+    ampHandler.fit_large_X_behaviour(min_X=0)
 
     ampHandler.interpolate_in_X()
             
 
     # Plot partial wave amplitudes for X in (Log-Log) Plot
-    plot_pwave_amp_with_fits(ampHandler.f_l, ampHandler.X, ampHandler)
+    #plot_pwave_amp_with_fits(ampHandler.f_l, ampHandler.X, ampHandler)
 
 
-    # Check Fit behaviour for large X           --> TODO better fit
-    X_qx_check = np.linspace(0, 1E3, 10000)
-    plot_pwave_amp_fits(X_qx_check, ampHandler)
+    # Check Fit behaviour for large X
+    X_qx_check = np.linspace(0, 10, 1000)
+    #plot_pwave_amp_fits_seperated(X_qx_check, ampHandler)
 
 
 
@@ -295,7 +336,7 @@ def main():
     #   -> query fit for X > X_max
     
     # Check interpolation
-    plot_pwave_amp_with_interpolation(ampHandler)
+    #plot_pwave_amp_with_interpolation(ampHandler)
 
     # Check reconstructed Amplitude
     X_qx_extended = np.repeat(ampHandler.X, len(ampHandler.Z))
@@ -314,9 +355,10 @@ def main():
                 V_qx_reconst[basis_idx, X_idx, Z_idx] = ampHandler.f_at(basis_idx, X_qx_reconst[X_idx], Z_qx_reconst[Z_idx])
 
     for basis_idx in range(V_qx.shape[0]):
-        plot_form_factor_np_side_by_side(X_qx_extended, Z_qx_extended, V_qx[basis_idx, :, :], "V_{orig}", "X",
-                                         X_qx_extended_reconst, Z_qx_extended_reconst, V_qx_reconst[basis_idx, :, :], "V_{reconst}", "X",
-                                         tensorBasisNamesRho[basis_idx], fig_path=data_path + f"/rho_{basis_idx + 1}.png", save_plot=False)
+        #plot_form_factor_np_side_by_side(X_qx_extended, Z_qx_extended, V_qx[basis_idx, :, :], "V_{orig}", "X",
+        #                                 X_qx_extended_reconst, Z_qx_extended_reconst, V_qx_reconst[basis_idx, :, :], "V_{reconst}", "X",
+        #                                 tensorBasisNamesRho[basis_idx], fig_path=data_path + f"/rho_{basis_idx + 1}.png", save_plot=False)
+        pass
                 
 
 
@@ -327,8 +369,14 @@ def main():
     # Although the results seem weird, they make sense when thinking about the
     # transformation X -> q to kind of stretch the X plot along the diagonal to get the q plot
     
+    # Already build q grid using transformer --> Doesn't work too well
+    n_points = 4096
+    max_radius = 100
+    transformer = HankelTransform(order=0, max_radius=max_radius, n_points=n_points)
+
     # Check Amplitude in q
-    q_qx_reconst = np.linspace(0, 50, int(100))
+    #q_qx_reconst = np.linspace(0, 15, 200)
+    q_qx_reconst = transformer.kr
 
     q_qx_extended_reconst = np.repeat(q_qx_reconst, len(Z_qx_reconst))
     Z_qx_q_extended_reconst = np.tile(Z_qx_reconst, len(q_qx_reconst))
@@ -338,30 +386,29 @@ def main():
     for basis_idx in range(V_qx.shape[0]):
         for q_idx in range(q_qx_reconst.shape[0]):
             for Z_idx in range(Z_qx_reconst.shape[0]):
-                V_qx_q_reconst[basis_idx, q_idx, Z_idx] = ampHandler.f_q_at(basis_idx, q_qx_reconst[q_idx], Z_qx_reconst[Z_idx])
+                V_qx_q_reconst[basis_idx, q_idx, Z_idx] = ampHandler.f_q_at(basis_idx, q_qx_reconst[q_idx], Z_qx_reconst[Z_idx], fitonly=fitonly)
 
 
     for basis_idx in range(V_qx.shape[0]):
-        plot_form_factor_np_side_by_side(X_qx_extended_reconst, Z_qx_extended_reconst, V_qx_reconst[basis_idx, :, :], "V_{reconst}", "X",
-                                         q_qx_extended_reconst, Z_qx_q_extended_reconst, V_qx_q_reconst[basis_idx, :, :], "V_{reconst}", "q",
-                                         tensorBasisNamesRho[basis_idx], fig_path=data_path + f"/rho_{basis_idx + 1}.png", save_plot=False)
+        #plot_form_factor_np_side_by_side(X_qx_extended_reconst, Z_qx_extended_reconst, V_qx_reconst[basis_idx, :, :], "V_{reconst}", "X",
+        #                                 q_qx_extended_reconst, Z_qx_q_extended_reconst, V_qx_q_reconst[basis_idx, :, :], "V_{reconst}", "q",
+        #                                 tensorBasisNamesRho[basis_idx], dressing_f2_params="(q, Z)", fig_path=data_path + f"/rho_{basis_idx + 1}.png", save_plot=False)
+        pass
         
-
-
 
     ########################### (5) ##############################
     #Perform Partial Wave Expansion to get f_l(q) from f(q, Z)
     
-    degree_pwave_exp_q = 15
-    ampHandler.partial_wave_expand_q(degree_pwave_exp_q, q_qx_reconst, Z_qx_reconst)
+    degree_pwave_exp_q = 4
+    ampHandler.partial_wave_expand_q(degree_pwave_exp_q, q_qx_reconst, Z_qx_reconst, fitonly=fitonly)       # Note q_qx_reconst should be the one from the transformer
+    ampHandler.interpolate_in_q()
 
     # Check result of partial wave expansion
-    plotAmplitudesPartialWaveExpandedAndOriginal(ampHandler.q, Z_qx_reconst, ampHandler.f_l_q, V_qx_q_reconst, dataloader_qx.data_path)
+    #plotAmplitudesPartialWaveExpandedAndOriginal(ampHandler.q, Z_qx_reconst, ampHandler.f_l_q, V_qx_q_reconst, dataloader_qx.data_path)    # TODO plot in restricted grid
 
-    # Plot partial wave amplitudes for X in (Log-Log) Plot
+    # Plot partial wave amplitudes for q in (Log-Log) Plot
     plot_pwave_amp(ampHandler.f_l_q, ampHandler.q, "q")
 
-    exit()
 
 
 
@@ -370,10 +417,25 @@ def main():
     ########################### (6) ##############################
     # Fourier Transform f_l(q) -> f_l(r)
 
+    #transformer2 = HankelTransform(order=0, k_grid=ampHandler.q)
+    
+
+    for basis_idx in range(ampHandler.f_l_q.shape[0]):
+        plt.figure()
+        for l in range(ampHandler.f_l_q.shape[1]):
+
+            #V_q = ampHandler.f_l_q[basis_idx, l, :]  # = Vtwidle_nu
+            V_q = ampHandler.f_l_q_at(basis_idx, l, transformer.kr)
+            V_r = -2 * transformer.iqdht(transformer.v * V_q)         # = IHT(nu * Vtwidle_nu)
+
+            plt.plot(transformer.r, V_r, label=f"{l}-wave")
+        
+        plt.show()
+    
 
 
 
-
+    exit()
 
     # Partial Wave Expansion
     #       X_qx is already unique, Z_qx can be replaced by wave (s, p, d, ... <=> l = 0, 1, 2, ...)
