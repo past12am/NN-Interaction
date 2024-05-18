@@ -78,6 +78,9 @@ class Dataloader:
         # Build flavored dressing functions
         self.f_flavored = self.f * self.process_flavor_factor
         self.F_flavored = self.F * self.process_flavor_factor
+
+
+        # TODO color factor
         
 
 
