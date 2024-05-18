@@ -137,26 +137,95 @@ class AmplitudeHandler:
             return self.f_l_fit(basis_idx, l, X)
         
     
-    def fit_q_pwaves(self, q_fitfunc: typing.Callable, p0: typing.List, bounds: typing.Tuple, max_l: int=None, min_q: float=0):
+    def fit_q_pwaves(self, q_fitfunc: typing.Callable, p0: typing.List, bounds: typing.Tuple, FT_q_fitfunc: typing.Callable, max_l: int=None, min_q: float=0):
         self.q_fitfunc = q_fitfunc
+        self.FT_q_fitfunc = FT_q_fitfunc
 
         self.f_l_q_fitcoeff = np.zeros((self.f_l_q.shape[0], self.f_l_q.shape[1], len(signature(self.q_fitfunc).parameters) - 1))
 
         min_q_idx = np.argwhere(self.q >= min_q)[0][0]
+        
+        """
+        # artificially add infinity at 0
+        q_fitting = np.zeros(self.q[min_q_idx:].shape[0] + 1)
+        q_fitting[1:] = self.q[min_q_idx:]
+        q_fitting[0] = 0
+
+        if(q_fitting[1] == 0):
+            q_fitting[1] = q_fitting[2]/2
+
+        f_l_q_fitting = np.zeros((self.f_l_q.shape[0], self.f_l_q.shape[1], len(q_fitting)))
+        f_l_q_fitting[:, :, 1:] = self.f_l_q[:, :, min_q_idx:]
+
+        f_l_q_fitting[:, :, 0] = 1E3        # Use as infinity
+        """
 
         for basis_idx in range(self.f_l_q.shape[0]):
             for l in range(self.f_l_q.shape[1] if max_l is None else max_l):
-                popt, pcov = curve_fit(self.q_fitfunc, self.q[min_q_idx:], self.f_l_q[basis_idx, l, min_q_idx:], 
-                                    #p0=[1, 1, 0.5, 1, 1, 0, 1], 
-                                    #bounds=([0, 0, 0, 0, 0, 0, 0.5], [np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, 8]), 
-                                    p0=p0,
-                                    bounds=bounds,
-                                    max_nfev=100000,
-                                    ftol=1E-15,
-                                    xtol=1E-15,
-                                    gtol=1E-15)
+                try:
+                    popt, pcov = curve_fit(q_fitfunc, self.q[min_q_idx:], self.f_l_q[basis_idx, l, min_q_idx:], 
+                                        #p0=[1, 1, 0.5, 1, 1, 0, 1], 
+                                        #bounds=([0, 0, 0, 0, 0, 0, 0.5], [np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, 8]), 
+                                        p0=p0,
+                                        bounds=bounds,
+                                        max_nfev=100000,
+                                        ftol=1E-14,
+                                        xtol=1E-14,
+                                        gtol=1E-14)
+                    
+                    self.f_l_q_fitcoeff[basis_idx, l, :] = popt
+
+                    print(f"n = {self.f_l_q_fitcoeff[basis_idx, l, -1]}")
+
+                    import matplotlib.pyplot as plt
+                    q_check = np.linspace(self.q[0], self.q[-1], 1000)
+                    fig, axs = plt.subplots(1, 2, figsize=(14, 7))
+
+                    plt.title(f"basis_idx {basis_idx}")
+
+                    axs[0].plot(self.q, self.f_l_q[basis_idx, l, :], label=f"f_{l}(q)")
+                    axs[0].plot(q_check, self.f_l_q_fit_at(basis_idx, l, q_check), label=f"f_{l}(q) fit")
+
+                    axs[1].loglog(self.q, self.f_l_q[basis_idx, l, :], label=f"f_{l}(q)")
+                    axs[1].loglog(q_check, self.f_l_q_fit_at(basis_idx, l, q_check), label=f"f_{l}(q) fit")
+                    
+                    axs[0].set_xlabel("$q$")
+                    axs[0].set_ylabel("$f_{l}(q)$")
+
+                    axs[1].set_xlabel("$\log q$")
+                    axs[1].set_ylabel("$\log f_{l}(q)$")
+
+                    axs[0].legend()
+                    axs[1].legend()
+
+                    plt.show()
+                    plt.close()
                 
-                self.f_l_q_fitcoeff[basis_idx, l, :] = popt
+                except Exception as e:
+                    print(e)
+
+                    import matplotlib.pyplot as plt
+                    q_check = np.linspace(self.q[0], self.q[-1], 1000)
+                    fig, axs = plt.subplots(1, 2, figsize=(14, 7))
+
+                    plt.title(f"basis_idx {basis_idx}")
+
+                    axs[0].plot(self.q, self.f_l_q[basis_idx, l, :], label=f"f_{l}(q)")
+
+                    axs[1].loglog(self.q, self.f_l_q[basis_idx, l, :], label=f"f_{l}(q)")
+                    
+                    axs[0].set_xlabel("$q$")
+                    axs[0].set_ylabel("$f_{l}(q)$")
+
+                    axs[1].set_xlabel("$\log q$")
+                    axs[1].set_ylabel("$\log f_{l}(q)$")
+
+                    axs[0].legend()
+                    axs[1].legend()
+
+                    plt.show()
+                    plt.close()
+
         
 
     @staticmethod
@@ -180,8 +249,15 @@ class AmplitudeHandler:
         
 
     def f_l_q_at(self, basis_idx, l, q):
-        if (q[0] < np.min(self.q) or q[-1] > np.max(self.q)):
-            raise Exception("Out of range for interpolated q --> TODO extrapolate")
+
+        if ((hasattr(q, "__len__") and (q[0] < np.min(self.q) or q[-1] > np.max(self.q))) or \
+            q < np.min(self.q) or q > np.max(self.q)):
+
+            # TODO better way than assuming 0 for out of bounds needed
+            if(np.all(q > np.max(self.q))):
+                return 0
+
+            raise Exception(f"Out of range for interpolated q --> TODO extrapolate --> q in [{np.min(self.q)}, {np.max(self.q)}] and tried q = {q}")
         
         else:
             return self.f_l_q_interpolation(basis_idx, l, q)
@@ -189,6 +265,10 @@ class AmplitudeHandler:
 
     def f_l_q_fit_at(self, basis_idx, l, q):
         return self.q_fitfunc(q, *self.f_l_q_fitcoeff[basis_idx, l, :])
+    
+
+    def f_l_r_at(self, basis_idx, l, r):
+        return self.FT_q_fitfunc(r, *self.f_l_q_fitcoeff[basis_idx, l, :])
 
         
 

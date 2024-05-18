@@ -21,6 +21,8 @@ from visualization.plotting import plot_full_amplitude_np, plot_form_factor_np, 
 
 from utils.fitfunctions import *
 
+from numerics.NumericQuadratureFT import NumericQuadratureFT
+
 tensorBasisNamesTau = {
     0: "$1 \otimes 1$",
     1: "$\gamma_{5} \otimes \gamma_{5}$",
@@ -128,7 +130,6 @@ def plot_pwave_amp(f_l, x, xlabel, max_wave: int=None):
 
         for l in range(f_l.shape[1] if max_wave is None else max_wave):
             axs[0].plot(x, f_l[basis_idx, l, :], label=f"{l}-wave")
-
             axs[1].loglog(x, f_l[basis_idx, l, :], label=f"{l}-wave")
             
 
@@ -174,6 +175,67 @@ def plot_pwave_amp_fits_seperated(X_qx_check, ampHandler: AmplitudeHandler, Ymax
 
         if Ymax is not None:
             axs[1].set_ylim(Ymax)
+
+        plt.show()
+        plt.close()
+
+def plot_pwave_q_amp_fits_seperated(q_check, ampHandler: AmplitudeHandler, Ymax: float=None):
+    for basis_idx in range(ampHandler.f_l.shape[0]):
+        fig, axs = plt.subplots(1, 2, figsize=(14, 7))
+
+        for l in range(ampHandler.f_l.shape[1]):
+            
+            fit_vals = np.zeros_like(q_check)
+            for q_idx, q in enumerate(q_check):
+                fit_vals[q_idx] = ampHandler.f_l_q_fit_at(basis_idx, l, q)
+
+            axs[0].plot(q_check, fit_vals, label=f"{l}-wave-fit")
+            axs[1].loglog(q_check, fit_vals, label=f"{l}-wave-fit")
+
+            axs[0].plot(ampHandler.q, ampHandler.f_l_q[basis_idx, l, :], label=f"{l}-wave", linestyle="-.")
+            axs[1].loglog(ampHandler.q, ampHandler.f_l_q[basis_idx, l, :], label=f"{l}-wave", linestyle="-.")
+            
+
+        axs[0].set_xlabel("$q$")
+        axs[0].set_ylabel("$V_{l}(q)$")
+
+        axs[1].set_xlabel("$\log q$")
+        axs[1].set_ylabel("$\log V_{l}(q)$")
+
+        axs[0].legend()
+        axs[1].legend()
+
+        #axs[0].set_ylim([-0.001, 0.02])
+
+        if Ymax is not None:
+            axs[1].set_ylim(Ymax)
+
+        plt.show()
+        plt.close()
+
+
+def plot_pwave_amp_FT(r_grid, ampHandler: AmplitudeHandler):
+    for basis_idx in range(ampHandler.f_l_q.shape[0]):
+        fig, axs = plt.subplots(1, 2, figsize=(14, 7))
+
+        for l in range(ampHandler.f_l_q.shape[1]):
+            
+            V_r = np.zeros_like(r_grid)
+            for r_idx, r in enumerate(r_grid):
+                V_r[r_idx] = ampHandler.f_l_r_at(basis_idx, l, r)
+
+            axs[0].plot(r_grid, V_r, label=f"{l}-wave")
+            axs[1].loglog(r_grid, V_r, label=f"{l}-wave")
+            
+
+        axs[0].set_xlabel("$r$")
+        axs[0].set_ylabel("$V_{l}(r)$")
+
+        axs[1].set_xlabel("$\log r$")
+        axs[1].set_ylabel("$\log V_{l}(r)$")
+
+        axs[0].legend()
+        axs[1].legend()
 
         plt.show()
         plt.close()
@@ -236,6 +298,35 @@ def plot_pwave_amp_with_interpolation(ampHandler: AmplitudeHandler):
         plt.close()
 
 
+def plot_pwave_q_amp_with_interpolation(ampHandler: AmplitudeHandler):
+    q_check = np.linspace(ampHandler.q[0], ampHandler.q[-1], 1000)
+
+    for basis_idx in range(ampHandler.f_l_q.shape[0]):
+        fig, axs = plt.subplots(1, 2, figsize=(14, 7))
+
+        for l in range(ampHandler.f_l_q.shape[1]):
+            axs[0].plot(ampHandler.q, ampHandler.f_l_q[basis_idx, l, :], label=f"f_{l}(q)")
+            axs[0].plot(q_check, ampHandler.f_l_q_interpolation(basis_idx, l, q_check), label=f"f_{l}(q) interp")
+
+            axs[1].loglog(ampHandler.q, ampHandler.f_l_q[basis_idx, l, :], label=f"f_{l}(q)")
+            axs[1].loglog(q_check, ampHandler.f_l_q_interpolation(basis_idx, l, q_check), label=f"f_{l}(q) interp")
+            
+
+        axs[0].set_xlabel("$q$")
+        axs[0].set_ylabel("$f_{l}(q)$")
+
+        axs[1].set_xlabel("$\log q$")
+        axs[1].set_ylabel("$\log f_{l}(q)$")
+
+        axs[0].legend()
+        axs[1].legend()
+
+        plt.show()
+        plt.close()
+
+
+
+
 
 
 def main():
@@ -290,8 +381,9 @@ def main():
 
     # The FT workaround
     fitonly = True
+    fitfunc, p0, bounds = yukawa_2_exponentials_v3_fitparams()
     #fitfunc, p0, bounds = yukawa_2_exponentials_fitparams()
-    fitfunc, p0, bounds = yukawa_2_exponentials_fitparams()
+    #fitfunc, p0, bounds = yukawa_poly_exponentials_evenodd_fitparams()
     ampHandler = AmplitudeHandlerFitfunc(X_qx, Z_qx, V_qx, fitfunc, p0, bounds)
 
     ########################### (1) ##############################
@@ -370,13 +462,14 @@ def main():
     # transformation X -> q to kind of stretch the X plot along the diagonal to get the q plot
     
     # Already build q grid using transformer --> Doesn't work too well
-    n_points = 4096
-    max_radius = 100
-    transformer = HankelTransform(order=0, max_radius=max_radius, n_points=n_points)
+    #n_points = 4096
+    #max_radius = 1000
+    #transformer = HankelTransform(order=0, max_radius=max_radius, n_points=n_points)
 
     # Check Amplitude in q
-    #q_qx_reconst = np.linspace(0, 15, 200)
-    q_qx_reconst = transformer.kr
+    #q_qx_reconst = np.logspace(-5, 1, 500)
+    q_qx_reconst = np.linspace(0, 10, 300)
+    #q_qx_reconst = transformer.kr
 
     q_qx_extended_reconst = np.repeat(q_qx_reconst, len(Z_qx_reconst))
     Z_qx_q_extended_reconst = np.tile(Z_qx_reconst, len(q_qx_reconst))
@@ -407,7 +500,7 @@ def main():
     #plotAmplitudesPartialWaveExpandedAndOriginal(ampHandler.q, Z_qx_reconst, ampHandler.f_l_q, V_qx_q_reconst, dataloader_qx.data_path)    # TODO plot in restricted grid
 
     # Plot partial wave amplitudes for q in (Log-Log) Plot
-    plot_pwave_amp(ampHandler.f_l_q, ampHandler.q, "q")
+    #plot_pwave_amp(ampHandler.f_l_q, ampHandler.q, "q")
 
 
 
@@ -416,7 +509,37 @@ def main():
 
     ########################### (6) ##############################
     # Fourier Transform f_l(q) -> f_l(r)
+    r_grid = np.linspace(0, 10, 100)
 
+    # Fourier Transform via Numeric Quadrature
+    quad_ft = NumericQuadratureFT(100, 20)
+
+    f_l_r = np.zeros((ampHandler.f_l_q.shape[0], ampHandler.f_l_q.shape[1], len(r_grid)))
+    for basis_idx in range(ampHandler.f_l_q.shape[0]):
+        for l in range(ampHandler.f_l_q.shape[1]):
+            print(f"Fourier Transforming {}")
+            f_l_r[basis_idx, l, :] = quad_ft.fourierTransform(lambda q : ampHandler.f_l_q_at(basis_idx, l, q), r_grid)
+
+    plot_pwave_amp(f_l_r, r_grid, "r")
+
+
+    exit()
+
+    # (6.1) Fit known function to analytically do FT
+    q_fitfunc, q_p0, q_bounds, FT_q_fitfunc = yukawa_poly_exponentials_v3_fitparams()
+    ampHandler.fit_q_pwaves(q_fitfunc, q_p0, q_bounds, FT_q_fitfunc)
+
+
+    # (6.2) Plot knonw functions and fit
+    plot_pwave_q_amp_fits_seperated(X_qx_check, ampHandler)
+
+
+    # (6.3) Use fit-coefficients to get fourier transformed set of functions
+    r_grid = np.linspace(0.05, 2, 1000)
+    plot_pwave_amp_FT(r_grid, ampHandler)
+
+
+    exit()
     #transformer2 = HankelTransform(order=0, k_grid=ampHandler.q)
     
 
