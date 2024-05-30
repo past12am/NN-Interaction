@@ -29,7 +29,8 @@ int main(int argc, char *argv[])
     double Z_upper = 1; // 1 - 1E-4;
 
 
-    // Note: grid lengths must be even (edge case not handled)
+    // Note: grid lengths for X must be even (edge case not handled)
+    //       grid lengths for Z must be odd, s.t. 0 is included
 
     if(argc < 2)
     {
@@ -38,14 +39,14 @@ int main(int argc, char *argv[])
 
     int numThreads = NUM_THREADS;
     int lenX = 12;
-    int lenZ = 12;
+    int lenZ = 13;
 
     double loop_cutoff = 1E4;
 
     int k2_integration_points = 32;
     int z_integration_points = 16;
     int y_integration_points = 16;
-    int phi_integration_points = 24;
+    int phi_integration_points = 10;
 
 
     // Sanity Checks

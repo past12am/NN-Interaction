@@ -15,6 +15,8 @@
 
 std::tuple<double*, double*> GaussLegendre::generageWeights(int n)
 {
+    // TODO Load weights from table to be more precise
+
     double* x_arr = new double[n];
     double* w_arr = new double[n];
 
