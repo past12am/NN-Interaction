@@ -23,12 +23,11 @@ void Projectors::transverseProjector(gsl_vector_complex* P, gsl_matrix_complex* 
 
     assert(GSL_IMAG(valPSquared) == 0);
 
-    // transvProj^(mu,nu) = -1/|p|^2 p^mu p^nu
-    const gsl_matrix_complex_view PMatView = gsl_matrix_complex_view_vector(P, 4, 1);
-    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(-1.0/GSL_REAL(valPSquared), 0.0), &PMatView.matrix, &PMatView.matrix, gsl_complex_rect(0.0, 0.0), transvProj);
 
-    // transvProj = -1/|p|^2 p^mu p^nu + kronD
-    gsl_matrix_complex_add(transvProj, unitM);
+    gsl_matrix_complex_memcpy(transvProj, unitM);
+
+    // A <- A + alpha X @ Y^T
+    gsl_blas_zgeru(gsl_complex_inverse(valPSquared), P, P, transvProj);
 }
 
 void Projectors::longitudinalProjector(gsl_vector_complex* P, gsl_matrix_complex* longitudProj)

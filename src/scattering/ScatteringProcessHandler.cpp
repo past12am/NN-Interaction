@@ -105,7 +105,7 @@ void ScatteringProcessHandler::store_scattering_amplitude(std::string data_path,
                                                           int y_integration_points,
                                                           int phi_integration_points)
 {
-    // Find/Create new specificaation-datapath
+    // Find/Create new specification-datapath
     //  BASE-b_I-x_DQ-y-z
     //          with x in {0, 1} ... Amplitude Isospin
     //               y in {scalar, axialvector} ... Diquark Type of Diquark 1

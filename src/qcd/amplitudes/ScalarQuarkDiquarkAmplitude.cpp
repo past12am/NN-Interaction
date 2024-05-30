@@ -5,12 +5,24 @@
 #include <complex>
 #include <gsl/gsl_complex_math.h>
 #include <gsl/gsl_blas.h>
+
+#include "../../../include/utils/dirac/DiracStructuresHelper.hpp"
 #include "../../../include/qcd/amplitudes/ScalarQuarkDiquarkAmplitude.hpp"
 #include "../../../include/operators/ChargeConjugation.hpp"
 
+
+QuarkDiquarkAmplitudeReader* ScalarQuarkDiquarkAmplitude::fit_reader = nullptr;
+
+
 ScalarQuarkDiquarkAmplitude::ScalarQuarkDiquarkAmplitude()
 {
+    ScalarQuarkDiquarkAmplitude::fit_reader = QuarkDiquarkAmplitudeReader::getInstance();
+
     posEnergyProj = gsl_matrix_complex_alloc(4, 4);
+    tmpTensor = gsl_matrix_complex_alloc(4, 4);
+    NLOTensor = gsl_matrix_complex_alloc(4, 4);
+
+    q = gsl_vector_complex_alloc(4);
 
     p_copy = gsl_vector_complex_alloc(4);
     P_copy = gsl_vector_complex_alloc(4);
@@ -21,6 +33,10 @@ ScalarQuarkDiquarkAmplitude::~ScalarQuarkDiquarkAmplitude()
     gsl_vector_complex_free(P_copy);
     gsl_vector_complex_free(p_copy);
 
+    gsl_vector_complex_free(q);
+
+    gsl_matrix_complex_free(NLOTensor);
+    gsl_matrix_complex_free(tmpTensor);
     gsl_matrix_complex_free(posEnergyProj);
 }
 
@@ -38,15 +54,60 @@ void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_comple
         gsl_vector_complex_scale(P_copy, gsl_complex_rect(-1.0, 0));
     }
 
+    // Get quantities needed for all tensor orders
     gsl_complex p2;
     gsl_blas_zdotu(p_copy, p_copy, &p2);
 
-    // Only leading tensor --> tau_1 = matE --> consider Lambda+
+
+    // TODO check: z = p . P
+    gsl_complex compl_z;
+    gsl_blas_zdotu(p_copy, P_copy, &compl_z);
+    if(GSL_IMAG(compl_z) - 1 > 1E-15)
+    {
+        throw std::out_of_range("Encountered complex angle for quark-diquark amplitude momenta");
+    }
+    double z = GSL_REAL(compl_z);
+
+
     Projectors::posEnergyProjector(P_copy, posEnergyProj);
 
-    // quarkDiquarkAmp = f(p2) * posEnergyProj(P)
+
+    // 0: Leading Tensor    ( = unity)
+    // quarkDiquarkAmp = f(p2, z, 0) * posEnergyProj(P)
     gsl_matrix_complex_memcpy(quarkDiquarkAmp, posEnergyProj);
-    gsl_matrix_complex_scale(quarkDiquarkAmp, f(p2));
+
+    gsl_complex f_k_0 = fit_reader->f_k(p2, z, 0);
+    gsl_matrix_complex_scale(quarkDiquarkAmp, f_k_0);
+
+
+    /*  TODO higher order tensor seems to be too noisy in the result
+    // 1: Higher order Tensor ( = slash(i * normalized(TransverseProj_P @ p)))
+    // build slash(q)   q = normalized(TransverseProj_P(p))
+    // tmpTensor = TransverseProj_P
+    Projectors::transverseProjector(P, tmpTensor);
+
+    // q = TransverseProj_P @ p
+    gsl_vector_complex_set_zero(q);
+    gsl_blas_zgemv(CblasNoTrans, GSL_COMPLEX_ONE, tmpTensor, p, GSL_COMPLEX_ZERO, q);
+
+    // q = i normalize(q) = i * 1/sqrt(q2) TransverseProj_P @ p
+    gsl_complex q2;
+    gsl_blas_zdotu(q, q, &q2);
+    gsl_vector_complex_scale(q, gsl_complex_mul_imag(gsl_complex_inverse(gsl_complex_sqrt(q2)), 1));
+
+    // tmpTensor = slash(q)
+    DiracStructuresHelper::diracStructures.slash(q, tmpTensor);
+
+
+    // scale by f() and multiply with pos energy projector
+    // NLOTensor = tmpTensor @ posEnergyProj
+    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, GSL_COMPLEX_ONE, tmpTensor, posEnergyProj, GSL_COMPLEX_ZERO, NLOTensor);
+    gsl_matrix_complex_scale(NLOTensor, fit_reader->f_k(p2, z, 1));
+
+
+
+    // Add tensor contibutions together
+    gsl_matrix_complex_add(quarkDiquarkAmp, NLOTensor);*/
 
 
     if(chargeConj)

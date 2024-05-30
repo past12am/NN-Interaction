@@ -7,6 +7,7 @@
 
 
 #include "../../operators/Projectors.hpp"
+#include "../../data/QuarkDiquarkAmplitudeReader.hpp"
 
 #include <complex>
 #include <gsl/gsl_matrix.h>
@@ -23,8 +24,14 @@ class ScalarQuarkDiquarkAmplitude
         gsl_vector_complex* P_copy;
 
         gsl_matrix_complex* posEnergyProj;
+        gsl_matrix_complex* NLOTensor;
+
+        gsl_vector_complex* q;
+        gsl_matrix_complex* tmpTensor;
 
         gsl_complex f(gsl_complex p2);
+
+        static QuarkDiquarkAmplitudeReader* fit_reader;
 
     public:
         ScalarQuarkDiquarkAmplitude();

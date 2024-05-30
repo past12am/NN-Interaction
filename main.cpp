@@ -5,6 +5,7 @@
 #include "include/scattering/ScatteringProcess.hpp"
 #include "include/scattering/processes/QuarkExchange.hpp"
 #include "include/scattering/ScatteringProcessHandler.hpp"
+#include "include/data/QuarkDiquarkAmplitudeReader.hpp"
 
 #include <complex>
 #include <gsl/gsl_math.h>
@@ -70,6 +71,11 @@ int main(int argc, char *argv[])
     }
 
 
+    // Set Data path for fits
+    QuarkDiquarkAmplitudeReader::setPath(argv[2]);
+
+
+    // Do calculation
     ScatteringProcessHandler scatteringProcessHandler(numThreads, lenX, lenZ,
                                                       k2_integration_points, z_integration_points,
                                                       y_integration_points, phi_integration_points,
