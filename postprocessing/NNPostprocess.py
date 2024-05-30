@@ -74,6 +74,7 @@ def main():
 
     # Instantiate Plotter
     plotter = Plotter(data_path + "/postprocess_out/", tensorBasisNamesT, tensorBasisNamesTau, tensorBasisNamesRho, True)
+    plotter.show_plots = False
 
 
     # Load data files
@@ -233,12 +234,18 @@ def main():
     quad_ft = NumericQuadratureFT(100, 20)
 
     f_l_r = np.zeros((ampHandler.f_l_q.shape[0], ampHandler.f_l_q.shape[1], len(r_grid)))
+    ylims = np.zeros((ampHandler.f_l_q.shape[0], 2))
     for basis_idx in range(ampHandler.f_l_q.shape[0]):
         for l in range(ampHandler.f_l_q.shape[1]):
             print(f"Fourier Transforming basis/l {basis_idx}/{l}")
             f_l_r[basis_idx, l, :] = quad_ft.fourierTransform(lambda q : ampHandler.f_l_q_at(basis_idx, l, q), r_grid)
 
+        y_lim_upper = np.max(f_l_r[basis_idx, ~np.isnan(f_l_r[basis_idx, ...])])
+        ylims[basis_idx, :] = np.array([-y_lim_upper, y_lim_upper]) * 0.1
+
     plotter.plot_pwave_amp(f_l_r, r_grid, "r", "1/GeV", 60)
+    plotter.plot_pwave_amp_scaled_side_by_side(f_l_r, r_grid, "r", "1/GeV", 61, ylims)
+    plotter.plot_pwave_amp_wave_sum(f_l_r, r_grid, "r", "1/GeV", 62)
     
 
 

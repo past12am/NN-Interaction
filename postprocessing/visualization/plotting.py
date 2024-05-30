@@ -1,4 +1,5 @@
 import os
+import typing
 
 import numpy as np
 
@@ -106,6 +107,8 @@ class Plotter:
 
         self.savefig = savefig
 
+        self.show_plots = True
+
         # Check if paths exist or create
         if(self.savefig):
             for basis_idx in range(5):
@@ -143,7 +146,10 @@ class Plotter:
 
         if(self.savefig):
             self.save_active_fig(fig_name, step_idx)
-        plt.show()
+
+        if(self.show_plots):
+            plt.show()
+
         plt.close()
 
 
@@ -172,7 +178,10 @@ class Plotter:
 
         if(self.savefig):
             self.save_active_fig(fig_name, step_idx, basis_idx)
-        plt.show()
+
+        if(self.show_plots):
+            plt.show()
+
         plt.close()
 
 
@@ -226,7 +235,8 @@ class Plotter:
 
         if(self.savefig):
             self.save_active_fig(fig_name, step_idx, basis_idx)
-        plt.show()
+        if(self.show_plots):
+            plt.show()
         plt.close()
 
 
@@ -306,7 +316,9 @@ class Plotter:
             if(self.savefig):
                 self.save_active_fig("fits-V_l(X)", step_idx, basis_idx)
 
-            plt.show()
+            if(self.show_plots):
+                plt.show()
+
             plt.close()
 
 
@@ -332,7 +344,68 @@ class Plotter:
             if(self.savefig):
                 self.save_active_fig(f"V_l({xlabel})", step_idx, basis_idx)
 
-            plt.show()
+            if(self.show_plots):
+                plt.show()
+
+            plt.close()
+
+
+    def plot_pwave_amp_scaled_side_by_side(self, f_l, x, xlabel, x_label_unit, step_idx: int, y_lim: typing.Tuple=None, max_wave: int=None):
+        for basis_idx in range(f_l.shape[0]):
+            fig, axs = plt.subplots(1, 2, figsize=(14, 7))
+
+            for l in range(f_l.shape[1] if max_wave is None else max_wave):
+                axs[0].plot(x, f_l[basis_idx, l, :], label=f"{l}-wave")
+                axs[1].plot(x, f_l[basis_idx, l, :], label=f"{l}-wave")
+                
+            fig.suptitle(self.tensorBasisNamesRho[basis_idx])
+
+            axs[0].set_xlabel(f"${xlabel} \\ {x_label_unit}$")
+            axs[0].set_ylabel(f"$V_l({xlabel})$")
+
+            axs[1].set_xlabel(f"${xlabel} \\ {x_label_unit}$")
+            axs[1].set_ylabel(f"$V_l({xlabel})$")
+
+            axs[0].legend()
+            axs[1].legend()
+
+            if(y_lim is not None):
+                axs[1].set_ylim(y_lim[basis_idx])
+
+            if(self.savefig):
+                self.save_active_fig(f"scale-sidebyside-V_l({xlabel})", step_idx, basis_idx)
+
+            if(self.show_plots):
+                plt.show()
+
+            plt.close()
+
+    def plot_pwave_amp_wave_sum(self, f_l, x, xlabel, x_label_unit, step_idx: int, max_wave: int=None):
+        for basis_idx in range(f_l.shape[0]):
+            fig, axs = plt.subplots(1, 2, figsize=(14, 7))
+
+            f_l_r_sum = np.sum(f_l, axis=1)
+            
+            axs[0].plot(x, f_l_r_sum[basis_idx, :], label="Sum partial waves")
+            axs[1].loglog(x, f_l_r_sum[basis_idx, :], label="Sum partial waves")
+                
+            fig.suptitle(self.tensorBasisNamesRho[basis_idx])
+
+            axs[0].set_xlabel(f"${xlabel} \\ {x_label_unit}$")
+            axs[0].set_ylabel(f"$V_l({xlabel})$")
+
+            axs[1].set_xlabel(f"$\log {xlabel} \\ {x_label_unit}$")
+            axs[1].set_ylabel(f"$\log V_l({xlabel})$")
+
+            axs[0].legend()
+            axs[1].legend()
+
+            if(self.savefig):
+                self.save_active_fig(f"V_l({xlabel})-partial-wave-sum", step_idx, basis_idx)
+
+            if(self.show_plots):
+                plt.show()
+
             plt.close()
 
 
@@ -369,7 +442,9 @@ class Plotter:
             if(self.savefig):
                 self.save_active_fig("fits-seperated-V_l(X)", step_idx, basis_idx)
 
-            plt.show()
+            if(self.show_plots):
+                plt.show()
+
             plt.close()
 
     def plot_pwave_q_amp_fits_seperated(self, q_check, ampHandler: AmplitudeHandler, step_idx: int, Ymax: float=None):
@@ -406,7 +481,9 @@ class Plotter:
             if(self.savefig):
                 self.save_active_fig("fits-seperated-V_l(q)", step_idx, basis_idx)
 
-            plt.show()
+            if(self.show_plots):
+                plt.show()
+
             plt.close()
 
 
@@ -436,7 +513,9 @@ class Plotter:
             if(self.savefig):
                 self.save_active_fig("FT-V_l(r)", step_idx, basis_idx)
 
-            plt.show()
+            if(self.show_plots):
+                plt.show()
+
             plt.close()
 
 
@@ -469,7 +548,9 @@ class Plotter:
             if(self.savefig):
                 self.save_active_fig("fitonly-V_l(X)", step_idx, basis_idx)
 
-            plt.show()
+            if(self.show_plots):
+                plt.show()
+
             plt.close()
 
 
@@ -500,7 +581,9 @@ class Plotter:
             if(self.savefig):
                 self.save_active_fig(f"interp-{f_name}_l(X)", step_idx, basis_idx)
 
-            plt.show()
+            if(self.show_plots):
+                plt.show()
+
             plt.close()
 
 
@@ -530,5 +613,7 @@ class Plotter:
             if(self.savefig):
                 self.save_active_fig(f"interp-{f_name}_l(q)", step_idx, basis_idx)
 
-            plt.show()
+            if(self.show_plots):
+                plt.show()
+
             plt.close()
