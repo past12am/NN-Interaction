@@ -9,8 +9,8 @@
 
 #define NUM_THREADS 6
 
-# define BASIS Basis::tau
-# define PROJECTION_BASIS Basis::tau_prime
+# define BASIS Basis::T
+# define PROJECTION_BASIS Basis::T
 
 # define DIQUARK_TYPE_1 DiquarkType::SCALAR
 # define DIQUARK_TYPE_2 DiquarkType::SCALAR
@@ -19,7 +19,7 @@
 
 #define SCATTERING_PROCESS_TYPE ScatteringProcessType::QUARK_EXCHANGE
 
-#define INVERT_STRATEGY InvertStrategy::ANALYTIC
+#define INVERT_STRATEGY InvertStrategy::NUMERIC_MATRIX_INVERSE
 
 enum class InvertStrategy
 {

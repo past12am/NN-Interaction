@@ -13,6 +13,13 @@
 class ScalarDiquarkPropagator
 {
     private:
+        static double D0;   // D(0)
+        static double Doo;  // D(oo)
+        static double L2;   // Second pole at x = -L2
+        static double D1;   // Fit parameter
+
+        static double m_sc;
+
         gsl_complex M(gsl_complex p2);
 
     public:

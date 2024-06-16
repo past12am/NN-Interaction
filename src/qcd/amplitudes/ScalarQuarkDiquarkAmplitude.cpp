@@ -80,7 +80,9 @@ void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_comple
     gsl_matrix_complex_scale(quarkDiquarkAmp, f_k_0);
 
 
-    /*  TODO higher order tensor seems to be too noisy in the result
+
+    //  TODO higher order tensor seems to be too noisy in the result
+    /*
     // 1: Higher order Tensor ( = slash(i * normalized(TransverseProj_P @ p)))
     // build slash(q)   q = normalized(TransverseProj_P(p))
     // tmpTensor = TransverseProj_P
@@ -107,8 +109,8 @@ void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_comple
 
 
     // Add tensor contibutions together
-    gsl_matrix_complex_add(quarkDiquarkAmp, NLOTensor);*/
-
+    gsl_matrix_complex_add(quarkDiquarkAmp, NLOTensor);
+    */
 
     if(chargeConj)
     {

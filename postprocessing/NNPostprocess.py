@@ -56,7 +56,7 @@ def main():
 
     data_base_path = "/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NNInteraction/data/"  #sys.argv[1]
 
-    tensorbase_type = "tau"   #sys.argv[2]
+    tensorbase_type = "T"   #sys.argv[2]
 
     amplitude_isospin = 0   #int(sys.argv[3])
 
@@ -73,8 +73,8 @@ def main():
 
 
     # Instantiate Plotter
-    plotter = Plotter(data_path + "/postprocess_out/", tensorBasisNamesT, tensorBasisNamesTau, tensorBasisNamesRho, True)
-    plotter.show_plots = False
+    plotter = Plotter(data_path + "/postprocess_out/", tensorBasisNamesT, tensorBasisNamesTau, tensorBasisNamesRho, False)
+    plotter.show_plots = True
 
 
     # Load data files
@@ -93,16 +93,13 @@ def main():
 
 
     # Plot amplitudes
-    #plotter.plotAmplitudes_h(dataloader_qx, 0)     # TODO fix S1, A1 bug for tau --> T
-    #plotter.plotAmplitudes(dataloader_qx, 1)
+    plotter.plotAmplitudes_h(dataloader_qx, 0)     # TODO fix S1, A1 bug for tau --> T
+    plotter.plotAmplitudes(dataloader_qx, 1)
 
-    #plotter.plotAmplitudes_h(dataloader_dqx)   # TODO enable plotting (name collision)
-    #plotter.plotAmplitudes(dataloader_dqx)
+    plotter.plotAmplitudes_h(dataloader_dqx, 3)   # TODO enable plotting (name collision)   (quickfix, use step_idx = 3, 4)
+    plotter.plotAmplitudes(dataloader_dqx, 4)
 
-    #plotter.plotFullSymAmplitude(dataloader_qx, dataloader_dqx, 2)
-
-
-
+    plotter.plotFullSymAmplitude(dataloader_qx, dataloader_dqx, 2)
 
 
     # The FT workaround
