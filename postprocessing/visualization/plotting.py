@@ -1,5 +1,6 @@
 import os
 import typing
+import json
 
 import numpy as np
 
@@ -96,39 +97,45 @@ from data.AmplitudeHandler import AmplitudeHandler
 
 
 
-class Plotter:
+class PlotterFullAmplitude:
 
-    def __init__(self, base_path: str, tensorBasisNamesT, tensorBasisNamesTau, tensorBasisNamesRho, savefig) -> None:
+    def __init__(self, base_path: str, dataloader_qx, dataloader_dqx, savefig) -> None:
         self.base_path = base_path
 
-        self.tensorBasisNamesT = tensorBasisNamesT
-        self.tensorBasisNamesTau = tensorBasisNamesTau
-        self.tensorBasisNamesRho = tensorBasisNamesRho
+        self.dataloader_qx = dataloader_qx
+        self.dataloader_dqx = dataloader_dqx
+
+        self.run_path_name = f"qx-{dataloader_qx.latest_run_dir_process}_dqx-{dataloader_dqx.latest_run_dir_process}"
 
         self.savefig = savefig
-
         self.show_plots = True
+
+
+        self.base_spec_dir_name = "qx_" + dataloader_qx.process_spec["basis"] + "_" + dataloader_qx.process_spec["invert_strategy"] + "-dq_" + dataloader_dqx.process_spec["basis"] + "_" + dataloader_dqx.process_spec["invert_strategy"]
+
+
+        # Construct current working path
+        self.cur_proc_run_base_path = self.base_path + "/" + self.base_spec_dir_name + "/" + self.run_path_name + "/"
 
         # Check if paths exist or create
         if(self.savefig):
-            for basis_idx in range(5):
-                os.makedirs(self.base_path_for(basis_idx), exist_ok=True) 
+            os.makedirs(self.cur_proc_run_base_path, exist_ok=True)
 
-            os.makedirs(self.base_path_for(None), exist_ok=True) 
-
-
-    def base_path_for(self, basis_idx: int=None):
-        if (basis_idx is not None):
-            return self.base_path + f"/basis-{basis_idx}/"
-        else:
-            return self.base_path + "/generic/"
+            # Copy Spec dict to output directory
+            json.dump({"quark-exchange": dataloader_qx.process_spec, "diquark-exchange": dataloader_dqx.process_spec}, open(self.cur_proc_run_base_path + "specCombined.json", 'w'))
     
 
-    def save_active_fig(self, fig_name, step_idx, basis_idx: int=None):
-        plt.savefig(self.base_path_for(basis_idx) + "/" + f"{step_idx:02d}__{fig_name}.png")
+    def save_active_fig(self, fig_name):
+        plt.savefig(self.cur_proc_run_base_path + "/" + f"{fig_name}.png")
 
 
-    def plot_full_amplitude_np(self, X: np.ndarray, Z: np.ndarray, F: np.ndarray, tensor_basis_names, fig_name: str, step_idx: int):
+    def plotFullSymAmplitude(self, tensor_basis_names, fig_name):
+        # Plot Full (Anti-) Symmetric Amplitude
+        F_complete = 1/2 * (self.dataloader_qx.F_flavored - self.dataloader_dqx.F_flavored)
+        self.plot_full_amplitude_np(self.dataloader_qx.X, self.dataloader_qx.Z, F_complete, tensor_basis_names, fig_name=fig_name)
+
+
+    def plot_full_amplitude_np(self, X: np.ndarray, Z: np.ndarray, F: np.ndarray, tensor_basis_names, fig_name: str):
         fig = plt.figure(figsize=(17, 5), constrained_layout=True)
 
         for basis_idx in range(F.shape[0]):
@@ -145,7 +152,7 @@ class Plotter:
         fig.subplots_adjust(wspace=wspace, top=0.95, bottom=0.05, left=0.05, right=0.95)
 
         if(self.savefig):
-            self.save_active_fig(fig_name, step_idx)
+            self.save_active_fig(fig_name)
 
         if(self.show_plots):
             plt.show()
@@ -153,7 +160,58 @@ class Plotter:
         plt.close()
 
 
-    def plot_form_factor_np(self, X: np.ndarray, Z: np.ndarray, dressing_f: np.ndarray, dressing_f_name: str, tensor_basis_elem: str, basis_idx: int, fig_name: str, step_idx: int):
+
+
+class Plotter:
+
+    def __init__(self, base_path: str, tensorBasisNamesT, tensorBasisNamesTau, tensorBasisNamesRho, process_type, run_path_name, run_spec_dict, savefig) -> None:
+        self.base_path = base_path
+
+        self.tensorBasisNamesT = tensorBasisNamesT
+        self.tensorBasisNamesTau = tensorBasisNamesTau
+        self.tensorBasisNamesRho = tensorBasisNamesRho
+
+        self.run_spec_dict = run_spec_dict
+        self.base_spec_dir_name = run_spec_dict["basis"] + "_" + run_spec_dict["invert_strategy"]
+
+        self.process_type = process_type
+        self.run_path_name = run_path_name
+
+        self.savefig = savefig
+        self.show_plots = True
+
+
+        # Construct current working path
+        self.cur_proc_run_base_path = self.base_path + "/" + self.base_spec_dir_name + "/" + self.process_type + "/" + self.run_path_name + "/"
+
+        # Check if paths exist or create
+        if(self.savefig):
+            os.makedirs(self.cur_proc_run_base_path, exist_ok=True)
+
+            # Copy Spec dict to output directory
+            json.dump(self.run_spec_dict, open(self.cur_proc_run_base_path + "spec.json", 'w'))
+
+            for basis_idx in range(5):
+                os.makedirs(self.base_path_for("T", basis_idx), exist_ok=True) 
+                os.makedirs(self.base_path_for("tau", basis_idx), exist_ok=True) 
+                os.makedirs(self.base_path_for("tau_prime", basis_idx), exist_ok=True) 
+                os.makedirs(self.base_path_for("rho", basis_idx), exist_ok=True) 
+
+            os.makedirs(self.base_path_for("generic"), exist_ok=True)
+
+
+    def base_path_for(self, base_type, basis_idx: int=None):
+        if (basis_idx is not None):
+            return self.cur_proc_run_base_path + f"/{base_type}-{basis_idx}/"
+        else:
+            return self.cur_proc_run_base_path + f"/{base_type}/"
+    
+
+    def save_active_fig(self, fig_name, step_idx, base_type, basis_idx: int=None):
+        plt.savefig(self.base_path_for(base_type, basis_idx) + "/" + f"{step_idx:02d}__{fig_name}.png")
+
+
+    def plot_form_factor_np(self, X: np.ndarray, Z: np.ndarray, dressing_f: np.ndarray, dressing_f_name: str, tensor_basis_elem: str, base_type: str, basis_idx: int, fig_name: str, step_idx: int):
         fig = plt.figure(figsize=(10, 5))
 
         fig.suptitle("Tensor Basis Element " + tensor_basis_elem)
@@ -177,7 +235,7 @@ class Plotter:
 
 
         if(self.savefig):
-            self.save_active_fig(fig_name, step_idx, basis_idx)
+            self.save_active_fig(fig_name, step_idx, base_type, basis_idx)
 
         if(self.show_plots):
             plt.show()
@@ -188,7 +246,7 @@ class Plotter:
 
     def plot_form_factor_np_side_by_side(self, X1: np.ndarray, Z1: np.ndarray, dressing_f1: np.ndarray, dressing_f_name1: str, xlabel1: str,
                                         X2: np.ndarray, Z2: np.ndarray, dressing_f2: np.ndarray, dressing_f_name2: str, xlabel2: str, 
-                                        tensor_basis_elem: str, basis_idx: int, fig_name: str, step_idx: int):
+                                        tensor_basis_elem: str, basis_idx: int, base_type: str, fig_name: str, step_idx: int):
         dressing_f1_params = f"({xlabel1}, Z)"
         dressing_f2_params = f"({xlabel2}, Z)"
 
@@ -234,34 +292,27 @@ class Plotter:
 
 
         if(self.savefig):
-            self.save_active_fig(fig_name, step_idx, basis_idx)
+            self.save_active_fig(fig_name, step_idx, base_type, basis_idx)
         if(self.show_plots):
             plt.show()
         plt.close()
 
 
 
-    def plotAmplitudes(self, dataloader, step_idx: int):
+    def plotAmplitudes(self, dataloader, fig_name_f, fig_name_F, step_idx: int):
         for base_idx in range(5):
-            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.f[base_idx, :, :], "f", self.tensorBasisNamesTau[base_idx], base_idx, fig_name=f"Amplitude_tau_{base_idx + 1}", step_idx=step_idx)
+            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.f[base_idx, :, :], "f", self.tensorBasisNamesTau[base_idx], "tau", base_idx, fig_name=fig_name_f, step_idx=step_idx)
 
         for base_idx in range(5):
-            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.F[base_idx, :, :], "F", self.tensorBasisNamesT[base_idx], base_idx, fig_name=f"Amplitude_T_{base_idx + 1}", step_idx=step_idx)
+            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.F[base_idx, :, :], "F", self.tensorBasisNamesT[base_idx], "T", base_idx, fig_name=fig_name_F, step_idx=step_idx)
 
 
-    def plotAmplitudes_h(self, dataloader, step_idx: int):
-        # TODO note both basis elements in contraction
+    def plotAmplitudes_h(self, dataloader, fig_name_h, tensor_basis_type, tensor_basis_names, step_idx: int):
         for base_idx in range(5):
-            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.h[base_idx, :, :], "h", self.tensorBasisNamesTau[base_idx], base_idx, fig_name=f"Amplitude_tauprime_{base_idx + 1}", step_idx=step_idx)
+            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.h[base_idx, :, :], "h", tensor_basis_names[base_idx], tensor_basis_type, base_idx, fig_name=fig_name_h, step_idx=step_idx)    # TODO not really in tau base
 
 
-    def plotFullSymAmplitude(self, dataloader_qx, dataloader_dqx, step_idx):
-        # Plot Full (Anti-) Symmetric Amplitude
-        F_complete = 1/2 * (dataloader_qx.F_flavored - dataloader_dqx.F_flavored)
-        self.plot_full_amplitude_np(dataloader_qx.X, dataloader_qx.Z, F_complete, self.tensorBasisNamesT, fig_name="Amplitude_Sym", step_idx=step_idx)
-
-
-    def plotAmplitudesPartialWaveExpandedAndOriginal(self, grid_var1: np.ndarray, Z: np.ndarray, V_l: np.ndarray, V: np.ndarray, var1_name: str, step_idx: int):
+    def plotAmplitudesPartialWaveExpandedAndOriginal(self, grid_var1: np.ndarray, Z: np.ndarray, V_l: np.ndarray, V: np.ndarray, var1_name: str, fig_name, step_idx: int):
         # Build original amplitudes from partial wave expanded ones
         num_Z_check = 21
         Z_check_linspace = np.linspace(np.min(Z), np.max(Z), num_Z_check)
@@ -282,10 +333,10 @@ class Plotter:
 
             self.plot_form_factor_np_side_by_side(X_qx_extended, Z_qx_extended, V[basis_idx, :, :], "V", var1_name,
                                                   X_check_extended, Z_check_linspace_extended, V_qx_check[basis_idx, :, :], "V_{check}", var1_name,
-                                                  self.tensorBasisNamesRho[basis_idx], basis_idx, fig_name=f"Amplitude_rho_{basis_idx + 1}", step_idx=step_idx)
+                                                  self.tensorBasisNamesRho[basis_idx], basis_idx, "rho", fig_name=fig_name, step_idx=step_idx)                 # f"Amplitude_rho_{basis_idx + 1}"
             
 
-    def plot_pwave_amp_with_fits(self, V_qx_l, X_qx, ampHandler: AmplitudeHandler, step_idx: int):
+    def plot_pwave_amp_with_fits(self, V_qx_l, X_qx, ampHandler: AmplitudeHandler, base_type, fig_name: str, step_idx: int):
         for basis_idx in range(V_qx_l.shape[0]):
             fig, axs = plt.subplots(1, 2, figsize=(14, 7))
 
@@ -314,7 +365,7 @@ class Plotter:
             axs[1].legend()
 
             if(self.savefig):
-                self.save_active_fig("fits-V_l(X)", step_idx, basis_idx)
+                self.save_active_fig(fig_name, step_idx, base_type, basis_idx) # "fits-V_l(X)"
 
             if(self.show_plots):
                 plt.show()
@@ -322,7 +373,7 @@ class Plotter:
             plt.close()
 
 
-    def plot_pwave_amp(self, f_l, x, xlabel, x_label_unit, step_idx: int, max_wave: int=None):
+    def plot_pwave_amp(self, f_l, x, xlabel, x_label_unit, fig_name, base_type, step_idx: int, max_wave: int=None):
         for basis_idx in range(f_l.shape[0]):
             fig, axs = plt.subplots(1, 2, figsize=(14, 7))
 
@@ -342,7 +393,7 @@ class Plotter:
             axs[1].legend()
 
             if(self.savefig):
-                self.save_active_fig(f"V_l({xlabel})", step_idx, basis_idx)
+                self.save_active_fig(fig_name, step_idx, base_type, basis_idx) #f"V_l({xlabel})"
 
             if(self.show_plots):
                 plt.show()
@@ -350,7 +401,7 @@ class Plotter:
             plt.close()
 
 
-    def plot_pwave_amp_scaled_side_by_side(self, f_l, x, xlabel, x_label_unit, step_idx: int, y_lim: typing.Tuple=None, max_wave: int=None):
+    def plot_pwave_amp_scaled_side_by_side(self, f_l, x, xlabel, x_label_unit, fig_name, base_type, step_idx: int, y_lim: typing.Tuple=None, max_wave: int=None):
         for basis_idx in range(f_l.shape[0]):
             fig, axs = plt.subplots(1, 2, figsize=(14, 7))
 
@@ -373,14 +424,15 @@ class Plotter:
                 axs[1].set_ylim(y_lim[basis_idx])
 
             if(self.savefig):
-                self.save_active_fig(f"scale-sidebyside-V_l({xlabel})", step_idx, basis_idx)
+                self.save_active_fig(fig_name, step_idx, base_type, basis_idx)    # f"scale-sidebyside-V_l({xlabel})"
 
             if(self.show_plots):
                 plt.show()
 
             plt.close()
 
-    def plot_pwave_amp_wave_sum(self, f_l, x, xlabel, x_label_unit, step_idx: int, max_wave: int=None):
+
+    def plot_pwave_amp_wave_sum(self, f_l, x, xlabel, x_label_unit, fig_name, base_type, step_idx: int, max_wave: int=None):
         for basis_idx in range(f_l.shape[0]):
             fig, axs = plt.subplots(1, 2, figsize=(14, 7))
 
@@ -401,7 +453,7 @@ class Plotter:
             axs[1].legend()
 
             if(self.savefig):
-                self.save_active_fig(f"V_l({xlabel})-partial-wave-sum", step_idx, basis_idx)
+                self.save_active_fig(fig_name, step_idx, base_type, basis_idx) #f"V_l({xlabel})-partial-wave-sum"
 
             if(self.show_plots):
                 plt.show()
@@ -409,7 +461,7 @@ class Plotter:
             plt.close()
 
 
-    def plot_pwave_amp_fits_seperated(self, X_qx_check, ampHandler: AmplitudeHandler, step_idx: int, Ymax: float=None):
+    def plot_pwave_amp_fits_seperated(self, X_qx_check, ampHandler: AmplitudeHandler, fig_name, base_type, step_idx: int, Ymax: float=None):
         for basis_idx in range(ampHandler.f_l.shape[0]):
             fig, axs = plt.subplots(1, 2, figsize=(14, 7))
 
@@ -440,14 +492,14 @@ class Plotter:
                 axs[1].set_ylim(Ymax)
 
             if(self.savefig):
-                self.save_active_fig("fits-seperated-V_l(X)", step_idx, basis_idx)
+                self.save_active_fig(fig_name, step_idx, base_type, basis_idx)  # "fits-seperated-V_l(X)"
 
             if(self.show_plots):
                 plt.show()
 
             plt.close()
 
-    def plot_pwave_q_amp_fits_seperated(self, q_check, ampHandler: AmplitudeHandler, step_idx: int, Ymax: float=None):
+    def plot_pwave_q_amp_fits_seperated(self, q_check, ampHandler: AmplitudeHandler, fig_name, base_type, step_idx: int, Ymax: float=None):
         for basis_idx in range(ampHandler.f_l.shape[0]):
             fig, axs = plt.subplots(1, 2, figsize=(14, 7))
 
@@ -479,7 +531,7 @@ class Plotter:
                 axs[1].set_ylim(Ymax)
 
             if(self.savefig):
-                self.save_active_fig("fits-seperated-V_l(q)", step_idx, basis_idx)
+                self.save_active_fig(fig_name, step_idx, base_type, basis_idx)     #"fits-seperated-V_l(q)"
 
             if(self.show_plots):
                 plt.show()
@@ -487,7 +539,7 @@ class Plotter:
             plt.close()
 
 
-    def plot_pwave_amp_FT(self, r_grid, ampHandler: AmplitudeHandler, step_idx: int):
+    def plot_pwave_amp_FT(self, r_grid, ampHandler: AmplitudeHandler, fig_name, base_type, step_idx: int):
         for basis_idx in range(ampHandler.f_l_q.shape[0]):
             fig, axs = plt.subplots(1, 2, figsize=(14, 7))
 
@@ -511,7 +563,7 @@ class Plotter:
             axs[1].legend()
 
             if(self.savefig):
-                self.save_active_fig("FT-V_l(r)", step_idx, basis_idx)
+                self.save_active_fig(fig_name, step_idx, base_type, basis_idx) #"FT-V_l(r)"
 
             if(self.show_plots):
                 plt.show()
@@ -519,7 +571,7 @@ class Plotter:
             plt.close()
 
 
-    def plot_pwave_amp_fits(self, X_qx_check, ampHandler: AmplitudeHandler, step_idx: int, Ymax: float=None):
+    def plot_pwave_amp_fits(self, X_qx_check, ampHandler: AmplitudeHandler, fig_name, base_type, step_idx: int, Ymax: float=None):
         for basis_idx in range(ampHandler.f_l.shape[0]):
             fig, axs = plt.subplots(1, 2, figsize=(14, 7))
 
@@ -546,7 +598,7 @@ class Plotter:
                 axs[1].set_ylim(Ymax)
 
             if(self.savefig):
-                self.save_active_fig("fitonly-V_l(X)", step_idx, basis_idx)
+                self.save_active_fig(fig_name, step_idx, base_type, basis_idx) #"fitonly-V_l(X)"
 
             if(self.show_plots):
                 plt.show()
@@ -554,7 +606,7 @@ class Plotter:
             plt.close()
 
 
-    def plot_pwave_amp_with_interpolation(self, ampHandler: AmplitudeHandler, f_name: str, step_idx):
+    def plot_pwave_amp_with_interpolation(self, ampHandler: AmplitudeHandler, f_name: str, base_type, fig_name, step_idx):
         X_check = np.linspace(ampHandler.X[0], ampHandler.X[-1], 1000)
 
         for basis_idx in range(ampHandler.f_l.shape[0]):
@@ -579,7 +631,7 @@ class Plotter:
             axs[1].legend()
 
             if(self.savefig):
-                self.save_active_fig(f"interp-{f_name}_l(X)", step_idx, basis_idx)
+                self.save_active_fig(fig_name, step_idx, base_type, basis_idx) #f"interp-{f_name}_l(X)"
 
             if(self.show_plots):
                 plt.show()
@@ -587,7 +639,7 @@ class Plotter:
             plt.close()
 
 
-    def plot_pwave_q_amp_with_interpolation(self, ampHandler: AmplitudeHandler, f_name: str, step_idx):
+    def plot_pwave_q_amp_with_interpolation(self, ampHandler: AmplitudeHandler, f_name: str, fig_name, base_type, step_idx):
         q_check = np.linspace(ampHandler.q[0], ampHandler.q[-1], 1000)
 
         for basis_idx in range(ampHandler.f_l_q.shape[0]):
@@ -611,7 +663,7 @@ class Plotter:
             axs[1].legend()
 
             if(self.savefig):
-                self.save_active_fig(f"interp-{f_name}_l(q)", step_idx, basis_idx)
+                self.save_active_fig(fig_name, step_idx, base_type, basis_idx) #f"interp-{f_name}_l(q)"
 
             if(self.show_plots):
                 plt.show()

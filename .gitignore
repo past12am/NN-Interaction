@@ -89,5 +89,10 @@ __pycache__
 
 latex
 
+
 data/
+postprocess-output/
+
 !postprocessing/data/
+!src/data/
+!include/data/

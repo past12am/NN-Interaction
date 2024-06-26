@@ -28,12 +28,12 @@ class Dataloader:
 
 
         # Find latest run
-        latest_run_dir_process = Dataloader.find_latest_run_dir(data_path_process)
+        self.latest_run_dir_process = Dataloader.find_latest_run_dir(data_path_process)
 
-        if(latest_run_dir_process is None):
+        if(self.latest_run_dir_process is None):
             exit(-1)
 
-        data_path_process_latest = data_path_process + latest_run_dir_process + "/"
+        data_path_process_latest = data_path_process + self.latest_run_dir_process + "/"
         self.data_path = data_path_process_latest
 
 
