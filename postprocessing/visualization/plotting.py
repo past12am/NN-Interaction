@@ -126,7 +126,7 @@ class PlotterFullAmplitude:
     
 
     def save_active_fig(self, fig_name):
-        plt.savefig(self.cur_proc_run_base_path + "/" + f"{fig_name}.png")
+        plt.savefig(self.cur_proc_run_base_path + "/" + f"{fig_name}.png", dpi=600)
 
 
     def plotFullSymAmplitude(self, tensor_basis_names, fig_name):
@@ -208,7 +208,7 @@ class Plotter:
     
 
     def save_active_fig(self, fig_name, step_idx, base_type, basis_idx: int=None):
-        plt.savefig(self.base_path_for(base_type, basis_idx) + "/" + f"{step_idx:02d}__{fig_name}.png")
+        plt.savefig(self.base_path_for(base_type, basis_idx) + "/" + f"{step_idx:02d}__{fig_name}_{base_type}_{basis_idx + 1}.png", dpi=600)
 
 
     def plot_form_factor_np(self, X: np.ndarray, Z: np.ndarray, dressing_f: np.ndarray, dressing_f_name: str, tensor_basis_elem: str, base_type: str, basis_idx: int, fig_name: str, step_idx: int):
@@ -301,15 +301,15 @@ class Plotter:
 
     def plotAmplitudes(self, dataloader, fig_name_f, fig_name_F, step_idx: int):
         for base_idx in range(5):
-            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.f[base_idx, :, :], "f", self.tensorBasisNamesTau[base_idx], "tau", base_idx, fig_name=fig_name_f, step_idx=step_idx)
+            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.f[base_idx, :, :], "f", self.tensorBasisNamesTau[base_idx], "tau", base_idx, fig_name=f"{fig_name_f}_{base_idx + 1}", step_idx=step_idx)
 
         for base_idx in range(5):
-            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.F[base_idx, :, :], "F", self.tensorBasisNamesT[base_idx], "T", base_idx, fig_name=fig_name_F, step_idx=step_idx)
+            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.F[base_idx, :, :], "F", self.tensorBasisNamesT[base_idx], "T", base_idx, fig_name=f"{fig_name_F}_{base_idx + 1}", step_idx=step_idx)
 
 
     def plotAmplitudes_h(self, dataloader, fig_name_h, tensor_basis_type, tensor_basis_names, step_idx: int):
         for base_idx in range(5):
-            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.h[base_idx, :, :], "h", tensor_basis_names[base_idx], tensor_basis_type, base_idx, fig_name=fig_name_h, step_idx=step_idx)    # TODO not really in tau base
+            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.h[base_idx, :, :], "h", tensor_basis_names[base_idx], tensor_basis_type, base_idx, fig_name=f"{fig_name_h}_{base_idx + 1}", step_idx=step_idx)    # TODO not really in tau base
 
 
     def plotAmplitudesPartialWaveExpandedAndOriginal(self, grid_var1: np.ndarray, Z: np.ndarray, V_l: np.ndarray, V: np.ndarray, var1_name: str, fig_name, step_idx: int):
