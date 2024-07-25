@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.special import gamma
-from mpmath import hyp1f2, csc, sec
 
 def yukawa_potential(q2, c, L2):
     return c/(q2 + L2)
@@ -178,27 +177,27 @@ def yukawa_poly_exponentials_evenodd_fitparams():
 
 
 # Fourier Transformed basis functions
-def yukawa_FT(r, d1, n):
-    return - 1/(2 * np.square(np.pi * r) * np.abs(r) * gamma(n)) * d1 * (2 * np.power(np.abs(r), 3) * gamma(-3 + n) * hyp1f2(2, 2-n/2, (5 - n)/2, -np.square(r)/4) \
-                                                                         - np.pi * np.power(np.abs(r), n) * csc(n * np.pi) * (np.abs(r) * np.cos(n * np.pi/2 + np.abs(r)) + (n - 1) * np.sin(n * np.pi/2 + np.abs(r))))
-
-def yukawa_extended_FT(r, d, e, n):
-    return - (d * np.power(e, -n) * csc(n * np.pi / 2) * sec(n * np.pi / 2) * (-np.power(e, 1 + n) * np.pi * np.power(np.abs(r), 1 + n) * np.cos(n * np.pi / 2 + e * np.abs(r)) \
-                                                                               + 2 * np.power(e, 3) * np.power(np.abs(r), 3) * gamma(n - 3) * hyp1f2(2, 2 - n/2, (5 - n)/2, -1/4 * np.square(e * r)) * np.sin(n * np.pi) \
-                                                                               - np.power(e, n) * (n - 1) * np.pi * np.power(np.abs(r), n) * np.sin(n * np.pi / 2 + e * np.abs(r)))) \
-            / (4 * np.square(np.pi * r) * np.abs(r) * gamma(n))
-
-def poly_exp_0_FT(r, a, b, c):
-    return - (b * c * np.exp(-a)) / (np.square(np.pi) * np.square(np.square(b) + np.square(r)))
-
-def poly_exp_1_FT(r, a, b, c):
-    return (c * np.exp(-a) * (-3 * np.square(b) + np.square(r))) / (np.square(np.pi) * np.power(np.square(b) + np.square(r), 3))
-
-def poly_exp_2_FT(r, a, b, c):
-    return - (12 * b * c * np.exp(-a) * (np.square(b) - np.square(r))) / (np.square(np.pi) * np.power(np.square(b) + np.square(r), 4))
-
-def poly_exp_3_FT(r, a, b, c):
-    return - (12 * c * np.exp(-a) * (5 * np.power(b, 4) - 10 * np.square(b * r) + np.power(r, 4))) / (np.square(np.pi) * np.power(np.square(b) + np.square(r), 5))
-
-def poly_exp_4_FT(r, a, b, c):
-    return - (120 * b * c * np.exp(-a) * (3 * np.power(b, 4) - 10 * np.square(b * r) + 3 * np.power(r, 4))) / (np.square(np.pi) * np.power(np.square(b) + np.square(r), 6))
+#def yukawa_FT(r, d1, n):
+#    return - 1/(2 * np.square(np.pi * r) * np.abs(r) * gamma(n)) * d1 * (2 * np.power(np.abs(r), 3) * gamma(-3 + n) * hyp1f2(2, 2-n/2, (5 - n)/2, -np.square(r)/4) \
+#                                                                         - np.pi * np.power(np.abs(r), n) * csc(n * np.pi) * (np.abs(r) * np.cos(n * np.pi/2 + np.abs(r)) + (n - 1) * np.sin(n * np.pi/2 + np.abs(r))))
+#
+#def yukawa_extended_FT(r, d, e, n):
+#    return - (d * np.power(e, -n) * csc(n * np.pi / 2) * sec(n * np.pi / 2) * (-np.power(e, 1 + n) * np.pi * np.power(np.abs(r), 1 + n) * np.cos(n * np.pi / 2 + e * np.abs(r)) \
+#                                                                               + 2 * np.power(e, 3) * np.power(np.abs(r), 3) * gamma(n - 3) * hyp1f2(2, 2 - n/2, (5 - n)/2, -1/4 * np.square(e * r)) * np.sin(n * np.pi) \
+#                                                                               - np.power(e, n) * (n - 1) * np.pi * np.power(np.abs(r), n) * np.sin(n * np.pi / 2 + e * np.abs(r)))) \
+#            / (4 * np.square(np.pi * r) * np.abs(r) * gamma(n))
+#
+#def poly_exp_0_FT(r, a, b, c):
+#    return - (b * c * np.exp(-a)) / (np.square(np.pi) * np.square(np.square(b) + np.square(r)))
+#
+#def poly_exp_1_FT(r, a, b, c):
+#    return (c * np.exp(-a) * (-3 * np.square(b) + np.square(r))) / (np.square(np.pi) * np.power(np.square(b) + np.square(r), 3))
+#
+#def poly_exp_2_FT(r, a, b, c):
+#    return - (12 * b * c * np.exp(-a) * (np.square(b) - np.square(r))) / (np.square(np.pi) * np.power(np.square(b) + np.square(r), 4))
+#
+#def poly_exp_3_FT(r, a, b, c):
+#    return - (12 * c * np.exp(-a) * (5 * np.power(b, 4) - 10 * np.square(b * r) + np.power(r, 4))) / (np.square(np.pi) * np.power(np.square(b) + np.square(r), 5))
+#
+#def poly_exp_4_FT(r, a, b, c):
+#    return - (120 * b * c * np.exp(-a) * (3 * np.power(b, 4) - 10 * np.square(b * r) + 3 * np.power(r, 4))) / (np.square(np.pi) * np.power(np.square(b) + np.square(r), 6))

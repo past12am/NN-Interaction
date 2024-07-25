@@ -124,17 +124,17 @@ class AmplitudeHandler:
 
 
     def f_l_at(self, basis_idx, l, X):
-        if X <= self.X_max:
-            ## avoid using spline --> try to stick to known X for X < X_max
-            #closest_idx = (np.abs(self.X - X)).argmin()
-            #if(np.isclose(self.X[closest_idx], X)):
-            #    return self.f_l[basis_idx, l, closest_idx]
-            #print(f"Needed interpolation in known region: X_query={X}, X_closest={self.X[closest_idx]} --> dif={np.abs(self.X[closest_idx] - X)}")
+        #if X <= self.X_max:
+        #    ## avoid using spline --> try to stick to known X for X < X_max
+        #    #closest_idx = (np.abs(self.X - X)).argmin()
+        #    #if(np.isclose(self.X[closest_idx], X)):
+        #    #    return self.f_l[basis_idx, l, closest_idx]
+        #    #print(f"Needed interpolation in known region: X_query={X}, X_closest={self.X[closest_idx]} --> dif={np.abs(self.X[closest_idx] - X)}")
 
-            return self.f_l_interpolation(basis_idx, l, X)
-        
-        else:
-            return self.f_l_fit(basis_idx, l, X)
+        #    return self.f_l_interpolation(basis_idx, l, X)
+        #
+
+        return self.f_l_fit(basis_idx, l, X)
         
     
     def fit_q_pwaves(self, q_fitfunc: typing.Callable, p0: typing.List, bounds: typing.Tuple, FT_q_fitfunc: typing.Callable, max_l: int=None, min_q: float=0):
@@ -144,21 +144,6 @@ class AmplitudeHandler:
         self.f_l_q_fitcoeff = np.zeros((self.f_l_q.shape[0], self.f_l_q.shape[1], len(signature(self.q_fitfunc).parameters) - 1))
 
         min_q_idx = np.argwhere(self.q >= min_q)[0][0]
-        
-        """
-        # artificially add infinity at 0
-        q_fitting = np.zeros(self.q[min_q_idx:].shape[0] + 1)
-        q_fitting[1:] = self.q[min_q_idx:]
-        q_fitting[0] = 0
-
-        if(q_fitting[1] == 0):
-            q_fitting[1] = q_fitting[2]/2
-
-        f_l_q_fitting = np.zeros((self.f_l_q.shape[0], self.f_l_q.shape[1], len(q_fitting)))
-        f_l_q_fitting[:, :, 1:] = self.f_l_q[:, :, min_q_idx:]
-
-        f_l_q_fitting[:, :, 0] = 1E3        # Use as infinity
-        """
 
         for basis_idx in range(self.f_l_q.shape[0]):
             for l in range(self.f_l_q.shape[1] if max_l is None else max_l):

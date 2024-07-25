@@ -10,7 +10,7 @@ from basis.BasisTauToSymAsym import BasisTauToSymAsym
 
 class Dataloader:
 
-    def __init__(self, data_base_path: str, tensorbase_type: str, amplitude_isospin: int, process_type: str, dq_1_type: str, dq_2_type: str, Z_range, X_range_lower) -> None:
+    def __init__(self, data_base_path: str, tensorbase_type: str, amplitude_isospin: int, process_type: str, dq_1_type: str, dq_2_type: str, Z_range, X_range_lower, run_nr: int = None) -> None:
         # Construct directory fitting specs
         data_path = data_base_path + f"/BASE-{tensorbase_type}_I-{amplitude_isospin}_DQ-{dq_1_type}-{dq_2_type}/"
 
@@ -28,7 +28,10 @@ class Dataloader:
 
 
         # Find latest run
-        self.latest_run_dir_process = Dataloader.find_latest_run_dir(data_path_process)
+        if(run_nr is None):
+            self.latest_run_dir_process = Dataloader.find_latest_run_dir(data_path_process)
+        else:
+            self.latest_run_dir_process = f"run_{run_nr}"
 
         if(self.latest_run_dir_process is None):
             exit(-1)
@@ -72,12 +75,20 @@ class Dataloader:
 
 
 
+        # Switch sign of amplitudes for diquark exchange
+        if(process_type == "quark_exchange"):
+            self.F *= -1
+            self.f *= -1
+
         # Load flavor factors
         self.process_flavor_factor = Dataloader.load_flavor_space_form_factors("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NNInteraction/flavorspace", process_type, amplitude_isospin, dq_1_type, dq_2_type)
 
         # Build flavored dressing functions
-        self.f_flavored = self.f * self.process_flavor_factor
-        self.F_flavored = self.F * self.process_flavor_factor
+        #self.f_flavored = self.f * self.process_flavor_factor
+        #self.F_flavored = self.F * self.process_flavor_factor
+
+        #self.f = self.f_flavored
+        #self.F = self.F_flavored    # TODO check this --> we need the flavored ones to correctly reproduce sym/anti-sym
 
 
         # TODO color factor
