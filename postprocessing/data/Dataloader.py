@@ -10,12 +10,11 @@ from basis.BasisTauToSymAsym import BasisTauToSymAsym
 
 class Dataloader:
 
-    def __init__(self, data_base_path: str, tensorbase_type: str, amplitude_isospin: int, process_type: str, dq_1_type: str, dq_2_type: str, Z_range, X_range_lower, run_nr: int = None) -> None:
+    def __init__(self, data_base_path: str, tensorbase_type: str, process_type: str, dq_1_type: str, dq_2_type: str, Z_range, X_range_lower, run_nr: int = None) -> None:
         # Construct directory fitting specs
-        data_path = data_base_path + f"/BASE-{tensorbase_type}_I-{amplitude_isospin}_DQ-{dq_1_type}-{dq_2_type}/"
+        data_path = data_base_path + f"/BASE-{tensorbase_type}_I-0_DQ-{dq_1_type}-{dq_2_type}/"
 
         self.tensorbase_type = tensorbase_type
-        self.amplitude_isospin = amplitude_isospin
         self.process_type = process_type
         self.dq_1_type = dq_1_type
         self.dq_2_type = dq_2_type
@@ -47,8 +46,7 @@ class Dataloader:
 
 
         # Sanity checks, specified base, dq type and so on should match
-        if(not self.process_spec["basis"] == tensorbase_type or 
-           not self.process_spec["amplitude_isospin"] == amplitude_isospin or 
+        if(not self.process_spec["basis"] == tensorbase_type or
            not self.process_spec["diquark_type_1"] == dq_1_type or 
            not self.process_spec["diquark_type_2"] == dq_2_type):
             exit(-1)
@@ -80,15 +78,17 @@ class Dataloader:
             self.F *= -1
             self.f *= -1
 
-        # Load flavor factors
-        self.process_flavor_factor = Dataloader.load_flavor_space_form_factors("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NNInteraction/flavorspace", process_type, amplitude_isospin, dq_1_type, dq_2_type)
+
+
+        # Load flavor factors --> Done via basis projections
+        #self.process_flavor_factor = Dataloader.load_flavor_space_form_factors("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NNInteraction/flavorspace", process_type, dq_1_type, dq_2_type)
 
         # Build flavored dressing functions
         #self.f_flavored = self.f * self.process_flavor_factor
         #self.F_flavored = self.F * self.process_flavor_factor
 
         #self.f = self.f_flavored
-        #self.F = self.F_flavored    # TODO check this --> we need the flavored ones to correctly reproduce sym/anti-sym
+        #self.F = self.F_flavored
 
 
         # TODO color factor
@@ -165,11 +165,10 @@ class Dataloader:
     
 
     @staticmethod
-    def load_flavor_space_form_factors(flavor_data_path: str, process_type, amplitude_isospin, dq_1_type, dq_2_type):
+    def load_flavor_space_form_factors(flavor_data_path: str, process_type, dq_1_type, dq_2_type):
         pd_process_flavor = pd.read_csv(flavor_data_path + f"/{process_type}.csv", delimiter=";", decimal=".")
 
-        process_flavor_factor = pd_process_flavor[(pd_process_flavor.amplitude_isospin == amplitude_isospin) &
-                                                  (pd_process_flavor.diquark_1_type == dq_1_type) &
+        process_flavor_factor = pd_process_flavor[(pd_process_flavor.diquark_1_type == dq_1_type) &
                                                   (pd_process_flavor.diquark_2_type == dq_2_type)]["flavor_factor"].values[0]
 
         try:

@@ -62,15 +62,13 @@ tensorBasisNamesDict = {
 
 def main():
 
-    data_base_path = "/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NNInteraction/data/"  #sys.argv[1]
+    data_base_path = "/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NNInteraction/data/"
     output_base_path = "/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NNInteraction/postprocess-output/"
 
-    tensorbase_type = "T"   #sys.argv[2]
+    tensorbase_type = "T"
 
-    amplitude_isospin = 0   #int(sys.argv[3])
-
-    dq_1_type = "scalar"    #sys.argv[2]
-    dq_2_type = "scalar"    #sys.argv[3]
+    dq_1_type = "scalar"
+    dq_2_type = "scalar"
 
     Z_range = 0.99
     X_range_lower = 0
@@ -78,17 +76,12 @@ def main():
     M_nucleon = 0.94    # GeV
 
 
-
-    # Construct directory string fitting specs
-    data_path = data_base_path + f"/BASE-{tensorbase_type}_I-{amplitude_isospin}_DQ-{dq_1_type}-{dq_2_type}/"
-
-
     # Load data files
     # TODO error happens for S1 and A1 when doing tau --> T, seems correct for T --> tau
     qx_process_type = "quark_exchange"
     dqx_process_type = "diquark_exchange"
-    dataloader_qx = Dataloader(data_base_path, tensorbase_type, amplitude_isospin, qx_process_type, dq_1_type, dq_2_type, Z_range, X_range_lower)
-    dataloader_dqx = Dataloader(data_base_path, tensorbase_type, amplitude_isospin, dqx_process_type, dq_1_type, dq_2_type, Z_range, X_range_lower)
+    dataloader_qx = Dataloader(data_base_path, tensorbase_type, qx_process_type, dq_1_type, dq_2_type, Z_range, X_range_lower)
+    dataloader_dqx = Dataloader(data_base_path, tensorbase_type, dqx_process_type, dq_1_type, dq_2_type, Z_range, X_range_lower)
 
 
     # Instantiate Plotter
