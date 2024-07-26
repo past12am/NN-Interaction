@@ -96,6 +96,35 @@ class PlotterFullAmplitude:
         plt.close()
 
 
+    def plot_final_res(self, f_l, x, xlabel, x_label_unit, ylabels, tensorBasisNamesDict, exchange_channel, xmax):
+        for basis_idx in range(f_l.shape[0]):
+            fig, ax = plt.subplots(1, 1, figsize=(6, 6))
+
+            ax.set_xlim(right=xmax)
+
+            for l in range(f_l.shape[1]):
+                ax.plot(x, f_l[basis_idx, l, :], label=f"{pwave_names[l]}-wave")
+            
+            fig.subplots_adjust(top=0.88, bottom=0.11, left=0.155, right=0.92, hspace=0.2, wspace=0.2)
+
+            mid = (fig.subplotpars.right + fig.subplotpars.left)/2
+            fig.suptitle(tensorBasisNamesDict["rho"][basis_idx], x=mid, fontsize="x-large")
+            
+            ax.set_title(f"${ylabels[basis_idx]}({xlabel})$")
+            ax.set_xlabel(f"${xlabel} \\ {x_label_unit}$", fontsize="large")
+            ax.set_ylabel(f"${ylabels[basis_idx]}$", fontsize="large")
+            ax.grid(color='lightgray', linestyle='dashed')
+            ax.legend()
+
+            if(self.savefig):
+                self.save_active_fig(f"Result_{exchange_channel}_rho{basis_idx}")
+
+            if(self.show_plots):
+                plt.show()
+
+            plt.close()
+
+
 
 
 class Plotter:
@@ -180,20 +209,20 @@ class Plotter:
 
         # Subplot real
         ax = fig.add_subplot(1, 2, 1, projection='3d')
-        ax.set_title(f"$\Re({dressing_f_name}(X, Z))$")
+        ax.set_title(f"$\\Re({dressing_f_name}(X, Z))$")
         ax.plot_trisurf(X, Z, np.real(dressing_f.flatten()), cmap=cm.coolwarm)
         ax.set_xlabel("$X$")
         ax.set_ylabel("$Z$")
-        ax.set_zlabel(f"$\Re({dressing_f_name})$")
+        ax.set_zlabel(f"$\\Re({dressing_f_name})$")
 
 
         # Subplot imag
         ax = fig.add_subplot(1, 2, 2, projection='3d')
-        ax.set_title(f"$\Im({dressing_f_name}(X, Z))$")
+        ax.set_title(f"$\\Im({dressing_f_name}(X, Z))$")
         ax.plot_trisurf(X, Z, np.imag(dressing_f.flatten()), cmap=cm.coolwarm)
         ax.set_xlabel("$X$")
         ax.set_ylabel("$Z$")
-        ax.set_zlabel(f"$\Im({dressing_f_name})$")
+        ax.set_zlabel(f"$\\Im({dressing_f_name})$")
 
 
         if(self.savefig):
@@ -268,39 +297,39 @@ class Plotter:
 
         # Subplot real
         ax = fig.add_subplot(2, 2, 1, projection='3d')
-        ax.set_title(f"$\Re({dressing_f_name1}{dressing_f1_params})$")
+        ax.set_title(f"$\\Re({dressing_f_name1}{dressing_f1_params})$")
         ax.plot_trisurf(X1, Z1, np.real(dressing_f1.flatten()), cmap=cm.coolwarm)
         ax.set_xlabel(f"${xlabel1}$")
         ax.set_ylabel("$Z$")
-        ax.set_zlabel(f"$\Re({dressing_f_name1})$")
+        ax.set_zlabel(f"$\\Re({dressing_f_name1})$")
 
 
         # Subplot imag
         ax = fig.add_subplot(2, 2, 2, projection='3d')
-        ax.set_title(f"$\Im({dressing_f_name1}{dressing_f1_params})$")
+        ax.set_title(f"$\\Im({dressing_f_name1}{dressing_f1_params})$")
         ax.plot_trisurf(X1, Z1, np.imag(dressing_f1.flatten()), cmap=cm.coolwarm)
         ax.set_xlabel(f"${xlabel1}$")
         ax.set_ylabel("$Z$")
-        ax.set_zlabel(f"$\Im({dressing_f_name1})$")
+        ax.set_zlabel(f"$\\Im({dressing_f_name1})$")
 
 
 
         # Subplot real
         ax = fig.add_subplot(2, 2, 3, projection='3d')
-        ax.set_title(f"$\Re({dressing_f_name2}{dressing_f2_params})$")
+        ax.set_title(f"$\\Re({dressing_f_name2}{dressing_f2_params})$")
         ax.plot_trisurf(X2, Z2, np.real(dressing_f2.flatten()), cmap=cm.coolwarm)
         ax.set_xlabel(f"${xlabel2}$")
         ax.set_ylabel("$Z$")
-        ax.set_zlabel(f"$\Re({dressing_f_name2})$")
+        ax.set_zlabel(f"$\\Re({dressing_f_name2})$")
 
 
         # Subplot imag
         ax = fig.add_subplot(2, 2, 4, projection='3d')
-        ax.set_title(f"$\Im({dressing_f_name2}{dressing_f2_params})$")
+        ax.set_title(f"$\\Im({dressing_f_name2}{dressing_f2_params})$")
         ax.plot_trisurf(X2, Z2, np.imag(dressing_f2.flatten()), cmap=cm.coolwarm)
         ax.set_xlabel(f"${xlabel2}$")
         ax.set_ylabel("$Z$")
-        ax.set_zlabel(f"$\Im({dressing_f_name2})$")
+        ax.set_zlabel(f"$\\Im({dressing_f_name2})$")
 
 
         if(self.savefig):
@@ -383,8 +412,8 @@ class Plotter:
             axs[0].legend()
 
             if(self.include_loglog_plots):
-                axs[1].set_xlabel("$\log X$")
-                axs[1].set_ylabel("$\log V_{l}(X)$")
+                axs[1].set_xlabel("$\\log X$")
+                axs[1].set_ylabel("$\\log V_{l}(X)$")
                 axs[1].legend()
 
             if(self.savefig):
@@ -416,15 +445,15 @@ class Plotter:
             fig.suptitle(self.tensorBasisNamesDict["rho"][basis_idx], x=mid, fontsize="x-large")
 
             axs[0].set_title(f"$U_{basis_idx + 1}^{{(l)}}({xlabel})$")
-            axs[0].set_xlabel(f"${xlabel} \setminus {x_label_unit}$", fontsize="large")
+            axs[0].set_xlabel(f"${xlabel} \\setminus {x_label_unit}$", fontsize="large")
             axs[0].set_ylabel(f"$U_{basis_idx + 1}^{{(l)}}$", fontsize="large")
             axs[0].grid(color='lightgray', linestyle='dashed')
             #axs[0].spines[['right', 'top']].set_visible(False)
             axs[0].legend()
 
             if(self.include_loglog_plots):
-                axs[1].set_xlabel(f"$\log {xlabel}  {x_label_unit}$")
-                axs[1].set_ylabel(f"$\log V_l({xlabel})$")
+                axs[1].set_xlabel(f"$\\log {xlabel}  {x_label_unit}$")
+                axs[1].set_ylabel(f"$\\log V_l({xlabel})$")
                 axs[1].legend()
 
             if(self.savefig):
@@ -438,13 +467,13 @@ class Plotter:
 
     def plot_pwave_amp_scaled_side_by_side(self, f_l, x, xlabel, x_label_unit, fig_name, base_type, step_idx: int, y_lim: typing.Tuple=None, max_wave: int=None):
         for basis_idx in range(f_l.shape[0]):
-            fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+            fig, axs = plt.subplots(1, 2, figsize=(11, 6))
 
             for l in range(f_l.shape[1] if max_wave is None else max_wave):
                 axs[0].plot(x, f_l[basis_idx, l, :], label=f"{pwave_names[l]}-wave")
                 axs[1].plot(x, f_l[basis_idx, l, :], label=f"{pwave_names[l]}-wave")
                 
-            fig.subplots_adjust(top=0.88, bottom=0.11, left=0.155, right=0.92, hspace=0.2, wspace=0.3)
+            fig.subplots_adjust(top=0.88, bottom=0.11, left=0.1, right=0.95, hspace=0.2, wspace=0.3)
 
             mid = (fig.subplotpars.right + fig.subplotpars.left)/2
             fig.suptitle(self.tensorBasisNamesDict["rho"][basis_idx], x=mid)
@@ -502,8 +531,8 @@ class Plotter:
             axs[0].legend()
 
             if(self.include_loglog_plots):
-                axs[1].set_xlabel(f"$\log {xlabel} \\ {x_label_unit}$")
-                axs[1].set_ylabel(f"$\log V_l({xlabel})$")
+                axs[1].set_xlabel(f"$\\log {xlabel} \\ {x_label_unit}$")
+                axs[1].set_ylabel(f"$\\log V_l({xlabel})$")
                 axs[1].legend()
 
             if(self.savefig):
@@ -548,8 +577,8 @@ class Plotter:
             axs[0].legend()
 
             if(self.include_loglog_plots):
-                axs[1].set_xlabel("$\log X$")
-                axs[1].set_ylabel("$\log V_{l}(X)$")
+                axs[1].set_xlabel("$\\log X$")
+                axs[1].set_ylabel("$\\log V_{l}(X)$")
                 axs[1].legend()
 
             if Ymax is not None:
@@ -589,8 +618,8 @@ class Plotter:
             axs[0].legend()
 
             if(self.include_loglog_plots):
-                axs[1].set_xlabel("$\log q$")
-                axs[1].set_ylabel("$\log V_{l}(q)$")
+                axs[1].set_xlabel("$\\log q$")
+                axs[1].set_ylabel("$\\log V_{l}(q)$")
                 axs[1].legend()
 
             #axs[0].set_ylim([-0.001, 0.02])
@@ -631,8 +660,8 @@ class Plotter:
             axs[0].legend()
 
             if(self.include_loglog_plots):
-                axs[1].set_xlabel("$\log r$")
-                axs[1].set_ylabel("$\log V_{l}(r)$")
+                axs[1].set_xlabel("$\\log r$")
+                axs[1].set_ylabel("$\\log V_{l}(r)$")
                 axs[1].legend()
 
             if(self.savefig):
@@ -668,8 +697,8 @@ class Plotter:
             axs[0].legend()
 
             if(self.include_loglog_plots):
-                axs[1].set_xlabel("$\log X$")
-                axs[1].set_ylabel("$\log V_{l}(X)$")
+                axs[1].set_xlabel("$\\log X$")
+                axs[1].set_ylabel("$\\log V_{l}(X)$")
                 axs[1].legend()
 
             if Ymax is not None:
@@ -709,8 +738,8 @@ class Plotter:
             axs[0].legend()
 
             if(self.include_loglog_plots):
-                axs[1].set_xlabel("$\log X$")
-                axs[1].set_ylabel(f"$\log {f_name}_l(X)$")
+                axs[1].set_xlabel("$\\log X$")
+                axs[1].set_ylabel(f"$\\log {f_name}_l(X)$")
                 axs[1].legend()
 
             if(self.savefig):
@@ -745,8 +774,8 @@ class Plotter:
             axs[0].legend()
 
             if(self.include_loglog_plots):
-                axs[1].set_xlabel("$\log q$")
-                axs[1].set_ylabel(f"$\log {f_name}_l(q)$")
+                axs[1].set_xlabel("$\\log q$")
+                axs[1].set_ylabel(f"$\\log {f_name}_l(q)$")
                 axs[1].legend()
 
             if(self.savefig):

@@ -177,8 +177,8 @@ class AmplitudeHandler:
                     axs[0].set_xlabel("$q$")
                     axs[0].set_ylabel("$f_{l}(q)$")
 
-                    axs[1].set_xlabel("$\log q$")
-                    axs[1].set_ylabel("$\log f_{l}(q)$")
+                    axs[1].set_xlabel("$\\log q$")
+                    axs[1].set_ylabel("$\\log f_{l}(q)$")
 
                     axs[0].legend()
                     axs[1].legend()
@@ -202,8 +202,8 @@ class AmplitudeHandler:
                     axs[0].set_xlabel("$q$")
                     axs[0].set_ylabel("$f_{l}(q)$")
 
-                    axs[1].set_xlabel("$\log q$")
-                    axs[1].set_ylabel("$\log f_{l}(q)$")
+                    axs[1].set_xlabel("$\\log q$")
+                    axs[1].set_ylabel("$\\log f_{l}(q)$")
 
                     axs[0].legend()
                     axs[1].legend()

@@ -17,11 +17,11 @@ plt.rcParams['text.usetex'] = True
 
 
 tensorBasisNamesTau = {
-    0: "$1 \otimes 1$",
-    1: "$\gamma_{5} \otimes \gamma_{5}$",
-    2: "$\gamma^{\mu} \otimes \gamma^{\mu}$",
-    3: "$\gamma_{5} \gamma^{\mu} \otimes \gamma_{5} \gamma^{\mu}$",
-    4: "$\\frac{1}{8} [\gamma^{\mu}, \gamma^{\\nu}] \otimes [\gamma^{\mu}, \gamma^{\\nu}]$",
+    0: "$1 \\otimes 1$",
+    1: "$\\gamma_{5} \\otimes \\gamma_{5}$",
+    2: "$\\gamma^{\\mu} \\otimes \\gamma^{\\mu}$",
+    3: "$\\gamma_{5} \\gamma^{\\mu} \\otimes \\gamma_{5} \\gamma^{\\mu}$",
+    4: "$\\frac{1}{8} [\\gamma^{\\mu}, \\gamma^{\\nu}] \\otimes [\\gamma^{\\mu}, \\gamma^{\\nu}]$",
 }
 
 tensorBasisNamesTauPrime = {
@@ -41,11 +41,11 @@ tensorBasisNamesT = {
 }
 
 tensorBasisNamesRho = {
-    0: "$\\rho_1 = 1 \otimes 1$",
-    1: "$\\rho_2 = \\vec{\sigma} \otimes \\vec{\sigma}$",
-    2: "$\\rho_3 = \\frac{1}{4M^2} (\\vec{\sigma} \cdot \\vec{q}) \otimes (\\vec{\sigma} \cdot \\vec{q})$",
-    3: "$\\rho_4 = \\frac{1}{4M^2} (\\vec{\sigma} \otimes 1 + 1 \otimes \\vec{\sigma} (\\vec{q} \\times \\vec{p}))$",
-    4: "$\\rho_5 = \\frac{1}{4M^2} \\vec{\sigma} \cdot (\\vec{q} \\times \\vec{p}) \otimes \\vec{\sigma} \cdot (\\vec{q} \\times \\vec{p})$",
+    0: "$\\rho_1 = 1 \\otimes 1$",
+    1: "$\\rho_2 = \\vec{\\sigma} \\otimes \\vec{\\sigma}$",
+    2: "$\\rho_3 = \\frac{1}{4M^2} (\\vec{\\sigma} \\cdot \\vec{q}) \\otimes (\\vec{\\sigma} \\cdot \\vec{q})$",
+    3: "$\\rho_4 = \\frac{1}{4M^2} (\\vec{\\sigma} \\otimes 1 + 1 \\otimes \\vec{\\sigma} (\\vec{q} \\times \\vec{p}))$",
+    4: "$\\rho_5 = \\frac{1}{4M^2} \\vec{\\sigma} \\cdot (\\vec{q} \\times \\vec{p}) \\otimes \\vec{\\sigma} \\cdot (\\vec{q} \\times \\vec{p})$",
 }
 
 
@@ -100,8 +100,9 @@ def main():
 
     plotter_combined = PlotterFullAmplitude(output_base_path, dataloader_qx, dataloader_dqx, True)
 
-    plotter_qx.show_plots = True
-    plotter_dqx.show_plots = True
+    plotter_qx.show_plots = False
+    plotter_dqx.show_plots = False
+    plotter_combined.show_plots = False
 
 
 
@@ -146,20 +147,20 @@ def main():
 
 
     # Plot final results
-    ylabels_I0 = ["V_C", "V_S", "V_T", "V_SO", "V_Q"]
-    ylabels_I1 = ["W_C", "W_S", "W_T", "W_SO", "W_Q"]
+    ylabels_I0 = ["V_{\\mathrm{C}}", "V_{\\mathrm{S}}", "V_{\\mathrm{T}}", "V_{\\mathrm{SO}}", "V_{\\mathrm{Q}}"]
+    ylabels_I1 = ["W_{\\mathrm{C}}", "W_{\\mathrm{S}}", "W_{\\mathrm{T}}", "W_{\\mathrm{SO}}", "W_{\\mathrm{Q}}"]
 
-    plot_final_res(V_l_r__I0, r_grid, "r", "1 / GeV", ylabels_I0, "Isoscalar Exchange Potentials")
-    plot_final_res(V_l_r__I1, r_grid, "r", "1 / GeV", ylabels_I1, "Isovector Exchange Potentials")
+    plotter_combined.plot_final_res(V_l_r__I0, r_grid, "r", "1 / GeV", ylabels_I0, tensorBasisNamesDict, "isoscalar", 2)
+    plotter_combined.plot_final_res(V_l_r__I1, r_grid, "r", "1 / GeV", ylabels_I1, tensorBasisNamesDict, "isovector", 2)
 
 
     # Total
-    plot_final_res(V_l_r__I0 + V_l_r__I1, r_grid, "r", "1 / GeV", [yl1 + " + " + yl2 for yl1, yl2 in zip(ylabels_I0, ylabels_I1)], "Total Potentials")
+    #plotter_combined.plot_final_res(V_l_r__I0 + V_l_r__I1, r_grid, "r", "1 / GeV", [yl1 + " + " + yl2 for yl1, yl2 in zip(ylabels_I0, ylabels_I1)])
 
     exit()
 
 
-def plot_final_res(f_l, x, xlabel, x_label_unit, ylabels, title):
+def plot_final_res_with_log(f_l, x, xlabel, x_label_unit, ylabels, title):
     for basis_idx in range(f_l.shape[0]):
         fig, axs = plt.subplots(1, 2, figsize=(14, 7))
 
@@ -172,8 +173,8 @@ def plot_final_res(f_l, x, xlabel, x_label_unit, ylabels, title):
         axs[0].set_xlabel(f"${xlabel} \\ {x_label_unit}$")
         axs[0].set_ylabel(f"${ylabels[basis_idx]}({xlabel})$")
 
-        axs[1].set_xlabel(f"$\log {xlabel} \\ {x_label_unit}$")
-        axs[1].set_ylabel(f"$\log {ylabels[basis_idx]}({xlabel})$")
+        axs[1].set_xlabel(f"$\\log {xlabel} \\ {x_label_unit}$")
+        axs[1].set_ylabel(f"$\\log {ylabels[basis_idx]}({xlabel})$")
 
         axs[0].legend()
         axs[1].legend()
