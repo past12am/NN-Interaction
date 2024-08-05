@@ -70,6 +70,18 @@ out_base = "/home/past12am/OuzoCloud/Studium/Physik/6_Semester/NNInteraction_The
 amplitude_target_dir = out_base + "amplitudes/"
 pwave_target_dir = out_base + "pwaves/"
 
+qx_dir = "qx/"
+dqx_dir = "dqx/"
+combined_dir = "combined/"
+
+
+qx_amp_filepaths = list()
+dqx_amp_filepaths = list()
+combined_amp_filepaths = list()
+
+qx_pwave_filepaths = list()
+dqx_pwave_filepaths = list()
+combined_pwave_filepaths = list()
 
 
 
@@ -86,8 +98,6 @@ for pidx, process_type in enumerate(process_types):
 
 
     # Process Parts
-    amp_filepaths = list()
-    pwave_filepaths = list()
     for basis_idx in range(NUM_BASIS_ELEM):
         # T
         subdir = f"T-{basis_idx}"
@@ -104,16 +114,29 @@ for pidx, process_type in enumerate(process_types):
         # rho
         subdir = f"rho-{basis_idx}"
         cur_subdir = cur_path + subdir + "/"
-        target_files_rho_amp = get_first_target_files_starting_with(cur_subdir, ["32", "41", "51"])
-        target_files_rho_pwave = get_first_target_files_starting_with(cur_subdir, ["11", "22", "52", "62"])
+        target_files_rho_amp = get_first_target_files_starting_with(cur_subdir, ["10", "32", "40", "41", "51"])
+        target_files_rho_pwave = get_first_target_files_starting_with(cur_subdir, ["11", "22", "52", "60", "62"])
 
 
+        if(process_type == "quark_exchange"):
+            qx_amp_filepaths.extend(target_files_T)
+            qx_amp_filepaths.extend(target_files_tau)
+            qx_amp_filepaths.extend(target_files_rho_amp)
 
-        amp_filepaths.extend(target_files_T)
-        amp_filepaths.extend(target_files_tau)
-        amp_filepaths.extend(target_files_rho_amp)
+            qx_pwave_filepaths.extend(target_files_rho_pwave)
 
-        pwave_filepaths.extend(target_files_rho_pwave)
+        elif(process_type == "diquark_exchange"):
+            dqx_amp_filepaths.extend(target_files_T)
+            dqx_amp_filepaths.extend(target_files_tau)
+            dqx_amp_filepaths.extend(target_files_rho_amp)
+
+            dqx_pwave_filepaths.extend(target_files_rho_pwave)
+            
+        else:
+            raise Exception("Unknown Process Type")
+        
+
+        
 
 
 # Combined Parts
@@ -122,14 +145,31 @@ comb_path = base_path + f"qx_{basis_type}_{invert_stategy}-dq_{basis_type}_{inve
 target_files_comb_amp = get_target_files_containing_substr(comb_path, "FullSymAmplitude")
 target_files_comb_pwave = get_target_files_containing_substr(comb_path, "Result")
 
-amp_filepaths.extend(target_files_comb_amp)
-pwave_filepaths.extend(target_files_comb_pwave)
+combined_amp_filepaths.extend(target_files_comb_amp)
+combined_pwave_filepaths.extend(target_files_comb_pwave)
 
 
 
 # Copy files
-for amp_filepath in amp_filepaths:
-    shutil.copy2(amp_filepath, amplitude_target_dir)
+#   QX
+for amp_filepath in qx_amp_filepaths:
+    shutil.copy2(amp_filepath, amplitude_target_dir + qx_dir)
 
-for pwave_filepath in pwave_filepaths:
-    shutil.copy2(pwave_filepath, pwave_target_dir)
+for pwave_filepath in qx_pwave_filepaths:
+    shutil.copy2(pwave_filepath, pwave_target_dir + qx_dir)
+
+
+#   DX
+for amp_filepath in dqx_amp_filepaths:
+    shutil.copy2(amp_filepath, amplitude_target_dir + dqx_dir)
+
+for pwave_filepath in dqx_pwave_filepaths:
+    shutil.copy2(pwave_filepath, pwave_target_dir + dqx_dir)
+
+
+#   Combined
+for amp_filepath in combined_amp_filepaths:
+    shutil.copy2(amp_filepath, amplitude_target_dir + combined_dir)
+
+for pwave_filepath in combined_pwave_filepaths:
+    shutil.copy2(pwave_filepath, pwave_target_dir + combined_dir)

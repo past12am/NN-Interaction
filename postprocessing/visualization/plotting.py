@@ -42,7 +42,7 @@ class PlotterFullAmplitude:
     
 
     def save_active_fig(self, fig_name):
-        plt.savefig(self.cur_proc_run_base_path + "/" + f"{fig_name}.png", dpi=600)
+        plt.savefig(self.cur_proc_run_base_path + "/" + f"{fig_name}.pdf", dpi=600)
 
 
     def plotFullSymAmplitudeIsospin0(self, tensor_basis_names, fig_name):
@@ -173,11 +173,11 @@ class Plotter:
     
 
     def save_active_fig(self, fig_name, step_idx, base_type, basis_idx: int=None):
-        plt.savefig(self.base_path_for(base_type, basis_idx) + "/" + f"{step_idx:02d}__{fig_name}_{base_type}_{basis_idx + 1}.png", dpi=600)
+        plt.savefig(self.base_path_for(base_type, basis_idx) + "/" + f"{step_idx:02d}__{fig_name}_{base_type}_{basis_idx + 1}.pdf", dpi=600)
 
 
     def plot_form_factor_np(self, X: np.ndarray, Z: np.ndarray, dressing_f: np.ndarray, dressing_f_name: str, tensor_basis_elem: str, base_type: str, basis_idx: int, fig_name: str, step_idx: int, do_title: bool=True):
-        fig = plt.figure(figsize=(10, 5))
+        fig = plt.figure(figsize=(5, 5))
 
         if do_title:
             fig.suptitle("Tensor Basis Element " + tensor_basis_elem)
@@ -192,6 +192,7 @@ class Plotter:
         ax.set_ylim([-1, 1])
         ax.zaxis.set_rotate_label(False)
 
+        fig.subplots_adjust(top=0.88, bottom=0.11, left=0.03, right=0.9, hspace=0.2, wspace=0.2)
 
         if(self.savefig):
             self.save_active_fig(fig_name, step_idx, base_type, basis_idx)
@@ -353,6 +354,11 @@ class Plotter:
         for base_idx in range(5):
             self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.h[base_idx, :, :], f"h^{{({process_abbrev})}}_{base_idx + 1}", self.tensorBasisNamesDict[projection_basis_type][base_idx], projection_basis_type, base_idx, fig_name=f"{fig_name_h}_{base_idx + 1}", step_idx=step_idx, do_title=False)
 
+    
+    def plotAmplitudes_rhoBasis(self, X, Z, V, fig_name, step_idx: int, process_abbrev: str):
+        for base_idx in range(5):
+            self.plot_form_factor_np(X, Z, V[base_idx, :, :], f"V^{{({process_abbrev})}}_{base_idx + 1}", self.tensorBasisNamesDict["rho"][base_idx], "rho", base_idx, fig_name=f"{fig_name}_{base_idx + 1}", step_idx=step_idx)
+
 
     def plotAmplitudesPartialWaveExpandedAndOriginal(self, grid_var1: np.ndarray, Z: np.ndarray, V_l: np.ndarray, V: np.ndarray, var1_name: str, fig_name, step_idx: int):
         # Build original amplitudes from partial wave expanded ones
@@ -449,6 +455,47 @@ class Plotter:
             axs[0].set_ylabel(f"$U_{basis_idx + 1}^{{(l)}}$", fontsize="large")
             axs[0].grid(color='lightgray', linestyle='dashed')
             #axs[0].spines[['right', 'top']].set_visible(False)
+            axs[0].legend()
+
+            if(self.include_loglog_plots):
+                axs[1].set_xlabel(f"$\\log {xlabel}  {x_label_unit}$")
+                axs[1].set_ylabel(f"$\\log V_l({xlabel})$")
+                axs[1].legend()
+
+            if(self.savefig):
+                self.save_active_fig(fig_name, step_idx, base_type, basis_idx) #f"V_l({xlabel})"
+
+            if(self.show_plots):
+                plt.show()
+
+            plt.close()
+
+    
+    def plot_pwave_amp_scaled(self, f_l, x, xlabel, x_label_unit, fig_name, base_type, step_idx: int, y_lim: typing.Tuple):
+        for basis_idx in range(f_l.shape[0]):
+            if(self.include_loglog_plots):
+                fig, axs = plt.subplots(1, 2, figsize=(14, 7))
+            else:
+                fig, ax = plt.subplots(1, 1, figsize=(6, 6))
+                axs = [ax]
+
+            fig.subplots_adjust(top=0.88, bottom=0.11, left=0.155, right=0.92, hspace=0.2, wspace=0.2)
+
+            for l in range(f_l.shape[1]):
+                axs[0].plot(x, f_l[basis_idx, l, :], label=f"{pwave_names[l]}-wave")
+
+                if(self.include_loglog_plots):
+                    axs[1].loglog(x, f_l[basis_idx, l, :], label=f"{pwave_names[l]}-wave")
+                
+            mid = (fig.subplotpars.right + fig.subplotpars.left)/2
+            fig.suptitle(self.tensorBasisNamesDict["rho"][basis_idx], x=mid, fontsize="x-large")
+
+            axs[0].set_title(f"$U_{basis_idx + 1}^{{(l)}}({xlabel})$")
+            axs[0].set_xlabel(f"${xlabel} \\setminus {x_label_unit}$", fontsize="large")
+            axs[0].set_ylabel(f"$U_{basis_idx + 1}^{{(l)}}$", fontsize="large")
+            axs[0].grid(color='lightgray', linestyle='dashed')
+            #axs[0].spines[['right', 'top']].set_visible(False)
+            axs[1].set_ylim(y_lim[basis_idx])
             axs[0].legend()
 
             if(self.include_loglog_plots):

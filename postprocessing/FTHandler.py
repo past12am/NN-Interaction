@@ -17,7 +17,7 @@ from utils.fitfunctions import *
 
 
 
-def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBasisNamesRho: typing.Dict):
+def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBasisNamesRho: typing.Dict, process_type):
 
     ##############################################################################################################################################################################################
     #                                                                           The FT workaround                                                                                                #
@@ -33,6 +33,13 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
     #fitfunc, p0, bounds = yukawa_2_exponentials_fitparams()
     #fitfunc, p0, bounds = yukawa_poly_exponentials_evenodd_fitparams()
     ampHandler_rho = AmplitudeHandlerFitfunc(X_grid, Z_grid, V, fitfunc, p0, bounds)
+
+
+
+    if (process_type == "quark_exchange"):
+        process_shorthand = "q"
+    elif (process_type == "diquark_exchange"):
+        process_shorthand = "dq"
 
 
 
@@ -174,6 +181,22 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
     plotter.plot_pwave_amp(f_l_r, r_grid, "r", "1/GeV", "PWaves_V_l(r)", "rho", 61)
     plotter.plot_pwave_amp_scaled_side_by_side(f_l_r, r_grid, "r", "1/GeV", "PWaves_V_l(r)__scaled", "rho", 62, ylims)
     plotter.plot_pwave_amp_wave_sum(f_l_r, r_grid, "r", "1/GeV", "PWaves_V_l(r)__summed_l", "rho", 63)
+
+
+
+
+
+
+
+    ########################### (7) ##############################
+    # Some more specific plots
+    plotter.plotAmplitudes_rhoBasis(X_grid_extended, Z_grid_extended, V, "AmplitudeRhoBasis", 10, "q")
+
+
+    for basis_idx in range(V.shape[0]):
+        plotter.plot_form_factor_np(q_qx_extended_reconst, Z_grid_q_extended_reconst, V_qx_q_reconst[basis_idx, :, :], f"V_{basis_idx + 1}^{{({process_shorthand})}}", tensorBasisNamesRho[basis_idx], "rho", basis_idx, "AmplitudeV(q, Z)", 40)
+
+    plotter.plot_pwave_amp_scaled(f_l_r, r_grid, "r", "1/GeV", "PWaves_V_l(r)", "rho", 60, (2, 2, 2, 2, 2))
 
 
     return ampHandler_rho, f_l_r, r_grid

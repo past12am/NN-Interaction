@@ -115,8 +115,8 @@ def main():
 
     # Perform FT
     # Select quark or diquark exchange  # TODO fix plot names/scale names
-    ampHandler_rho_qx, qx__f_l_r, qx__r_grid = perform_FT_of_amplitudes(dataloader_qx, plotter_qx, tensorBasisNamesRho)
-    ampHandler_rho_dqx, dqx__f_l_r, dqx__r_grid = perform_FT_of_amplitudes(dataloader_dqx, plotter_dqx, tensorBasisNamesRho)
+    ampHandler_rho_qx, qx__f_l_r, qx__r_grid = perform_FT_of_amplitudes(dataloader_qx, plotter_qx, tensorBasisNamesRho, "quark_exchange")
+    ampHandler_rho_dqx, dqx__f_l_r, dqx__r_grid = perform_FT_of_amplitudes(dataloader_dqx, plotter_dqx, tensorBasisNamesRho, "diquark_exchange")
     
 
     # Plot Potentials for Isoscalar and Isovector Exchanges
