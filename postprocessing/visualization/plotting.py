@@ -495,14 +495,10 @@ class Plotter:
             axs[0].set_ylabel(f"$U_{basis_idx + 1}^{{(l)}}$", fontsize="large")
             axs[0].grid(color='lightgray', linestyle='dashed')
             #axs[0].spines[['right', 'top']].set_visible(False)
-            axs[1].set_ylim(y_lim[basis_idx])
+            axs[0].set_ylim(y_lim[basis_idx])
             axs[0].legend()
 
-            if(self.include_loglog_plots):
-                axs[1].set_xlabel(f"$\\log {xlabel}  {x_label_unit}$")
-                axs[1].set_ylabel(f"$\\log V_l({xlabel})$")
-                axs[1].legend()
-
+            
             if(self.savefig):
                 self.save_active_fig(fig_name, step_idx, base_type, basis_idx) #f"V_l({xlabel})"
 
