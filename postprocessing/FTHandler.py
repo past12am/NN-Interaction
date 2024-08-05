@@ -196,7 +196,7 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
     for basis_idx in range(V.shape[0]):
         plotter.plot_form_factor_np(q_qx_extended_reconst, Z_grid_q_extended_reconst, V_qx_q_reconst[basis_idx, :, :], f"V_{basis_idx + 1}^{{({process_shorthand})}}", tensorBasisNamesRho[basis_idx], "rho", basis_idx, "AmplitudeV(q, Z)", 40)
 
-    plotter.plot_pwave_amp_scaled(f_l_r, r_grid, "r", "1/GeV", "PWaves_V_l(r)", "rho", 60, (2, 2, 2, 2, 2))
+    plotter.plot_pwave_amp_scaled(f_l_r, r_grid, "r", "1/GeV", "PWaves_V_l(r)", "rho", 60, (0, 1))
 
 
     return ampHandler_rho, f_l_r, r_grid

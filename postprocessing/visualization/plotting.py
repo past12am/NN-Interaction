@@ -471,7 +471,7 @@ class Plotter:
             plt.close()
 
     
-    def plot_pwave_amp_scaled(self, f_l, x, xlabel, x_label_unit, fig_name, base_type, step_idx: int, y_lim: typing.Tuple):
+    def plot_pwave_amp_scaled(self, f_l, x, xlabel, x_label_unit, fig_name, base_type, step_idx: int, x_lim: typing.Tuple):
         for basis_idx in range(f_l.shape[0]):
             if(self.include_loglog_plots):
                 fig, axs = plt.subplots(1, 2, figsize=(14, 7))
@@ -495,10 +495,10 @@ class Plotter:
             axs[0].set_ylabel(f"$U_{basis_idx + 1}^{{(l)}}$", fontsize="large")
             axs[0].grid(color='lightgray', linestyle='dashed')
             #axs[0].spines[['right', 'top']].set_visible(False)
-            axs[0].set_ylim(y_lim[basis_idx])
+            axs[0].set_xlim(x_lim)
             axs[0].legend()
 
-            
+
             if(self.savefig):
                 self.save_active_fig(fig_name, step_idx, base_type, basis_idx) #f"V_l({xlabel})"
 
