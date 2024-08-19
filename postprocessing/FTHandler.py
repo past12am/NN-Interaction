@@ -51,7 +51,7 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
     ampHandler_rho.partial_wave_expand(degree_pwave_exp)
 
     # Plot partial wave amplitudes
-    plotter.plot_pwave_amp(ampHandler_rho.f_l, ampHandler_rho.X, "X", "1", "PWaves_V_l(X)", "rho", 11)
+    plotter.plot_pwave_amp(ampHandler_rho.f_l, ampHandler_rho.X, "X", "1", "PWaves_V_l(X)", "rho", process_shorthand, 11)
 
     # Check result of partial wave expansion
     plotter.plotAmplitudesPartialWaveExpandedAndOriginal(ampHandler_rho.X, ampHandler_rho.Z, ampHandler_rho.f_l, V, "X", "Amplitude_CheckPwavesReconstruction_V(X, Z)", 12)
@@ -76,7 +76,7 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
 
     # Check Fit behaviour for large X
     X_grid_check = np.linspace(0, 10, 1000)
-    plotter.plot_pwave_amp_fits_seperated(X_grid_check, ampHandler_rho, "Fit_PWaves_V_l(X)__extended_region", "rho", 22)
+    plotter.plot_pwave_amp_fits_seperated(X_grid_check, ampHandler_rho, "Fit_PWaves_V_l(X)__extended_region", "rho", "1", 22)
 
 
 
@@ -107,8 +107,8 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
                 V_qx_reconst[basis_idx, X_idx, Z_idx] = ampHandler_rho.f_at(basis_idx, X_grid_reconst[X_idx], Z_grid_reconst[Z_idx])
 
     for basis_idx in range(V.shape[0]):
-        plotter.plot_form_factor_np_side_by_side(X_grid_extended, Z_grid_extended, V[basis_idx, :, :], "U", "X",
-                                                 X_grid_extended_reconst, Z_grid_extended_reconst, V_qx_reconst[basis_idx, :, :], "U", "X",
+        plotter.plot_form_factor_np_side_by_side(X_grid_extended, Z_grid_extended, V[basis_idx, :, :], "V", "X",
+                                                 X_grid_extended_reconst, Z_grid_extended_reconst, V_qx_reconst[basis_idx, :, :], "V", "X",
                                                  tensorBasisNamesRho[basis_idx], basis_idx, "rho", "Amplitude_PwavesFitReconstruction_V(X, Z)", 32, left_pretitle="Numeric: ", right_pretitle="Fitted: ")
         pass
                 
@@ -136,8 +136,8 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
 
 
     for basis_idx in range(V.shape[0]):
-        plotter.plot_form_factor_np_side_by_side(X_grid_extended_reconst, Z_grid_extended_reconst, V_qx_reconst[basis_idx, :, :], "U", "X",
-                                         q_qx_extended_reconst, Z_grid_q_extended_reconst, V_qx_q_reconst[basis_idx, :, :], "U", "q",
+        plotter.plot_form_factor_np_side_by_side(X_grid_extended_reconst, Z_grid_extended_reconst, V_qx_reconst[basis_idx, :, :], "V", "X",
+                                         q_qx_extended_reconst, Z_grid_q_extended_reconst, V_qx_q_reconst[basis_idx, :, :], "V", "q",
                                          tensorBasisNamesRho[basis_idx], basis_idx, "rho", "Amplitudes_Comparison_V(X, Z)_vs_V(q, Z)", 41)
         pass
         
@@ -154,7 +154,7 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
     plotter.plotAmplitudesPartialWaveExpandedAndOriginal(ampHandler_rho.q, Z_grid_reconst, ampHandler_rho.f_l_q, V_qx_q_reconst, "q", "Amplitude_CheckPwavesReconstruction_V(q, Z)", 51)
 
     # Plot partial wave amplitudes for q in (Log-Log) Plot
-    plotter.plot_pwave_amp(ampHandler_rho.f_l_q, ampHandler_rho.q, "q", "GeV", "PWaves_V_l(q)", "rho", 52)
+    plotter.plot_pwave_amp(ampHandler_rho.f_l_q, ampHandler_rho.q, "q", "GeV", "PWaves_V_l(q)", "rho", process_shorthand, 52)
 
 
 
@@ -178,7 +178,7 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
         y_lim_upper = np.max(f_l_r[basis_idx, ~np.isnan(f_l_r[basis_idx, ...])])
         ylims[basis_idx, :] = np.array([-y_lim_upper, y_lim_upper]) * 0.1
 
-    plotter.plot_pwave_amp(f_l_r, r_grid, "r", "1/GeV", "PWaves_V_l(r)", "rho", 61)
+    plotter.plot_pwave_amp(f_l_r, r_grid, "r", "1/GeV", "PWaves_V_l(r)", "rho", process_shorthand, 61)
     plotter.plot_pwave_amp_scaled_side_by_side(f_l_r, r_grid, "r", "1/GeV", "PWaves_V_l(r)__scaled", "rho", 62, ylims)
     plotter.plot_pwave_amp_wave_sum(f_l_r, r_grid, "r", "1/GeV", "PWaves_V_l(r)__summed_l", "rho", 63)
 
@@ -194,7 +194,7 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
 
 
     for basis_idx in range(V.shape[0]):
-        plotter.plot_form_factor_np(q_qx_extended_reconst, Z_grid_q_extended_reconst, V_qx_q_reconst[basis_idx, :, :], f"V_{basis_idx + 1}^{{({process_shorthand})}}", tensorBasisNamesRho[basis_idx], "rho", basis_idx, "AmplitudeV(q, Z)", 40)
+        plotter.plot_form_factor_np(q_qx_extended_reconst, Z_grid_q_extended_reconst, V_qx_q_reconst[basis_idx, :, :], f"V_{basis_idx + 1}^{{({process_shorthand})}}", "q", tensorBasisNamesRho[basis_idx], "rho", basis_idx, "AmplitudeV(q, Z)", 40)
 
     plotter.plot_pwave_amp_scaled(f_l_r, r_grid, "r", "1/GeV", "PWaves_V_l(r)", "rho", 60, (0, 1))
 

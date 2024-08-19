@@ -111,7 +111,7 @@ class PlotterFullAmplitude:
             fig.suptitle(tensorBasisNamesDict["rho"][basis_idx], x=mid, fontsize="x-large")
             
             ax.set_title(f"${ylabels[basis_idx]}({xlabel})$")
-            ax.set_xlabel(f"${xlabel} \\ {x_label_unit}$", fontsize="large")
+            ax.set_xlabel(f"${xlabel}$  [{x_label_unit}]", fontsize="large")
             ax.set_ylabel(f"${ylabels[basis_idx]}$", fontsize="large")
             ax.grid(color='lightgray', linestyle='dashed')
             ax.legend()
@@ -176,7 +176,7 @@ class Plotter:
         plt.savefig(self.base_path_for(base_type, basis_idx) + "/" + f"{step_idx:02d}__{fig_name}_{base_type}_{basis_idx + 1}.pdf", dpi=600)
 
 
-    def plot_form_factor_np(self, X: np.ndarray, Z: np.ndarray, dressing_f: np.ndarray, dressing_f_name: str, tensor_basis_elem: str, base_type: str, basis_idx: int, fig_name: str, step_idx: int, do_title: bool=True):
+    def plot_form_factor_np(self, X: np.ndarray, Z: np.ndarray, dressing_f: np.ndarray, dressing_f_name: str, xlabel_str, tensor_basis_elem: str, base_type: str, basis_idx: int, fig_name: str, step_idx: int, do_title: bool=True):
         fig = plt.figure(figsize=(5, 5))
 
         if do_title:
@@ -184,9 +184,9 @@ class Plotter:
 
         # Subplot real
         ax = fig.add_subplot(1, 1, 1, projection='3d')
-        ax.set_title(f"${dressing_f_name}(X, Z)$")
+        ax.set_title(f"${dressing_f_name}({xlabel_str}, Z)$")
         ax.plot_trisurf(X, Z, np.real(dressing_f.flatten()), cmap=cm.coolwarm)
-        ax.set_xlabel("$X$")
+        ax.set_xlabel(f"${xlabel_str}$")
         ax.set_ylabel("$Z$")
         ax.set_zlabel(f"${dressing_f_name}$", labelpad=10)
         ax.set_ylim([-1, 1])
@@ -344,20 +344,20 @@ class Plotter:
     def plotAmplitudes(self, dataloader, fig_name_f, fig_name_F, step_idx: int, process_abbrev: str):
         # process_abbrev = q (Quark Exchange), dq (Diquark Exchange)
         for base_idx in range(5):
-            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.f[base_idx, :, :], f"f^{{({process_abbrev})}}_{base_idx + 1}", f"$\\tau_{base_idx + 1} = $ " + self.tensorBasisNamesDict["tau"][base_idx], "tau", base_idx, fig_name=f"{fig_name_f}_{base_idx + 1}", step_idx=step_idx)
+            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.f[base_idx, :, :], f"f^{{({process_abbrev})}}_{base_idx + 1}", "X", f"$\\tau_{base_idx + 1} = $ " + self.tensorBasisNamesDict["tau"][base_idx], "tau", base_idx, fig_name=f"{fig_name_f}_{base_idx + 1}", step_idx=step_idx)
 
         for base_idx in range(5):
-            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.F[base_idx, :, :], f"F^{{({process_abbrev})}}_{base_idx + 1}", f"$T_{base_idx + 1} = $ " + self.tensorBasisNamesDict["T"][base_idx], "T", base_idx, fig_name=f"{fig_name_F}_{base_idx + 1}", step_idx=step_idx)
+            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.F[base_idx, :, :], f"F^{{({process_abbrev})}}_{base_idx + 1}", "X", f"$T_{base_idx + 1} = $ " + self.tensorBasisNamesDict["T"][base_idx], "T", base_idx, fig_name=f"{fig_name_F}_{base_idx + 1}", step_idx=step_idx)
 
 
     def plotAmplitudes_h(self, dataloader, fig_name_h, projection_basis_type: str, step_idx: int, process_abbrev: str):
         for base_idx in range(5):
-            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.h[base_idx, :, :], f"h^{{({process_abbrev})}}_{base_idx + 1}", self.tensorBasisNamesDict[projection_basis_type][base_idx], projection_basis_type, base_idx, fig_name=f"{fig_name_h}_{base_idx + 1}", step_idx=step_idx, do_title=False)
+            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.h[base_idx, :, :], f"h^{{({process_abbrev})}}_{base_idx + 1}", "X", self.tensorBasisNamesDict[projection_basis_type][base_idx], projection_basis_type, base_idx, fig_name=f"{fig_name_h}_{base_idx + 1}", step_idx=step_idx, do_title=False)
 
     
     def plotAmplitudes_rhoBasis(self, X, Z, V, fig_name, step_idx: int, process_abbrev: str):
         for base_idx in range(5):
-            self.plot_form_factor_np(X, Z, V[base_idx, :, :], f"V^{{({process_abbrev})}}_{base_idx + 1}", self.tensorBasisNamesDict["rho"][base_idx], "rho", base_idx, fig_name=f"{fig_name}_{base_idx + 1}", step_idx=step_idx)
+            self.plot_form_factor_np(X, Z, V[base_idx, :, :], f"V^{{({process_abbrev})}}_{base_idx + 1}", "X", self.tensorBasisNamesDict["rho"][base_idx], "rho", base_idx, fig_name=f"{fig_name}_{base_idx + 1}", step_idx=step_idx)
 
 
     def plotAmplitudesPartialWaveExpandedAndOriginal(self, grid_var1: np.ndarray, Z: np.ndarray, V_l: np.ndarray, V: np.ndarray, var1_name: str, fig_name, step_idx: int):
@@ -431,7 +431,7 @@ class Plotter:
             plt.close()
 
 
-    def plot_pwave_amp(self, f_l, x, xlabel, x_label_unit, fig_name, base_type, step_idx: int, max_wave: int=None):
+    def plot_pwave_amp(self, f_l, x, xlabel, x_label_unit, fig_name, base_type, process_shorthand, step_idx: int, max_wave: int=None):
         for basis_idx in range(f_l.shape[0]):
             if(self.include_loglog_plots):
                 fig, axs = plt.subplots(1, 2, figsize=(14, 7))
@@ -450,15 +450,15 @@ class Plotter:
             mid = (fig.subplotpars.right + fig.subplotpars.left)/2
             fig.suptitle(self.tensorBasisNamesDict["rho"][basis_idx], x=mid, fontsize="x-large")
 
-            axs[0].set_title(f"$U_{basis_idx + 1}^{{(l)}}({xlabel})$")
-            axs[0].set_xlabel(f"${xlabel} \\setminus {x_label_unit}$", fontsize="large")
-            axs[0].set_ylabel(f"$U_{basis_idx + 1}^{{(l)}}$", fontsize="large")
+            axs[0].set_title(f"$V_{{{basis_idx + 1} l}}^{{({process_shorthand})}}({xlabel})$")
+            axs[0].set_xlabel(f"${xlabel}$  [{x_label_unit}]", fontsize="large")
+            axs[0].set_ylabel(f"$V_{{{basis_idx + 1} l}}^{{({process_shorthand})}}$", fontsize="large")
             axs[0].grid(color='lightgray', linestyle='dashed')
             #axs[0].spines[['right', 'top']].set_visible(False)
             axs[0].legend()
 
             if(self.include_loglog_plots):
-                axs[1].set_xlabel(f"$\\log {xlabel}  {x_label_unit}$")
+                axs[1].set_xlabel(f"$\\log {xlabel}$  [{x_label_unit}]")
                 axs[1].set_ylabel(f"$\\log V_l({xlabel})$")
                 axs[1].legend()
 
@@ -491,7 +491,7 @@ class Plotter:
             fig.suptitle(self.tensorBasisNamesDict["rho"][basis_idx], x=mid, fontsize="x-large")
 
             axs[0].set_title(f"$U_{basis_idx + 1}^{{(l)}}({xlabel})$")
-            axs[0].set_xlabel(f"${xlabel} \\setminus {x_label_unit}$", fontsize="large")
+            axs[0].set_xlabel(f"${xlabel}$  [{x_label_unit}]", fontsize="large")
             axs[0].set_ylabel(f"$U_{basis_idx + 1}^{{(l)}}$", fontsize="large")
             axs[0].grid(color='lightgray', linestyle='dashed')
             #axs[0].spines[['right', 'top']].set_visible(False)
@@ -522,12 +522,12 @@ class Plotter:
             fig.suptitle(self.tensorBasisNamesDict["rho"][basis_idx], x=mid)
 
             axs[0].set_title(f"$U_{basis_idx + 1}^{{(l)}}({xlabel})$")
-            axs[0].set_xlabel(f"${xlabel} \\ {x_label_unit}$", fontsize="large")
+            axs[0].set_xlabel(f"${xlabel}$  [{x_label_unit}]", fontsize="large")
             axs[0].set_ylabel(f"$U_{basis_idx + 1}^{{(l)}}$", fontsize="large")
             axs[0].grid(color='lightgray', linestyle='dashed')
 
             axs[1].set_title(f"$U_{basis_idx + 1}^{{(l)}}({xlabel})$")
-            axs[1].set_xlabel(f"${xlabel} \\ {x_label_unit}$", fontsize="large")
+            axs[1].set_xlabel(f"${xlabel}$  [{x_label_unit}]", fontsize="large")
             axs[1].set_ylabel(f"$U_{basis_idx + 1}^{{(l)}}$", fontsize="large")
             axs[1].grid(color='lightgray', linestyle='dashed')
 
@@ -568,13 +568,13 @@ class Plotter:
 
             
             axs[0].set_title(f"$U_{basis_idx + 1}^{{(l)}}({xlabel})$")
-            axs[0].set_xlabel(f"${xlabel} \\ {x_label_unit}$")
+            axs[0].set_xlabel(f"${xlabel}$  [{x_label_unit}]")
             axs[0].set_ylabel(f"$U_{basis_idx + 1}^{{(l)}}$")
             axs[0].grid(color='lightgray', linestyle='dashed')
             axs[0].legend()
 
             if(self.include_loglog_plots):
-                axs[1].set_xlabel(f"$\\log {xlabel} \\ {x_label_unit}$")
+                axs[1].set_xlabel(f"$\\log {xlabel}$  [{x_label_unit}]")
                 axs[1].set_ylabel(f"$\\log V_l({xlabel})$")
                 axs[1].legend()
 
@@ -587,7 +587,7 @@ class Plotter:
             plt.close()
 
 
-    def plot_pwave_amp_fits_seperated(self, X_qx_check, ampHandler: AmplitudeHandler, fig_name, base_type, step_idx: int, Ymax: float=None):
+    def plot_pwave_amp_fits_seperated(self, X_qx_check, ampHandler: AmplitudeHandler, fig_name, base_type, x_label_unit, step_idx: int, Ymax: float=None):
         for basis_idx in range(ampHandler.f_l.shape[0]):
             if(self.include_loglog_plots):
                 fig, axs = plt.subplots(1, 2, figsize=(14, 7))
@@ -614,13 +614,13 @@ class Plotter:
             fig.suptitle(self.tensorBasisNamesDict["rho"][basis_idx], x=mid)
 
             axs[0].set_title(f"$U_{basis_idx + 1}^{{(l)}}(X)$")
-            axs[0].set_xlabel("$X$", fontsize="large")
+            axs[0].set_xlabel(f"$X$  [{x_label_unit}]", fontsize="large")
             axs[0].set_ylabel(f"$U_{basis_idx + 1}^{{(l)}}$", fontsize="large")
             axs[0].grid(color='lightgray', linestyle='dashed')
             axs[0].legend()
 
             if(self.include_loglog_plots):
-                axs[1].set_xlabel("$\\log X$")
+                axs[1].set_xlabel(f"$\\log X$  [{x_label_unit}]")
                 axs[1].set_ylabel("$\\log V_{l}(X)$")
                 axs[1].legend()
 

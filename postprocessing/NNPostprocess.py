@@ -44,7 +44,7 @@ tensorBasisNamesRho = {
     0: "$\\rho_1 = 1 \\otimes 1$",
     1: "$\\rho_2 = \\vec{\\sigma} \\otimes \\vec{\\sigma}$",
     2: "$\\rho_3 = \\frac{1}{4M^2} (\\vec{\\sigma} \\cdot \\vec{q}) \\otimes (\\vec{\\sigma} \\cdot \\vec{q})$",
-    3: "$\\rho_4 = \\frac{1}{4M^2} (\\vec{\\sigma} \\otimes 1 + 1 \\otimes \\vec{\\sigma} (\\vec{q} \\times \\vec{p}))$",
+    3: "$\\rho_4 = \\frac{1}{4M^2} (\\vec{\\sigma} \\otimes 1 + 1 \\otimes \\vec{\\sigma}) (\\vec{q} \\times \\vec{p})$",
     4: "$\\rho_5 = \\frac{1}{4M^2} \\vec{\\sigma} \\cdot (\\vec{q} \\times \\vec{p}) \\otimes \\vec{\\sigma} \\cdot (\\vec{q} \\times \\vec{p})$",
 }
 
