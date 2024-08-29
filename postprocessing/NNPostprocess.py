@@ -1,6 +1,7 @@
 import os
 import json
 import typing
+import csv
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -109,8 +110,8 @@ def main():
     plotter_dqx.plotAmplitudes_h(dataloader_dqx, "AmplitudeDiquarkExchange_h", dataloader_dqx.process_spec["projection_basis"], 0, process_abbrev="dq")
     plotter_dqx.plotAmplitudes(dataloader_dqx, "AmplitudeDiquarkExchange_f", "AmplitudeDiquarkExchange_F", 0, process_abbrev="dq")
 
-    plotter_combined.plotFullSymAmplitudeIsospin0(tensorBasisNamesT, "FullSymAmplitudeI0")
-    plotter_combined.plotFullSymAmplitudeIsospin1(tensorBasisNamesT, "FullSymAmplitudeI1")
+    #plotter_combined.plotFullSymAmplitudeIsospin0(tensorBasisNamesT, "FullSymAmplitudeI0")
+    #plotter_combined.plotFullSymAmplitudeIsospin1(tensorBasisNamesT, "FullSymAmplitudeI1")
 
 
     # Perform FT
@@ -119,16 +120,16 @@ def main():
     ampHandler_rho_dqx, dqx__f_l_r, dqx__r_grid = perform_FT_of_amplitudes(dataloader_dqx, plotter_dqx, tensorBasisNamesRho, "diquark_exchange")
     
 
-    # Plot Potentials for Isoscalar and Isovector Exchanges
+    ############################################## Position Space ##############################################
     r_grid = qx__r_grid
 
-    # Isoscalar
+    #       Isoscalar
     V_l_r__I0 = qx__f_l_r
 
-    # Isovector
+    #       Isovector
     V_l_r__I1 = 2 * qx__f_l_r - dqx__f_l_r
 
-    # Correction for dimensionless qtys
+    #       Correction for dimensionless qtys
     V_l_r__I0[2, ...] = V_l_r__I0[2, ...] / (4.0 * np.square(M_nucleon))
     V_l_r__I0[3, ...] = V_l_r__I0[3, ...] / (4.0 * np.square(M_nucleon))
     V_l_r__I0[4, ...] = V_l_r__I0[4, ...] / (4.0 * np.power(M_nucleon, 4))
@@ -138,8 +139,7 @@ def main():
     V_l_r__I1[4, ...] = V_l_r__I1[4, ...] / (4.0 * np.power(M_nucleon, 4))
 
 
-
-    # Plot final results
+    #       Plot final results
     ylabels_I0 = ["V_{\\mathrm{C}}", "V_{\\mathrm{S}}", "V_{\\mathrm{T}}", "V_{\\mathrm{SO}}", "V_{\\mathrm{Q}}"]
     ylabels_I1 = ["W_{\\mathrm{C}}", "W_{\\mathrm{S}}", "W_{\\mathrm{T}}", "W_{\\mathrm{SO}}", "W_{\\mathrm{Q}}"]
 
@@ -149,6 +149,49 @@ def main():
 
     # Total
     #plotter_combined.plot_final_res(V_l_r__I0 + V_l_r__I1, r_grid, "r", "1 / GeV", [yl1 + " + " + yl2 for yl1, yl2 in zip(ylabels_I0, ylabels_I1)])
+
+
+
+
+    ############################################## Momentum Space ##############################################
+    #   Construct momentum space potentials
+    q_grid = ampHandler_rho_qx.q
+    qx__f_l_q = ampHandler_rho_qx.f_l_q
+    dqx__f_l_q = ampHandler_rho_dqx.f_l_q
+
+    #       Isoscalar
+    V_l_q__I0 = qx__f_l_q
+
+    #       Isovector
+    V_l_q__I1 = 2 * qx__f_l_q - dqx__f_l_q
+
+    #       Correction for dimensionless qtys
+    V_l_q__I0[2, ...] = V_l_q__I0[2, ...] / (4.0 * np.square(M_nucleon))
+    V_l_q__I0[3, ...] = V_l_q__I0[3, ...] / (4.0 * np.square(M_nucleon))
+    V_l_q__I0[4, ...] = V_l_q__I0[4, ...] / (4.0 * np.power(M_nucleon, 4))
+
+    V_l_q__I1[2, ...] = V_l_q__I1[2, ...] / (4.0 * np.square(M_nucleon))
+    V_l_q__I1[3, ...] = V_l_q__I1[3, ...] / (4.0 * np.square(M_nucleon))
+    V_l_q__I1[4, ...] = V_l_q__I1[4, ...] / (4.0 * np.power(M_nucleon, 4))
+
+
+
+
+    # export partial waves datafiles (csv)
+    # r_grid
+    # V_l_r__I0
+    # V_l_r__I1
+    #
+    # q_grid
+    # V_l_q__I0
+    # V_l_q__I1
+
+    export_results(plotter_combined.cur_proc_run_base_path, 5, "V_l_r_I0", r_grid, V_l_r__I0, "r")
+    export_results(plotter_combined.cur_proc_run_base_path, 5, "V_l_r_I1", r_grid, V_l_r__I1, "r")
+    export_results(plotter_combined.cur_proc_run_base_path, 5, "V_l_q_I0", q_grid, V_l_q__I0, "q")
+    export_results(plotter_combined.cur_proc_run_base_path, 5, "V_l_q_I1", q_grid, V_l_q__I1, "q")
+
+
 
     exit()
 
@@ -176,6 +219,21 @@ def plot_final_res_with_log(f_l, x, xlabel, x_label_unit, ylabels, title):
 
         plt.close()
 
+
+
+def export_results(datapath, num_basis_el, fname_prefix, grid, f_l_var, varname):
+    header = [varname, "s", "p", "d", "f", "g"]
+
+    for base_idx in range(num_basis_el):
+        with open(datapath + "/" + f"{fname_prefix}_rho_{base_idx + 1}.csv", "w") as csvfile:
+            res_writer = csv.writer(csvfile, delimiter=";")
+
+            # header
+            res_writer.writerow(header)
+
+            for grid_idx, grid_val in enumerate(grid):
+                row = [grid_val, f_l_var[base_idx, 0, grid_idx], f_l_var[base_idx, 1, grid_idx], f_l_var[base_idx, 2, grid_idx], f_l_var[base_idx, 3, grid_idx], f_l_var[base_idx, 4, grid_idx]]
+                res_writer.writerow(row)
 
 
 
