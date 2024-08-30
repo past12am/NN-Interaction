@@ -196,30 +196,6 @@ def main():
     exit()
 
 
-def plot_final_res_with_log(f_l, x, xlabel, x_label_unit, ylabels, title):
-    for basis_idx in range(f_l.shape[0]):
-        fig, axs = plt.subplots(1, 2, figsize=(14, 7))
-
-        for l in range(f_l.shape[1]):
-            axs[0].plot(x, f_l[basis_idx, l, :], label=f"{l}-wave")
-            axs[1].loglog(x, f_l[basis_idx, l, :], label=f"{l}-wave")
-            
-        fig.suptitle(tensorBasisNamesDict["rho"][basis_idx])
-
-        axs[0].set_xlabel(f"${xlabel} \\ {x_label_unit}$")
-        axs[0].set_ylabel(f"${ylabels[basis_idx]}({xlabel})$")
-
-        axs[1].set_xlabel(f"$\\log {xlabel} \\ {x_label_unit}$")
-        axs[1].set_ylabel(f"$\\log {ylabels[basis_idx]}({xlabel})$")
-
-        axs[0].legend()
-        axs[1].legend()
-
-        plt.show()
-
-        plt.close()
-
-
 
 def export_results(datapath, num_basis_el, fname_prefix, grid, f_l_var, varname):
     header = [varname, "s", "p", "d", "f", "g"]
