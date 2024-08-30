@@ -79,19 +79,13 @@ class Dataloader:
             self.f *= -1
 
 
-
-        # Load flavor factors --> Done via basis projections
-        #self.process_flavor_factor = Dataloader.load_flavor_space_form_factors("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NNInteraction/flavorspace", process_type, dq_1_type, dq_2_type)
-
-        # Build flavored dressing functions
-        #self.f_flavored = self.f * self.process_flavor_factor
-        #self.F_flavored = self.F * self.process_flavor_factor
-
-        #self.f = self.f_flavored
-        #self.F = self.F_flavored
+        # color factor
+        self.F *= 1/3
+        self.f *= 1/3
 
 
-        # TODO color factor
+        # Flavour Factor
+        #   Considered in the end when combining amplitudes
         
 
 
