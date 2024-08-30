@@ -101,7 +101,7 @@ class AmplitudeHandler:
 
             legpol_val = np.polynomial.legendre.legval(Z, leg_coef_array)     # TODO more efficient way
 
-            res += legpol_val * self.f_l_at(basis_idx, l, X)
+            res += legpol_val * (2*l + 1) * self.f_l_at(basis_idx, l, X)
 
         return res
     
@@ -118,7 +118,7 @@ class AmplitudeHandler:
 
             legpol_val = np.polynomial.legendre.legval(Z, leg_coef_array)     # TODO more efficient way
 
-            res += legpol_val * self.f_l_fit(basis_idx, l, X)
+            res += legpol_val * (2*l + 1) * self.f_l_fit(basis_idx, l, X)
 
         return res
 

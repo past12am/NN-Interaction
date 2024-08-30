@@ -53,7 +53,7 @@ def get_first_target_files_starting_with(dir, substrings):
 
 
 # Build input path
-base_path = "/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NNInteraction/postprocess-output/"
+base_path = "/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/"
 
 basis_type = "T"
 invert_stategy = "numeric_matrix_inverse"

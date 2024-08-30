@@ -371,7 +371,7 @@ class Plotter:
             for X_idx in range(V_l.shape[2]):
                 #V_check = np.polynomial.Legendre(V_qx_l[basis_idx, :, X_idx], domain=[-1, 1])
             
-                V_qx_check[basis_idx, X_idx, :] = np.polynomial.legendre.legval(Z_check_linspace, V_l[basis_idx, :, X_idx])
+                V_qx_check[basis_idx, X_idx, :] = np.polynomial.legendre.legval(Z_check_linspace, np.array([(2*l + 1) for l in range(len(V_l[basis_idx, :, X_idx]))]) * V_l[basis_idx, :, X_idx])
 
             X_qx_extended = np.repeat(grid_var1, len(Z))
             Z_qx_extended = np.tile(Z, len(grid_var1))

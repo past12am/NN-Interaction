@@ -21,7 +21,9 @@ class PartialWaveExpansion:
     def __fit_based_pwave_expansion(self, f, z, degree):
         for X_idx in range(f.shape[0]):
             legendreFit = np.polynomial.legendre.Legendre.fit(z, f[X_idx, :], deg=degree, domain=[-1, 1])
-            self.f_x[:, X_idx] = legendreFit.convert().coef
+
+            for l in range(len(legendreFit.convert().coef)):
+                self.f_x[l, X_idx] = legendreFit.convert().coef[l] / (2 * l + 1)
 
     def get_f_x(self):
         return self.f_x
