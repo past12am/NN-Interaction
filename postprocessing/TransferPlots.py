@@ -144,9 +144,11 @@ comb_path = base_path + f"qx_{basis_type}_{invert_stategy}-dq_{basis_type}_{inve
 
 target_files_comb_amp = get_target_files_containing_substr(comb_path, "FullSymAmplitude")
 target_files_comb_pwave = get_target_files_containing_substr(comb_path, "Result")
+target_files_potential_comparison = get_target_files_containing_substr(comb_path, "Comparison")
 
 combined_amp_filepaths.extend(target_files_comb_amp)
 combined_pwave_filepaths.extend(target_files_comb_pwave)
+combined_pwave_filepaths.extend(target_files_potential_comparison)
 
 
 
