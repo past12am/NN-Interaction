@@ -74,7 +74,7 @@ class Dataloader:
 
 
         # Switch sign of amplitudes for diquark exchange
-        if(process_type == "quark_exchange"):
+        if(process_type == "diquark_exchange"):
             self.F *= -1
             self.f *= -1
 

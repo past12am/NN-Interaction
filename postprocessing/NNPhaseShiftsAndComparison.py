@@ -103,7 +103,7 @@ def plot_central_potentials(V_C_list, r_grid_list, potential_name_list, colours,
         #axs[0].spines[['right', 'top']].set_visible(False)
         axs[0].legend()
 
-        axs[0].set_xlim([0, 2])
+        axs[0].set_xlim([0, 1])
 
 
     if(savefig):
@@ -140,6 +140,9 @@ def main():
     V_l_q__I0, q_grid_I0 = import_results(cur_proc_run_base_path, 5, "V_l_q_I0", "q", num_pwaves)
     V_l_q__I1, q_grid_I1 = import_results(cur_proc_run_base_path, 5, "V_l_q_I1", "q", num_pwaves)
 
+    V_l_r__sI0, r_grid_sI0 = import_results(cur_proc_run_base_path, 5, "V_l_r_sI0", "r", num_pwaves)
+    V_l_r__sI1, r_grid_sI1 = import_results(cur_proc_run_base_path, 5, "V_l_r_sI1", "r", num_pwaves)
+
 
     # Check vanishing complex part of phase shift due to S Matrix Unitarity
     check_S_Matrix_unitarity(r_grid_I0, V_l_r__I0)
@@ -165,29 +168,61 @@ def main():
     
     # Load Reid93 1S0 neutron neutron Central Potential
     reid93_csv = pd.read_csv("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/ExperimentalPotentials/reid93/Reid93Potential.csv")
-    V_1S0_reid93 = reid93_csv["v11"].to_numpy()
+    V_1S0_reid93 = reid93_csv["v11_1s0"].to_numpy()
+    V_3S1_reid93 = reid93_csv["v11_3s1"].to_numpy()
     r_grid_reid93 = reid93_csv["r"].to_numpy()
 
-    nijmII_csv = pd.read_csv("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/ExperimentalPotentials/nijmegen/nijm.csv")
-    V_C_nijmII = nijmII_csv["vc"].to_numpy()
-    r_grid_nijmII = nijmII_csv["r"].to_numpy()
 
-    reid_scaler = np.max(V_l_r__I0[0, 0, 1:]) / np.max(np.abs(V_1S0_reid93))
-    nijm_scaler = np.max(V_l_r__I0[0, 0, 1:]) / np.max(np.abs(V_C_nijmII))
+    nijmII_csv_1s0 = pd.read_csv("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/ExperimentalPotentials/nijmegen/nijm1S0.csv")
+    V_C_nijmII_1s0 = nijmII_csv_1s0["vc"].to_numpy()
+    r_grid_nijmII_1s0 = nijmII_csv_1s0["r"].to_numpy()
 
-    potential_list = [-V_C_nijmII * nijm_scaler, V_1S0_reid93 * reid_scaler, V_l_r__I0[0, 0, :]]
-    r_grid_list = [r_grid_nijmII, r_grid_reid93, r_grid_I0]
-    potentail_names_list = ["NijmegenII $^1S_0$ Central Potential", "Reid93 $^1S_0$ Potential", "$V_\\text{C}$"]
-    colours = ["C2", "C1", "C0"]
+    nijmII_csv_3s1 = pd.read_csv("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/ExperimentalPotentials/nijmegen/nijm3S1.csv")
+    V_C_nijmII_3s1 = nijmII_csv_3s1["vc"].to_numpy()
+    r_grid_nijmII_3s1 = nijmII_csv_3s1["r"].to_numpy()
 
-    plot_central_potentials(potential_list, 
-                            r_grid_list, 
-                            potentail_names_list, 
-                            colours,
+
+
+    reid_scaler = np.max(V_l_r__sI0[0, 0, 1:]) / np.max(np.abs(V_1S0_reid93))
+    nijm_scaler = np.max(V_l_r__sI0[0, 0, 1:]) / np.max(np.abs(V_C_nijmII_3s1))
+
+
+    # 1S0
+    #reid_scaler_1s0 = np.max(np.abs(V_l_r__sI1[0, 0, 1:])) / np.max(np.abs(V_1S0_reid93))
+    #nijm_scaler_1s0 = np.max(np.abs(V_l_r__sI1[0, 0, 1:])) / np.max(np.abs(V_C_nijmII_1s0))
+
+    potential_list_1S0 = [-V_C_nijmII_1s0 * nijm_scaler, V_1S0_reid93 * reid_scaler, V_l_r__sI1[0, 0, :]]
+    r_grid_list_1S0 = [r_grid_nijmII_1s0, r_grid_reid93, r_grid_sI1]
+    potentail_names_list_1S0 = ["NijmegenII $^1S_0$ Central Potential", "Reid93 $^1S_0$ Potential", "$U^{(I=1)}_{\\mathrm{C}}$"]
+    colours_1S0 = ["C2", "C1", "C0"]
+
+    plot_central_potentials(potential_list_1S0, 
+                        r_grid_list_1S0, 
+                        potentail_names_list_1S0, 
+                        colours_1S0,
+                        cur_proc_run_base_path, 
+                        "r", 
+                        "1 / GeV", 
+                        "CentralPotentialComparison1S0",
+                        savefig=True, 
+                        show_plots=True)
+
+
+
+    # 3S1
+    potential_list_3S1 = [-V_C_nijmII_3s1 * nijm_scaler, V_1S0_reid93 * reid_scaler, V_l_r__sI0[0, 0, :]]
+    r_grid_list_3S1 = [r_grid_nijmII_3s1, r_grid_reid93, r_grid_sI1]
+    potentail_names_list_3S1 = ["NijmegenII $^3S_1$ Central Potential", "Reid93 $^3S_1$ Potential", "$U^{(I=0)}_{\\mathrm{C}}$"]
+    colours_3S1 = ["C2", "C1", "C0"]
+
+    plot_central_potentials(potential_list_3S1, 
+                            r_grid_list_3S1, 
+                            potentail_names_list_3S1, 
+                            colours_3S1,
                             cur_proc_run_base_path, 
                             "r", 
                             "1 / GeV", 
-                            "CentralPotentialComparison",
+                            "CentralPotentialComparison3S1",
                             savefig=True, 
                             show_plots=True)
 

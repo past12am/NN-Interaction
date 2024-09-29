@@ -124,7 +124,7 @@ def main():
     r_grid = qx__r_grid
 
     #       Isoscalar
-    V_l_r__I0 = qx__f_l_r
+    V_l_r__I0 = dqx__f_l_r
 
     #       Isovector
     V_l_r__I1 = 2 * qx__f_l_r - dqx__f_l_r
@@ -143,8 +143,8 @@ def main():
     ylabels_I0 = ["V_{\\mathrm{C}}", "V_{\\mathrm{S}}", "V_{\\mathrm{T}}", "V_{\\mathrm{SO}}", "V_{\\mathrm{Q}}"]
     ylabels_I1 = ["W_{\\mathrm{C}}", "W_{\\mathrm{S}}", "W_{\\mathrm{T}}", "W_{\\mathrm{SO}}", "W_{\\mathrm{Q}}"]
 
-    plotter_combined.plot_final_res(V_l_r__I0, r_grid, "r", "1 / GeV", ylabels_I0, tensorBasisNamesDict, "isoscalar", 2)
-    plotter_combined.plot_final_res(V_l_r__I1, r_grid, "r", "1 / GeV", ylabels_I1, tensorBasisNamesDict, "isovector", 2)
+    plotter_combined.plot_final_res(V_l_r__I0, r_grid, "r", "1 / GeV", ylabels_I0, tensorBasisNamesDict, "isoscalar", 1)
+    plotter_combined.plot_final_res(V_l_r__I1, r_grid, "r", "1 / GeV", ylabels_I1, tensorBasisNamesDict, "isovector", 1)
 
 
     # Total
@@ -160,7 +160,7 @@ def main():
     dqx__f_l_q = ampHandler_rho_dqx.f_l_q
 
     #       Isoscalar
-    V_l_q__I0 = qx__f_l_q
+    V_l_q__I0 = dqx__f_l_q
 
     #       Isovector
     V_l_q__I1 = 2 * qx__f_l_q - dqx__f_l_q
@@ -192,6 +192,23 @@ def main():
     export_results(plotter_combined.cur_proc_run_base_path, 5, "V_l_q_I1", q_grid, V_l_q__I1, "q")
 
 
+
+    ############################# Plot results in s-channel flavour ###########################################
+    ylabels_sI0 = ["U^{(I=0)}_{\\mathrm{C}}", "U^{(I=0)}_{\\mathrm{S}}", "U^{(I=0)}_{\\mathrm{T}}", "U^{(I=0)}_{\\mathrm{SO}}", "U^{(I=0)}_{\\mathrm{Q}}"]
+    ylabels_sI1 = ["U^{(I=1)}_{\\mathrm{C}}", "U^{(I=1)}_{\\mathrm{S}}", "U^{(I=1)}_{\\mathrm{T}}", "U^{(I=1)}_{\\mathrm{SO}}", "U^{(I=1)}_{\\mathrm{Q}}"]
+
+    # 3S1 Contribution
+    #       corresponds to (I=0) in s-channel  -->  curly F0 = 1/4 * (F0 - F1)
+    V_l_r__sI0 = 0.25 * (V_l_r__I0 - V_l_r__I1)
+    export_results(plotter_combined.cur_proc_run_base_path, 5, "V_l_r_sI0", r_grid, V_l_r__sI0, "r")
+    plotter_combined.plot_final_res(V_l_r__sI0, r_grid, "r", "1 / GeV", ylabels_sI0, tensorBasisNamesDict, "s-channel_isoscalar", 1)
+
+
+    # 1S0 Contribution
+    #       corresponds to (I=1) in s-channel  -->  curly F = 1/4 * (3 F0 + F1)
+    V_l_r__sI1 = 0.25 * (3.0 * V_l_r__I0 + V_l_r__I1)
+    export_results(plotter_combined.cur_proc_run_base_path, 5, "V_l_r_sI1", r_grid, V_l_r__sI1, "r")
+    plotter_combined.plot_final_res(V_l_r__sI1, r_grid, "r", "1 / GeV", ylabels_sI1, tensorBasisNamesDict, "s-channel_isovector", 1)
 
     exit()
 
