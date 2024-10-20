@@ -282,7 +282,6 @@ void TensorBasis::calculateKMatrix(int impulseIdx, Tensor4<4, 4, 4, 4>** basis)
     {
         for(int j = 0; j < getTensorBasisElementCount(); j++)
         {
-            // TODO check leftContractWith is the correct thing to use
             gsl_matrix_complex_set(KMatrixGrid[impulseIdx], j, i,
                                    basis[i][impulseIdx].leftContractWith(&basis[j][impulseIdx]));
         }
@@ -408,7 +407,7 @@ Tensor4<4, 4, 4, 4>* TensorBasis::basisTensor(int basisElemIdx, int externalImpu
 
 Tensor4<4, 4, 4, 4> *TensorBasis::basisTensorProjection(int basisElemIdx, int externalImpulseIdx)
 {
-    return &(basisProjectionGrid()[basisElemIdx][externalImpulseIdx]);;
+    return &(basisProjectionGrid()[basisElemIdx][externalImpulseIdx]);
 }
 
 void TensorBasis::calculateRMatrixInverse(gsl_matrix_complex* RInvMatrixCur, double X, double Z)

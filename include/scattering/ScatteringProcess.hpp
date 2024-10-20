@@ -55,7 +55,6 @@ class ScatteringProcess
 
         gsl_complex integralKernelWrapper(int externalImpulseIdx, int basisElemIdx, int threadIdx, double k2, double z, double y, double phi);
 
-        // TODO moving this back to the process could possibly bring an performance increase, need to check though
         virtual void integrate(double k2_cutoff);
 
 

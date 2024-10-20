@@ -58,15 +58,17 @@ void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_comple
     gsl_complex p2;
     gsl_blas_zdotu(p_copy, p_copy, &p2);
 
+    gsl_complex P2;
+    gsl_blas_zdotu(P_copy, P_copy, &P2);
 
-    // TODO check: z = p . P
+
     gsl_complex compl_z;
     gsl_blas_zdotu(p_copy, P_copy, &compl_z);
     if(GSL_IMAG(compl_z) - 1 > 1E-15)
     {
         throw std::out_of_range("Encountered complex angle for quark-diquark amplitude momenta");
     }
-    double z = GSL_REAL(compl_z);
+    double z = GSL_REAL(compl_z) / (sqrt(gsl_complex_abs(p2) * gsl_complex_abs(P2)));
 
 
     Projectors::posEnergyProjector(P_copy, posEnergyProj);

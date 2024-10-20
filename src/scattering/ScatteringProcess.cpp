@@ -54,13 +54,13 @@ void ScatteringProcess::calc_k(double k2, double z, double y, double phi, gsl_ve
 
 gsl_complex ScatteringProcess::integralKernelWrapper(int externalImpulseIdx, int basisElemIdx, int threadIdx, double k2, double z, double y, double phi)
 {
-    //gsl_vector_complex* l = gsl_vector_complex_alloc(4);
     if(!k_mutex.try_lock())
     {
-        std::cout << "Probable race condition on temporary l impulse" << std::endl;
+        std::cout << "Probable race condition on temporary k impulse" << std::endl;
         exit(-1);
     }
 
+    // Set current k
     gsl_vector_complex_set_zero(k);
     calc_k(k2, z, y, phi, k);
 
@@ -79,15 +79,6 @@ gsl_complex ScatteringProcess::integralKernelWrapper(int externalImpulseIdx, int
     k_mutex.unlock();
 
     gsl_complex kernel_res = integralKernelTensor.leftContractWith(currentBasisProjectionElement);
-
-    // Set 0 if < 1E-30
-    /*
-    if(abs(kernel_res.dat[0]) < 1E-30)
-        kernel_res.dat[0] = 0;
-    if(abs(kernel_res.dat[1]) < 1E-30)
-        kernel_res.dat[1] = 0;
-    */
-
     return kernel_res;
 }
 
@@ -183,13 +174,9 @@ void ScatteringProcess::calculateFormFactors(int XIdx, int ZIdx, gsl_complex M, 
     {
         gsl_matrix_complex* invK = tensorBasis.KInv(externalImpulseIdx);
         h2fMatrix = invK;
-
-        // TODO store which basis we used --> thus to which tensors the f_i belong
     }
     else if(INVERT_STRATEGY == InvertStrategy::ANALYTIC)
     {
-        // TODO sanity checks, that analytic inverse strategy fits other set params (in main function before calculation start)
-        //      we need ANALYTIC --> BASIS = tau, PROJECTION_BASIS = tau_prime
         gsl_matrix_complex* invR = tensorBasis.RInv(externalImpulseIdx);
         h2fMatrix = invR;
     }

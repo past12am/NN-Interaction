@@ -196,12 +196,6 @@ void QuarkExchange::integralKernel(gsl_vector_complex* k, gsl_vector_complex* l,
                                                                                    scalar_D_k),
                                                                 gsl_complex_mul(gsl_matrix_complex_get(GammaConj_S_Gamma__alpha_delta, alpha, delta),
                                                                                    gsl_matrix_complex_get(GammaConj_S_Gamma__gamma_beta, gamma, beta)));
-                    // Set 0 if < 1E-30
-                    //if(abs(kernelElement.dat[0]) < 1E-30)
-                    //    kernelElement.dat[0] = 0;
-                    //if(abs(kernelElement.dat[1]) < 1E-30)
-                    //    kernelElement.dat[1] = 0;
-
                     integralKernelTensor->setElement(alpha, beta, gamma, delta, kernelElement);
                 }
             }

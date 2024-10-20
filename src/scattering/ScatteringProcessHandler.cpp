@@ -3,7 +3,7 @@
 //
 
 #include <fstream>
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 #include <filesystem>
 
 #include "../../include/scattering/ScatteringProcessHandler.hpp"

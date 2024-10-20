@@ -92,6 +92,7 @@ latex
 
 data/
 postprocess-output/
+fitdata/
 
 !postprocessing/data/
 !src/data/

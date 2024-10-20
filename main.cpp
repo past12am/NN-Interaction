@@ -11,6 +11,25 @@
 #include <gsl/gsl_math.h>
 
 
+/*
+NN Interaction - To do:
+    both things on the same footing
+        -> Add Diquark, Pion, Scalar Exchange
+        -> do contour deformations
+
+
+    phase shifts --> not really possible (without extension)
+
+    Format: Phys Let B, or normal papers (Phys Rev. D)
+
+
+    Note: if problem with contour def. just use mass pole
+
+
+    Answer the sign question
+ */
+
+
 int main(int argc, char *argv[])
 {
     double m_q = 0.55; // GeV
@@ -50,8 +69,7 @@ int main(int argc, char *argv[])
     int phi_integration_points = 10;
 
 
-    // Sanity Checks
-    // TODO sanity checks, that analytic inverse strategy fits other set params (in main function before calculation start)
+    // Sanity Checks for Parameters
     //      we need ANALYTIC --> BASIS = tau, PROJECTION_BASIS = tau_prime
     if(INVERT_STRATEGY == InvertStrategy::ANALYTIC)
     {
@@ -95,7 +113,6 @@ int main(int argc, char *argv[])
                                                         z_integration_points,
                                                         y_integration_points,
                                                         phi_integration_points);
-    // TODO store basis
 
     return 0;
 }
