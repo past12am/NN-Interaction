@@ -29,6 +29,11 @@ NN Interaction - To do:
     Answer the sign question
  */
 
+/*
+ *  TODO: improve multithreading (make independent of lenX --> use "parallel integrators" in a threadpool fashion instead)
+ *
+ */
+
 
 int main(int argc, char *argv[])
 {

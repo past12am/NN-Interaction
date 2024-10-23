@@ -328,7 +328,7 @@ void TensorBasis::calculateKMatrixInverse(int impulseIdx)
     }
 
 
-    // Set 0 what should be 0 (< 1E-10)
+    // Set 0 what should be 0 (< 1E-10) // TODO: don't?
 
     double eps = 1E-15;
     for(size_t i = 0; i < KInverseMatrixGrid[impulseIdx]->size1; i++)

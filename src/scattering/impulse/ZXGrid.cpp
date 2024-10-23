@@ -23,7 +23,7 @@ double ZXGrid::calcZAt(int ZIdx)
 
 double ZXGrid::calcXAt(int XIdx)
 {
-    return XCutoffLower + (XCutoffUpper - XCutoffLower) * ((double) XIdx) / ((double) (lenX - 1));
+    return lenX == 1 ? XCutoffLower : XCutoffLower + (XCutoffUpper - XCutoffLower) * ((double) XIdx) / ((double) (lenX - 1));
 }
 
 int ZXGrid::getLenX() const

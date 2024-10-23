@@ -182,7 +182,7 @@ void ScatteringProcess::calculateFormFactors(int XIdx, int ZIdx, gsl_complex M, 
     }
     else
     {
-        // TODO more clean exit strategy
+        // If it happens, we fucked up the configuration (no cleaner exit needed)
         exit(2);
     }
 

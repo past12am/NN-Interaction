@@ -37,8 +37,6 @@ std::tuple<double, double> LegendrePolynomials::LegendreP_n(double x, int n)
     double p = LegendreP_1(x);      // p
     double p_n;
 
-    // TODO check why we do not need dp_p
-    //double dp_p = DerivativeLegendreP_0(x);
     double dp = DerivativeLegendreP_1(x);
     double dp_n;
 
