@@ -78,7 +78,7 @@ def main():
 
 
     # Load data files
-    # TODO error happens for S1 and A1 when doing tau --> T, seems correct for T --> tau
+    #       Note: error happens for S1 and A1 when doing tau --> T, seems correct for T --> tau (ignore, just use the working numeric inverse)
     qx_process_type = "quark_exchange"
     dqx_process_type = "diquark_exchange"
     dataloader_qx = Dataloader(data_base_path, tensorbase_type, qx_process_type, dq_1_type, dq_2_type, Z_range, X_range_lower)
@@ -94,9 +94,9 @@ def main():
 
     plotter_combined = PlotterFullAmplitude(output_base_path, dataloader_qx, dataloader_dqx, True)
 
-    plotter_qx.show_plots = False
-    plotter_dqx.show_plots = False
-    plotter_combined.show_plots = False
+    plotter_qx.show_plots = True
+    plotter_dqx.show_plots = True
+    plotter_combined.show_plots = True
 
 
 
@@ -104,6 +104,7 @@ def main():
 
 
     # Plot amplitudes
+    print(dataloader_qx.latest_run_dir_process)
     plotter_qx.plotAmplitudes_h(dataloader_qx, "AmplitudeQuarkExchange_h", dataloader_qx.process_spec["projection_basis"], 0, process_abbrev="q")
     plotter_qx.plotAmplitudes(dataloader_qx, "AmplitudeQuarkExchange_f", "AmplitudeQuarkExchange_F", 0, process_abbrev="q")
 
@@ -115,7 +116,6 @@ def main():
 
 
     # Perform FT
-    # Select quark or diquark exchange  # TODO fix plot names/scale names
     ampHandler_rho_qx, qx__f_l_r, qx__r_grid = perform_FT_of_amplitudes(dataloader_qx, plotter_qx, tensorBasisNamesRho, "quark_exchange")
     ampHandler_rho_dqx, dqx__f_l_r, dqx__r_grid = perform_FT_of_amplitudes(dataloader_dqx, plotter_dqx, tensorBasisNamesRho, "diquark_exchange")
     

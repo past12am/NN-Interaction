@@ -18,7 +18,7 @@ class BasisTauToRho:
     
     @staticmethod
     def _R(X_array: np.ndarray, Z_array: np.ndarray):
-        # TODO for Z = 1, we get a = b and thus a divide by 0
+        # Note: for Z = 1, we get a = b and thus a divide by 0
 
         R = np.zeros((5, 5, len(X_array), len(Z_array)))
 

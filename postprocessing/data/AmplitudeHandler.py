@@ -99,7 +99,7 @@ class AmplitudeHandler:
             leg_coef_array = np.zeros(l + 1)
             leg_coef_array[l] = 1.0
 
-            legpol_val = np.polynomial.legendre.legval(Z, leg_coef_array)     # TODO more efficient way
+            legpol_val = np.polynomial.legendre.legval(Z, leg_coef_array)
 
             res += legpol_val * (2*l + 1) * self.f_l_at(basis_idx, l, X)
 
@@ -116,7 +116,7 @@ class AmplitudeHandler:
             leg_coef_array = np.zeros(l + 1)
             leg_coef_array[l] = 1.0
 
-            legpol_val = np.polynomial.legendre.legval(Z, leg_coef_array)     # TODO more efficient way
+            legpol_val = np.polynomial.legendre.legval(Z, leg_coef_array)
 
             res += legpol_val * (2*l + 1) * self.f_l_fit(basis_idx, l, X)
 
@@ -242,7 +242,7 @@ class AmplitudeHandler:
             if(np.all(q > np.max(self.q))):
                 return 0
 
-            raise Exception(f"Out of range for interpolated q --> TODO extrapolate --> q in [{np.min(self.q)}, {np.max(self.q)}] and tried q = {q}")
+            raise Exception(f"Out of range for interpolated q --> extrapolate --> q in [{np.min(self.q)}, {np.max(self.q)}] and tried q = {q}")
         
         else:
             return self.f_l_q_interpolation(basis_idx, l, q)

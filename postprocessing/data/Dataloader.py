@@ -84,7 +84,7 @@ class Dataloader:
         self.f *= 1/3
 
 
-        # Flavour Factor
+        # Flavour Factor = 1
         #   Considered in the end when combining amplitudes
         
 
