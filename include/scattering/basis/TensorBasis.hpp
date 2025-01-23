@@ -47,17 +47,28 @@ class TensorBasis
         static double calc_c(double X, double Z);
         static double calc_d(double X, double Z);
 
-        static double calc_n_plus(double c, double d);
-        static double calc_n_minus(double c, double d);
-        static double calc_g(double c, double n_minus);
-        static double calc_h(double n_minus, double c);
-        static double calc_k(double g, double n_minus);
+        static double calc_pref(double c, double d);
 
-        static double calc_e1(double c, double d, double n_plus, double n_minus);
-        static double calc_e2(double c, double d, double k, double n_plus);
-        static double calc_e3(double c, double d, double n_plus, double n_minus);
-        static double calc_e4(double c, double d, double n_plus);
-        static double calc_e5(double c, double d, double n_plus);
+        static double calc_Rinv_11(double c, double d);
+        static double calc_Rinv_12(double c, double d);
+        static double calc_Rinv_13(double c, double d);
+        static double calc_Rinv_14(double c, double d);
+        static double calc_Rinv_15(double c, double d);
+
+        static double calc_Rinv_22(double c, double d);
+        static double calc_Rinv_23(double c, double d);
+        static double calc_Rinv_24(double c, double d);
+        static double calc_Rinv_25(double c, double d);
+
+        static double calc_Rinv_33(double c, double d);
+        static double calc_Rinv_34(double c, double d);
+        static double calc_Rinv_35(double c, double d);
+
+        static double calc_Rinv_44(double c, double d);
+        static double calc_Rinv_45(double c, double d);
+
+        static double calc_Rinv_55(double c, double d);
+
 
     public:
         TensorBasis(ExternalImpulseGrid* externalImpulseGrid, gsl_complex nucleon_mass);
