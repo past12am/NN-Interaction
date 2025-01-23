@@ -66,12 +66,12 @@ def main():
     data_base_path = "/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/data/"
     output_base_path = "/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/"
 
-    tensorbase_type = "T"
+    tensorbase_type = "tau"
 
     dq_1_type = "scalar"
     dq_2_type = "scalar"
 
-    Z_range = 0.99
+    Z_range = 0.9
     X_range_lower = 0
 
     M_nucleon = 0.94    # GeV
@@ -104,7 +104,8 @@ def main():
 
 
     # Plot amplitudes
-    print(dataloader_qx.latest_run_dir_process)
+    print(f"QX run: {dataloader_qx.latest_run_dir_process}")
+    print(f"DQX run: {dataloader_dqx.latest_run_dir_process}")
     plotter_qx.plotAmplitudes_h(dataloader_qx, "AmplitudeQuarkExchange_h", dataloader_qx.process_spec["projection_basis"], 0, process_abbrev="q")
     plotter_qx.plotAmplitudes(dataloader_qx, "AmplitudeQuarkExchange_f", "AmplitudeQuarkExchange_F", 0, process_abbrev="q")
 
@@ -116,6 +117,11 @@ def main():
 
 
     # Perform FT
+
+    plotter_qx.show_plots = True
+    plotter_dqx.show_plots = True
+    plotter_combined.show_plots = True
+
     ampHandler_rho_qx, qx__f_l_r, qx__r_grid = perform_FT_of_amplitudes(dataloader_qx, plotter_qx, tensorBasisNamesRho, "quark_exchange")
     ampHandler_rho_dqx, dqx__f_l_r, dqx__r_grid = perform_FT_of_amplitudes(dataloader_dqx, plotter_dqx, tensorBasisNamesRho, "diquark_exchange")
     
