@@ -17,12 +17,17 @@ const gsl_matrix_complex* Projectors::unitM = MatrixInitializers::generateUnitM(
 
 void Projectors::transverseProjector(gsl_vector_complex* P, gsl_matrix_complex* transvProj)
 {
-    // valPSquared = |P|^2
+    // TODO check transverse projector implementation
+
+    // TODO: for safety use -|P^2|      (however in place solution works)
+
+    // valPSquared = P^2
     gsl_complex valPSquared;
     gsl_blas_zdotu(P, P, &valPSquared);
 
+    // Note: we use the "-" sign in valPSquqred as the minus in T = 1 - P_mu P_nu
     assert(GSL_IMAG(valPSquared) == 0);
-
+    assert(GSL_REAL(valPSquared) < 0);
 
     gsl_matrix_complex_memcpy(transvProj, unitM);
 
@@ -32,32 +37,37 @@ void Projectors::transverseProjector(gsl_vector_complex* P, gsl_matrix_complex* 
 
 void Projectors::longitudinalProjector(gsl_vector_complex* P, gsl_matrix_complex* longitudProj)
 {
+    // TODO check longitudinal projector implementation
+
     // valPSquared = |P|^2
     gsl_complex valPSquared;
     gsl_blas_zdotu(P, P, &valPSquared);
 
+    GSL_REAL(valPSquared) = abs(GSL_REAL(valPSquared));
     assert(GSL_IMAG(valPSquared) == 0);
 
     // longProj^(mu,nu) = 1/|p|^2 p^mu p^nu
+    // TODO check might need abs(valPSquared)   --> Done, but not beautiful
     const gsl_matrix_complex_view PMatView = gsl_matrix_complex_view_vector(P, 4, 1);
     gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1.0/GSL_REAL(valPSquared), 0.0), &PMatView.matrix, &PMatView.matrix, gsl_complex_rect(0.0, 0.0), longitudProj);
 }
 
 void Projectors::posEnergyProjector(gsl_vector_complex* P, gsl_matrix_complex* posEnergyProj)
 {
-    // Find norm of P
+    // TODO check posEnergyProjector implementation
+
+    // Find norm of P (for nomalization)
     gsl_complex valPSquared;
     gsl_blas_zdotu(P, P, &valPSquared);
-    gsl_complex valP = gsl_complex_sqrt(valPSquared);
-    assert(GSL_IMAG(valP) > 0);
-    assert(GSL_REAL(valP) == 0);
+    double valP = sqrt(gsl_complex_abs(valPSquared));
 
 
     // posEnergyProj = slash(P)
     DiracStructuresHelper::diracStructures.slash(P, posEnergyProj);
 
+    // TODO check might need abs(valPSquared)   --> Done
     // posEnergyProj = slash(P)/valP
-    gsl_matrix_complex_scale(posEnergyProj, gsl_complex_div(GSL_COMPLEX_ONE, valP));
+    gsl_matrix_complex_scale(posEnergyProj, gsl_complex_rect(1.0/valP, 0));
 
     // posEnergyProj = (posEnergyProj + unitM)/2
     gsl_matrix_complex_add(posEnergyProj, unitM);

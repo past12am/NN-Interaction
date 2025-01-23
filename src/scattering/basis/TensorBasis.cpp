@@ -421,13 +421,15 @@ void TensorBasis::calculateRMatrixInverse(gsl_matrix_complex* RInvMatrixCur, dou
     double h = calc_h(n_minus, c);
     double k = calc_k(g, n_minus);
 
-    double e1 = calc_e1(c, d, n_plus, n_minus);
-    double e2 = calc_e2(c, d, k, n_plus);
-    double e3 = calc_e3(c, d, n_plus, n_minus);
-    double e4 = calc_e4(c, d, n_plus);
-    double e5 = calc_e5(c, d, n_plus);
+    double c_times_n_plus = calc_c_times_n_plus(c, d);
 
-    double pref = 1.0 / (2.0 * gsl_pow_2(c * n_plus));
+    double e1 = calc_e1(c, d, n_plus, n_minus, c_times_n_plus);
+    double e2 = calc_e2(c, d, k, n_plus, c_times_n_plus);
+    double e3 = calc_e3(c, d, n_plus, n_minus, c_times_n_plus);
+    double e4 = calc_e4(c, d, n_plus, c_times_n_plus);
+    double e5 = calc_e5(c, d, n_plus, c_times_n_plus);
+
+    double pref = 1.0 / (2.0 * gsl_pow_2(c_times_n_plus));
 
     gsl_matrix_complex_set_zero(RInvMatrixCur);
 
@@ -447,7 +449,7 @@ void TensorBasis::calculateRMatrixInverse(gsl_matrix_complex* RInvMatrixCur, dou
     gsl_matrix_complex_set(RInvMatrixCur, 2, 1, gsl_complex_rect(d * h, 0));
     gsl_matrix_complex_set(RInvMatrixCur, 2, 2, gsl_complex_rect(e3, 0));
     gsl_matrix_complex_set(RInvMatrixCur, 2, 3, gsl_complex_rect(-d * (1.0 + c), 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 2, 4, gsl_complex_rect(1.5 * c * n_plus + gsl_pow_2(d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 2, 4, gsl_complex_rect(1.5 * c_times_n_plus + gsl_pow_2(d), 0));
 
     gsl_matrix_complex_set(RInvMatrixCur, 3, 0, gsl_complex_rect(gsl_pow_2(d), 0));
     gsl_matrix_complex_set(RInvMatrixCur, 3, 1, gsl_complex_rect(gsl_pow_2(d) - n_plus, 0));
@@ -457,11 +459,13 @@ void TensorBasis::calculateRMatrixInverse(gsl_matrix_complex* RInvMatrixCur, dou
 
     gsl_matrix_complex_set(RInvMatrixCur, 4, 0, gsl_complex_rect(d * g, 0));
     gsl_matrix_complex_set(RInvMatrixCur, 4, 1, gsl_complex_rect(d * k, 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 4, 2, gsl_complex_rect(1.5 * c * n_plus + gsl_pow_2(d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 4, 2, gsl_complex_rect(1.5 * c_times_n_plus + gsl_pow_2(d), 0));
     gsl_matrix_complex_set(RInvMatrixCur, 4, 3, gsl_complex_rect(-d * (1.0 + c), 0));
     gsl_matrix_complex_set(RInvMatrixCur, 4, 4, gsl_complex_rect(e5, 0));
 
     gsl_matrix_complex_scale(RInvMatrixCur, gsl_complex_rect(pref, 0));
+    std::cout << PrintGSLElements::print_gsl_matrix_complex(RInvMatrixCur) << std::endl;
+    return;
 }
 
 double TensorBasis::calc_c(double X, double Z)
@@ -499,29 +503,34 @@ double TensorBasis::calc_k(double g, double n_minus)
     return g + n_minus + 2.0;
 }
 
-double TensorBasis::calc_e1(double c, double d, double n_plus, double n_minus)
+double TensorBasis::calc_c_times_n_plus(double c, double d)
 {
-    return c * n_plus - gsl_pow_2(d)/2.0 * n_minus;
+    return 0.5 * ((1.0 + c) * (1.0 + c) - d * d);
 }
 
-double TensorBasis::calc_e2(double c, double d, double k, double n_plus)
+double TensorBasis::calc_e1(double c, double d, double n_plus, double n_minus, double c_times_n_plus)
 {
-    return n_plus/c * (1.0 + 2.0 * c * n_plus) - gsl_pow_2(d) * (1.0 + k)/c;
+    return c_times_n_plus - gsl_pow_2(d)/2.0 * n_minus;
 }
 
-double TensorBasis::calc_e3(double c, double d, double n_plus, double n_minus)
+double TensorBasis::calc_e2(double c, double d, double k, double n_plus, double c_times_n_plus)
 {
-    return c * n_plus - n_minus/2.0 + gsl_pow_2(d) - 1;
+    return n_plus/c * (1.0 + 2.0 * c_times_n_plus) - gsl_pow_2(d) * (1.0 + k)/c;
 }
 
-double TensorBasis::calc_e4(double c, double d, double n_plus)
+double TensorBasis::calc_e3(double c, double d, double n_plus, double n_minus, double c_times_n_plus)
 {
-    return c * n_plus + gsl_pow_2(d);
+    return c_times_n_plus - n_minus/2.0 + gsl_pow_2(d) - 1;
 }
 
-double TensorBasis::calc_e5(double c, double d, double n_plus)
+double TensorBasis::calc_e4(double c, double d, double n_plus, double c_times_n_plus)
 {
-    return c * n_plus * (1.0 - c/2.0) + gsl_pow_2(d);
+    return c_times_n_plus + gsl_pow_2(d);
+}
+
+double TensorBasis::calc_e5(double c, double d, double n_plus, double c_times_n_plus)
+{
+    return c_times_n_plus * (1.0 - c/2.0) + gsl_pow_2(d);
 }
 
 

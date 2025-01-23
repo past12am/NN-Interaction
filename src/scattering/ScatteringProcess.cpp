@@ -6,8 +6,11 @@
 #include <gsl/gsl_blas.h>
 #include <cassert>
 #include <iostream>
+#include <chrono>
+
 #include "../../include/scattering/ScatteringProcess.hpp"
 #include "../../include/Definitions.h"
+#include "../../include/utils/print/PrintGSLElements.hpp"
 
 
 ScatteringProcess::ScatteringProcess(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, int threadIdx) :
@@ -88,9 +91,11 @@ void ScatteringProcess::integrate(double k2_cutoff)
     int progress = 0;
     int total = tensorBasis.getTensorBasisElementCount() * externalImpulseGrid.getLength();
 
-    double avg_time = 0;
-    clock_t clock_at_start = clock();
-    clock_t clock_at_end = clock();
+
+    std::chrono::time_point clock_at_start = std::chrono::high_resolution_clock::now();
+    std::chrono::time_point clock_at_end = std::chrono::high_resolution_clock::now();
+    auto avg_time = clock_at_end - clock_at_start;
+
 
     std::cout << "Thread " << threadIdx << " calculates " << tensorBasis.getTensorBasisElementCount() * externalImpulseGrid.getLength() << " grid points" << std::endl;
 
@@ -103,7 +108,7 @@ void ScatteringProcess::integrate(double k2_cutoff)
             avg_time = (clock_at_end - clock_at_start)/(progress + 1);
 
             std::cout << "Thread " << threadIdx << "-->   Basis Element [" << std::string(((double) progress/total) * num_progress_char, '#') << std::string((1.0 - (double) progress/total) * num_progress_char, '-').c_str() << "]    --> "
-                      << ((clock_at_end - clock_at_start)/CLOCKS_PER_SEC)/60 << " of " << ((avg_time * total)/CLOCKS_PER_SEC)/60 << "\t" << std::flush;
+                      << std::chrono::duration_cast<std::chrono::minutes>(clock_at_end - clock_at_start) << " of " << std::chrono::duration_cast<std::chrono::minutes>(avg_time * total) << "\t" << std::flush;
 
 
             gsl_complex res = integrate_process(basisElemIdx, externalImpulseIdx, k2_cutoff);
@@ -111,7 +116,7 @@ void ScatteringProcess::integrate(double k2_cutoff)
 
             std::cout << "Basis[" << basisElemIdx << "], basisIdx=" << externalImpulseIdx << ": " << GSL_REAL(res) << " + i " << GSL_IMAG(res) << std::endl;
 
-            clock_at_end = clock();
+            clock_at_end = std::chrono::high_resolution_clock::now();
         }
     }
 }
