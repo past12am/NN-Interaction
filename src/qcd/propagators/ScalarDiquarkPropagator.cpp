@@ -21,11 +21,9 @@ gsl_complex ScalarDiquarkPropagator::M(gsl_complex p2)
 
 void ScalarDiquarkPropagator::D(gsl_vector_complex* p, gsl_complex* diquarkPropScalar)
 {
-    // TODO check: I think we have sqrt(p2) < 0, is that correct?
-
     gsl_complex p2;
     gsl_blas_zdotu(p, p, &p2);
-    gsl_complex xSC = gsl_complex_div_real(gsl_complex_sqrt(p2), m_sc * m_sc);     // xSC = p^2 / M_dq^2    // TODO check dimensino of propagator
+    gsl_complex xSC = gsl_complex_div_real(p2, m_sc * m_sc);     // xSC = p^2 / M_dq^2
 
     gsl_complex D_SC;
     // D_SC =

@@ -8,6 +8,9 @@
 
 #include "../../../include/utils/dirac/DiracStructuresHelper.hpp"
 #include "../../../include/qcd/amplitudes/ScalarQuarkDiquarkAmplitude.hpp"
+
+#include <cassert>
+
 #include "../../../include/operators/ChargeConjugation.hpp"
 
 
@@ -64,11 +67,17 @@ void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_comple
 
     gsl_complex compl_z;
     gsl_blas_zdotu(p_copy, P_copy, &compl_z);
-    if(GSL_IMAG(compl_z) - 1 > 1E-15)
+    if(abs(GSL_IMAG(compl_z)) > 1E-15)
     {
         throw std::out_of_range("Encountered complex angle for quark-diquark amplitude momenta");
     }
-    double z = GSL_REAL(compl_z) / (sqrt(gsl_complex_abs(p2) * gsl_complex_abs(P2)));
+
+    double norm = sqrt(abs(GSL_REAL(p2) * GSL_REAL(P2)));
+    double z = GSL_REAL(compl_z) / norm;
+    if(z > 1 || z < -1)
+    {
+        throw std::out_of_range("Encountered |cos angle| > 1 for quark-diquark amplitude momenta");
+    }
 
 
     Projectors::posEnergyProjector(P_copy, posEnergyProj);
@@ -82,9 +91,8 @@ void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_comple
     gsl_matrix_complex_scale(quarkDiquarkAmp, f_k_0);
 
 
-
-    //  TODO higher order tensor seems to be too noisy in the result
     /*
+    //  TODO higher order tensor has incorrect symmetry in result --> probably more integration points?
     // 1: Higher order Tensor ( = slash(i * normalized(TransverseProj_P @ p)))
     // build slash(q)   q = normalized(TransverseProj_P(p))
     // tmpTensor = TransverseProj_P
@@ -97,8 +105,12 @@ void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_comple
     // q = i normalize(q) = i * 1/sqrt(q2) TransverseProj_P @ p
     gsl_complex q2;
     gsl_blas_zdotu(q, q, &q2);
-    //gsl_vector_complex_scale(q, gsl_complex_mul_imag(gsl_complex_inverse(gsl_complex_sqrt(q2)), 1));
-    gsl_vector_complex_scale(q, gsl_complex_rect(1.0/sqrt(sqrt(gsl_complex_abs(q2))), 0));
+    gsl_vector_complex_scale(q, gsl_complex_mul_imag(gsl_complex_inverse(gsl_complex_sqrt(q2)), 1));
+
+    gsl_complex q2_check;
+    gsl_blas_zdotu(q, q, &q2_check);
+    assert(GSL_REAL(q2_check) - 1 < 1E-10);    //TODO ensure this is correct
+    assert(GSL_IMAG(q2_check) < 1E-10);    //TODO ensure this is correct
 
     // tmpTensor = slash(q)
     DiracStructuresHelper::diracStructures.slash(q, tmpTensor);

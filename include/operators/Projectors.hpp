@@ -15,6 +15,8 @@ class Projectors
     private:
         static const gsl_matrix_complex* unitM;
 
+        static bool checkProjectorProperties(gsl_matrix_complex* projector);
+
     public:
         static void posEnergyProjector(gsl_vector_complex* P, gsl_matrix_complex* posEnergyProj);
         static void transverseProjector(gsl_vector_complex* P, gsl_matrix_complex* transvProj);

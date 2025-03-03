@@ -93,15 +93,22 @@ gsl_complex QuarkDiquarkAmplitudeReader::f_k(gsl_complex p2, double z, int ampli
                                                    gsl_complex_mul(fk_res3, gsl_complex_mul_imag(p, pow(z, 3)))));
         }
         case 1:
-            // Ycomp(iAmp) = Y(iAmp,0) + Y(iAmp,1)*I*p*z + Y(iAmp,2)*z**2 + Y(iAmp,3)*I*p*z**3
-            return gsl_complex_add(gsl_complex_add(f_k(p2, amplitude_idx, 0),
-                                                   gsl_complex_mul(f_k(p2, amplitude_idx, 1), gsl_complex_mul_imag(p, z))),
+        {
+            gsl_complex fk_res0 = f_k(p2, amplitude_idx, 0);
+            gsl_complex fk_res1 = f_k(p2, amplitude_idx, 1);
+            gsl_complex fk_res2 = f_k(p2, amplitude_idx, 2);
+            gsl_complex fk_res3 = f_k(p2, amplitude_idx, 3);
 
-                                   gsl_complex_add(gsl_complex_mul_real(f_k(p2, amplitude_idx, 2), pow(z, 2)),
-                                                   gsl_complex_mul(f_k(p2, amplitude_idx, 3), gsl_complex_mul_imag(p, pow(z, 3)))));
+            // Ycomp(iAmp) = Y(iAmp,0) + Y(iAmp,1)*I*p*z + Y(iAmp,2)*z**2 + Y(iAmp,3)*I*p*z**3
+            return gsl_complex_add(gsl_complex_add(fk_res0,
+                                                     gsl_complex_mul(fk_res1, gsl_complex_mul_imag(p, z))),
+
+                                   gsl_complex_add(gsl_complex_mul_real(fk_res2, pow(z, 2)),
+                                                     gsl_complex_mul(fk_res3, gsl_complex_mul_imag(p, pow(z, 3)))));
+        }
     }
 
-    throw std::invalid_argument("Not implmented yet - nly supporting scalar quark-diquark amplitude");
+    throw std::invalid_argument("Not implmented yet - only supporting scalar quark-diquark amplitude");
     return gsl_complex();
 }
 

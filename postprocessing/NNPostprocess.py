@@ -78,7 +78,6 @@ def main():
 
 
     # Load data files
-    #       Note: error happens for S1 and A1 when doing tau --> T, seems correct for T --> tau (ignore, just use the working numeric inverse)
     qx_process_type = "quark_exchange"
     dqx_process_type = "diquark_exchange"
     dataloader_qx = Dataloader(data_base_path, tensorbase_type, qx_process_type, dq_1_type, dq_2_type, Z_range, X_range_lower)
@@ -136,13 +135,13 @@ def main():
     V_l_r__I1 = 2 * qx__f_l_r - dqx__f_l_r
 
     #       Correction for dimensionless qtys
-    V_l_r__I0[2, ...] = V_l_r__I0[2, ...] / (4.0 * np.square(M_nucleon))
-    V_l_r__I0[3, ...] = V_l_r__I0[3, ...] / (4.0 * np.square(M_nucleon))
-    V_l_r__I0[4, ...] = V_l_r__I0[4, ...] / (4.0 * np.power(M_nucleon, 4))
+    #V_l_r__I0[2, ...] = V_l_r__I0[2, ...] / (4.0 * np.square(M_nucleon))
+    #V_l_r__I0[3, ...] = V_l_r__I0[3, ...] / (4.0 * np.square(M_nucleon))
+    #V_l_r__I0[4, ...] = V_l_r__I0[4, ...] / (4.0 * np.power(M_nucleon, 4))
 
-    V_l_r__I1[2, ...] = V_l_r__I1[2, ...] / (4.0 * np.square(M_nucleon))
-    V_l_r__I1[3, ...] = V_l_r__I1[3, ...] / (4.0 * np.square(M_nucleon))
-    V_l_r__I1[4, ...] = V_l_r__I1[4, ...] / (4.0 * np.power(M_nucleon, 4))
+    #V_l_r__I1[2, ...] = V_l_r__I1[2, ...] / (4.0 * np.square(M_nucleon))
+    #V_l_r__I1[3, ...] = V_l_r__I1[3, ...] / (4.0 * np.square(M_nucleon))
+    #V_l_r__I1[4, ...] = V_l_r__I1[4, ...] / (4.0 * np.power(M_nucleon, 4))
 
 
     #       Plot final results
@@ -172,13 +171,13 @@ def main():
     V_l_q__I1 = 2 * qx__f_l_q - dqx__f_l_q
 
     #       Correction for dimensionless qtys
-    V_l_q__I0[2, ...] = V_l_q__I0[2, ...] / (4.0 * np.square(M_nucleon))
-    V_l_q__I0[3, ...] = V_l_q__I0[3, ...] / (4.0 * np.square(M_nucleon))
-    V_l_q__I0[4, ...] = V_l_q__I0[4, ...] / (4.0 * np.power(M_nucleon, 4))
+    #V_l_q__I0[2, ...] = V_l_q__I0[2, ...] / (4.0 * np.square(M_nucleon))
+    #V_l_q__I0[3, ...] = V_l_q__I0[3, ...] / (4.0 * np.square(M_nucleon))
+    #V_l_q__I0[4, ...] = V_l_q__I0[4, ...] / (4.0 * np.power(M_nucleon, 4))
 
-    V_l_q__I1[2, ...] = V_l_q__I1[2, ...] / (4.0 * np.square(M_nucleon))
-    V_l_q__I1[3, ...] = V_l_q__I1[3, ...] / (4.0 * np.square(M_nucleon))
-    V_l_q__I1[4, ...] = V_l_q__I1[4, ...] / (4.0 * np.power(M_nucleon, 4))
+    #V_l_q__I1[2, ...] = V_l_q__I1[2, ...] / (4.0 * np.square(M_nucleon))
+    #V_l_q__I1[3, ...] = V_l_q__I1[3, ...] / (4.0 * np.square(M_nucleon))
+    #V_l_q__I1[4, ...] = V_l_q__I1[4, ...] / (4.0 * np.power(M_nucleon, 4))
 
 
 
