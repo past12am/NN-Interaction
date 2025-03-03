@@ -55,8 +55,8 @@ def get_first_target_files_starting_with(dir, substrings):
 # Build input path
 base_path = "/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/"
 
-basis_type = "T"
-invert_stategy = "numeric_matrix_inverse"
+basis_type = "tau"
+invert_stategy = "analytic"
 
 process_types = ["quark_exchange", "diquark_exchange"]
 run_dirs = [None, None]
@@ -66,7 +66,7 @@ base_spec_dir_name = basis_type + "_" + invert_stategy
 
 
 # Build Output Path
-out_base = "/home/past12am/OuzoCloud/Studium/Physik/6_Semester/NNInteraction_Thesis/plots/"
+out_base = "/home/past12am/OuzoCloud/Studium/Physik/6_Semester/NN-Interaction-Debug/plots/"
 amplitude_target_dir = out_base + "amplitudes/"
 pwave_target_dir = out_base + "pwaves/"
 
@@ -114,8 +114,8 @@ for pidx, process_type in enumerate(process_types):
         # rho
         subdir = f"rho-{basis_idx}"
         cur_subdir = cur_path + subdir + "/"
-        target_files_rho_amp = get_first_target_files_starting_with(cur_subdir, ["10", "32", "40", "41", "51"])
-        target_files_rho_pwave = get_first_target_files_starting_with(cur_subdir, ["11", "22", "52", "60", "62"])
+        target_files_rho_amp = [] #get_first_target_files_starting_with(cur_subdir, ["10", "32", "40", "41", "51"])
+        target_files_rho_pwave = [] #get_first_target_files_starting_with(cur_subdir, ["11", "22", "52", "60", "62"])
 
 
         if(process_type == "quark_exchange"):

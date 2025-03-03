@@ -118,8 +118,8 @@ def plot_central_potentials(V_C_list, r_grid_list, potential_name_list, colours,
 
 def main():
     base_path = "/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/"
-    qx_run_dir = f"run_{16}"
-    dqx_run_dir = f"run_{12}"
+    qx_run_dir = f"run_{17}"
+    dqx_run_dir = f"run_{13}"
 
     process_spec = dict()
     process_spec["basis"] = "T"
