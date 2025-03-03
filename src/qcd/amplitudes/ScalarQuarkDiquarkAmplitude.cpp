@@ -97,7 +97,8 @@ void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_comple
     // q = i normalize(q) = i * 1/sqrt(q2) TransverseProj_P @ p
     gsl_complex q2;
     gsl_blas_zdotu(q, q, &q2);
-    gsl_vector_complex_scale(q, gsl_complex_mul_imag(gsl_complex_inverse(gsl_complex_sqrt(q2)), 1));
+    //gsl_vector_complex_scale(q, gsl_complex_mul_imag(gsl_complex_inverse(gsl_complex_sqrt(q2)), 1));
+    gsl_vector_complex_scale(q, gsl_complex_rect(1.0/sqrt(sqrt(gsl_complex_abs(q2))), 0));
 
     // tmpTensor = slash(q)
     DiracStructuresHelper::diracStructures.slash(q, tmpTensor);

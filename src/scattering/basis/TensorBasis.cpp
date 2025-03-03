@@ -119,7 +119,7 @@ void TensorBasis::calculateBasis(int impulseIdx, Tensor4<4, 4, 4, 4>** tauGridCu
 
 
 
-    // tau[4] = Sum(mu = 1 to 4) Lambda(p_f).[gamma[mu], gamma[nu]].Lambda(p_i) (x) Lambda(k_f).[gamma[mu], gamma[nu]].Lambda(k_i)
+    // tau[4] = 1/8 Sum(mu = 1 to 4) Lambda(p_f).[gamma[mu], gamma[nu]].Lambda(p_i) (x) Lambda(k_f).[gamma[mu], gamma[nu]].Lambda(k_i)
     // Note: prefactor 1/8 here instead of symmetric/asymmetric basis
     tauGridCurrent[4][impulseIdx].setZero();
     for(int mu = 0; mu < 4; mu++)
@@ -415,58 +415,47 @@ void TensorBasis::calculateRMatrixInverse(gsl_matrix_complex* RInvMatrixCur, dou
     double c = calc_c(X, Z);
     double d = calc_d(X, Z);
 
-    double n_plus = calc_n_plus(c, d);
-    double n_minus = calc_n_minus(c, d);
-    double g = calc_g(c, n_minus);
-    double h = calc_h(n_minus, c);
-    double k = calc_k(g, n_minus);
-
-    double e1 = calc_e1(c, d, n_plus, n_minus);
-    double e2 = calc_e2(c, d, k, n_plus);
-    double e3 = calc_e3(c, d, n_plus, n_minus);
-    double e4 = calc_e4(c, d, n_plus);
-    double e5 = calc_e5(c, d, n_plus);
-
-    double pref = 1.0 / (2.0 * gsl_pow_2(c * n_plus));
+    double pref = calc_pref(c, d);
 
     gsl_matrix_complex_set_zero(RInvMatrixCur);
 
-    gsl_matrix_complex_set(RInvMatrixCur, 0, 0, gsl_complex_rect(e1, 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 0, 1, gsl_complex_rect(-gsl_pow_2(d)/2.0 * n_minus, 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 0, 2, gsl_complex_rect(d * h, 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 0, 3, gsl_complex_rect(gsl_pow_2(d), 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 0, 4, gsl_complex_rect(d * g, 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 0, 0, gsl_complex_rect(calc_Rinv_11(c, d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 0, 1, gsl_complex_rect(calc_Rinv_12(c, d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 0, 2, gsl_complex_rect(calc_Rinv_13(c, d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 0, 3, gsl_complex_rect(calc_Rinv_14(c, d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 0, 4, gsl_complex_rect(calc_Rinv_15(c, d), 0));
 
-    gsl_matrix_complex_set(RInvMatrixCur, 1, 0, gsl_complex_rect(-gsl_pow_2(d)/2.0 * n_minus, 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 1, 1, gsl_complex_rect(e2, 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 1, 2, gsl_complex_rect(d * h, 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 1, 3, gsl_complex_rect(gsl_pow_2(d) - n_plus, 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 1, 4, gsl_complex_rect(d * k, 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 1, 0, gsl_complex_rect(calc_Rinv_12(c, d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 1, 1, gsl_complex_rect(calc_Rinv_22(c, d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 1, 2, gsl_complex_rect(calc_Rinv_23(c, d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 1, 3, gsl_complex_rect(calc_Rinv_24(c, d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 1, 4, gsl_complex_rect(calc_Rinv_25(c, d), 0));
 
-    gsl_matrix_complex_set(RInvMatrixCur, 2, 0, gsl_complex_rect(d * h, 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 2, 1, gsl_complex_rect(d * h, 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 2, 2, gsl_complex_rect(e3, 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 2, 3, gsl_complex_rect(-d * (1.0 + c), 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 2, 4, gsl_complex_rect(1.5 * c * n_plus + gsl_pow_2(d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 2, 0, gsl_complex_rect(calc_Rinv_13(c, d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 2, 1, gsl_complex_rect(calc_Rinv_23(c, d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 2, 2, gsl_complex_rect(calc_Rinv_33(c, d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 2, 3, gsl_complex_rect(calc_Rinv_34(c, d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 2, 4, gsl_complex_rect(calc_Rinv_35(c, d), 0));
 
-    gsl_matrix_complex_set(RInvMatrixCur, 3, 0, gsl_complex_rect(gsl_pow_2(d), 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 3, 1, gsl_complex_rect(gsl_pow_2(d) - n_plus, 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 3, 2, gsl_complex_rect(-d * (1.0 + c), 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 3, 3, gsl_complex_rect(e4, 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 3, 4, gsl_complex_rect(-d * (1.0 + c), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 3, 0, gsl_complex_rect(calc_Rinv_14(c, d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 3, 1, gsl_complex_rect(calc_Rinv_24(c, d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 3, 2, gsl_complex_rect(calc_Rinv_34(c, d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 3, 3, gsl_complex_rect(calc_Rinv_44(c, d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 3, 4, gsl_complex_rect(calc_Rinv_45(c, d), 0));
 
-    gsl_matrix_complex_set(RInvMatrixCur, 4, 0, gsl_complex_rect(d * g, 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 4, 1, gsl_complex_rect(d * k, 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 4, 2, gsl_complex_rect(1.5 * c * n_plus + gsl_pow_2(d), 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 4, 3, gsl_complex_rect(-d * (1.0 + c), 0));
-    gsl_matrix_complex_set(RInvMatrixCur, 4, 4, gsl_complex_rect(e5, 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 4, 0, gsl_complex_rect(calc_Rinv_15(c, d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 4, 1, gsl_complex_rect(calc_Rinv_25(c, d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 4, 2, gsl_complex_rect(calc_Rinv_35(c, d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 4, 3, gsl_complex_rect(calc_Rinv_45(c, d), 0));
+    gsl_matrix_complex_set(RInvMatrixCur, 4, 4, gsl_complex_rect(calc_Rinv_55(c, d), 0));
 
-    gsl_matrix_complex_scale(RInvMatrixCur, gsl_complex_rect(pref, 0));
+    gsl_matrix_complex_scale(RInvMatrixCur, gsl_complex_rect(1.0/pref, 0));
+    std::cout << PrintGSLElements::print_gsl_matrix_complex(RInvMatrixCur) << std::endl;
 }
 
 double TensorBasis::calc_c(double X, double Z)
 {
-    return 0.5 * X * (1.0 - Z);
+    return 0.5 * X * (Z - 1.0);
 }
 
 double TensorBasis::calc_d(double X, double Z)
@@ -474,55 +463,82 @@ double TensorBasis::calc_d(double X, double Z)
     return 1.0 + 0.5 * X * (3.0 + Z);
 }
 
-double TensorBasis::calc_n_plus(double c, double d)
+double TensorBasis::calc_pref(double c, double d)
 {
-    return (gsl_pow_2(1.0 + c) - gsl_pow_2(d)) / (2.0 * c);
+    return 8*c*std::pow(1 - 2*c + std::pow(c,2) - std::pow(d,2),2);
 }
 
-double TensorBasis::calc_n_minus(double c, double d)
+double TensorBasis::calc_Rinv_11(double c, double d)
 {
-    return (gsl_pow_2(1.0 - c) - gsl_pow_2(d)) / (2.0 * c);
+    return 2*std::pow(-1 + c,2)*c + (1 + std::pow(c,2))*std::pow(d,2) - std::pow(d,4);
 }
 
-double TensorBasis::calc_g(double c, double n_minus)
+double TensorBasis::calc_Rinv_12(double c, double d)
 {
-    return 0.5 * c * n_minus - 1.0;
+    return (1 + c - d)*std::pow(d,2)*(1 + c + d);
 }
 
-double TensorBasis::calc_h(double n_minus, double c)
+double TensorBasis::calc_Rinv_13(double c, double d)
 {
-    return n_minus/2.0 - c;
+    return d*(-1 + c*(-2 + 3*c) + std::pow(d,2));
 }
 
-double TensorBasis::calc_k(double g, double n_minus)
+double TensorBasis::calc_Rinv_14(double c, double d)
 {
-    return g + n_minus + 2.0;
+    return 4*c*std::pow(d,2);
 }
 
-double TensorBasis::calc_e1(double c, double d, double n_plus, double n_minus)
+double TensorBasis::calc_Rinv_15(double c, double d)
 {
-    return c * n_plus - gsl_pow_2(d)/2.0 * n_minus;
+    return c*d*(-3 + c*(2 + c) - std::pow(d,2));
 }
 
-double TensorBasis::calc_e2(double c, double d, double k, double n_plus)
+double TensorBasis::calc_Rinv_22(double c, double d)
 {
-    return n_plus/c * (1.0 + 2.0 * c * n_plus) - gsl_pow_2(d) * (1.0 + k)/c;
+    return (2*std::pow(-1 + c,2)*(2 + (-2 + c)*c) + (-8 + c*(13 + (-4 + c)*c))*std::pow(d,2) - (-4 + c)*std::pow(d,4))/c;
 }
 
-double TensorBasis::calc_e3(double c, double d, double n_plus, double n_minus)
+double TensorBasis::calc_Rinv_23(double c, double d)
 {
-    return c * n_plus - n_minus/2.0 + gsl_pow_2(d) - 1;
+    return d*(-1 + c*(-2 + 3*c) + std::pow(d,2));
 }
 
-double TensorBasis::calc_e4(double c, double d, double n_plus)
+double TensorBasis::calc_Rinv_24(double c, double d)
 {
-    return c * n_plus + gsl_pow_2(d);
+    return 2*(std::pow(-1 + c,2) + (-1 + 2*c)*std::pow(d,2));
 }
 
-double TensorBasis::calc_e5(double c, double d, double n_plus)
+double TensorBasis::calc_Rinv_25(double c, double d)
 {
-    return c * n_plus * (1.0 - c/2.0) + gsl_pow_2(d);
+    return d*(-2 + c + std::pow(c,3) - (-2 + c)*std::pow(d,2));
 }
 
+double TensorBasis::calc_Rinv_33(double c, double d)
+{
+    return std::pow(-1 + c,2)*(1 + 2*c) + (-1 + 2*c)*std::pow(d,2);
+}
 
+double TensorBasis::calc_Rinv_34(double c, double d)
+{
+    return 4*(-1 + c)*c*d;
+}
 
+double TensorBasis::calc_Rinv_35(double c, double d)
+{
+    return c*(3*std::pow(-1 + c,2) + std::pow(d,2));
+}
+
+double TensorBasis::calc_Rinv_44(double c, double d)
+{
+    return 2*c*(std::pow(-1 + c,2) + std::pow(d,2));
+}
+
+double TensorBasis::calc_Rinv_45(double c, double d)
+{
+    return 4*(-1 + c)*c*d;
+}
+
+double TensorBasis::calc_Rinv_55(double c, double d)
+{
+    return c*(std::pow(c,3) + 2*(1 + std::pow(d,2)) - c*(3 + std::pow(d,2)));
+}

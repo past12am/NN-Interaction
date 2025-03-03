@@ -66,12 +66,12 @@ int main(int argc, char *argv[])
     int lenX = 12;
     int lenZ = 13;
 
-    double loop_cutoff = 1E4;
+    double loop_cutoff = 1E4;       // Note: additional effects with 1E6
 
-    int k2_integration_points = 32;
-    int z_integration_points = 16;
-    int y_integration_points = 16;
-    int phi_integration_points = 10;
+    int k2_integration_points = 64;
+    int z_integration_points = 32;
+    int y_integration_points = 32;
+    int phi_integration_points = 20;
 
 
     // Sanity Checks for Parameters

@@ -7,19 +7,19 @@
 
 #include <ostream>
 
-#define NUM_THREADS 6
+#define NUM_THREADS 12
 
-# define BASIS Basis::T
-# define PROJECTION_BASIS Basis::T
+# define BASIS Basis::tau
+# define PROJECTION_BASIS Basis::tau_prime
 
 # define DIQUARK_TYPE_1 DiquarkType::SCALAR
 # define DIQUARK_TYPE_2 DiquarkType::SCALAR
 
 # define AMPLITUDE_ISOSPIN 0
 
-#define SCATTERING_PROCESS_TYPE ScatteringProcessType::QUARK_EXCHANGE
+#define SCATTERING_PROCESS_TYPE ScatteringProcessType::DIQUARK_EXCHANGE
 
-#define INVERT_STRATEGY InvertStrategy::NUMERIC_MATRIX_INVERSE
+#define INVERT_STRATEGY InvertStrategy::ANALYTIC
 
 enum class InvertStrategy
 {
