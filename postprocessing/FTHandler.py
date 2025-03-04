@@ -62,12 +62,9 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
     
     ########################### (2) ##############################
     # Fit f_l(X) for X >>        (i.e. fit V_qx_l[basis, l, X])  for fixed basis, l
-    # and interpolate for X <= X_max
-
 
     # V_qx_l_fitcoeff has shape (basis, l, coeffs)
     ampHandler_rho.fit_large_X_behaviour(min_X=0)
-    ampHandler_rho.interpolate_in_X()
             
 
     # Plot partial wave amplitudes for X in (Log-Log) Plot
@@ -83,12 +80,6 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
 
     ########################### (3) ##############################
     # Plug things together
-    #   -> query interpolation for X <= X_max
-    #   -> query fit for X > X_max
-    
-    # Check interpolation
-    #skip   plotter.plot_pwave_amp_with_interpolation(ampHandler_rho, "V", "rho", "PWaves_Interpolation_V_l(X)", 31)
-
 
     # Check reconstructed Amplitude
     X_grid_extended = np.repeat(ampHandler_rho.X, len(ampHandler_rho.Z))
@@ -121,8 +112,8 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
     # Although the results seem weird, they make sense when thinking about the
     # transformation X -> q to kind of stretch the X plot along the diagonal to get the q plot
 
-    # Check Amplitude in q  --> TODO as this is more important, move to amplitude handler
-    q_qx_reconst = np.linspace(0, 8, 300)
+    # Check Amplitude in q
+    q_qx_reconst = np.linspace(0, 20, 300)
 
     q_qx_extended_reconst = np.repeat(q_qx_reconst, len(Z_grid_reconst))
     Z_grid_q_extended_reconst = np.tile(Z_grid_reconst, len(q_qx_reconst))
@@ -141,6 +132,9 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
                                          tensorBasisNamesRho[basis_idx], basis_idx, "rho", "Amplitudes_Comparison_V(X, Z)_vs_V(q, Z)", 41)
         pass
         
+    
+    # TODO we need access to the amplitude handler at that point
+    return ampHandler_rho, None, None
 
 
     ########################### (5) ##############################

@@ -73,6 +73,7 @@ class AmplitudeHandler:
             self.f_l[basis_idx, :, :] = PartialWaveExpansion(self.f[basis_idx, :], self.X, self.Z, degree_pwave_exp).get_f_x()
 
 
+    # TODO move to dedicated class
     def partial_wave_expand_q(self, degree_pwave_exp: int, q_grid: np.ndarray, Z_grid: np.ndarray, fitonly: bool=False):
         self.q = q_grid
 
@@ -256,9 +257,31 @@ class AmplitudeHandler:
         return self.FT_q_fitfunc(r, *self.f_l_q_fitcoeff[basis_idx, l, :])
 
         
+    def f_l_q_spectroscopic_at(self, L, S, J, q):
+        # r2 = M2 X (1 - Z2)
+        # q2 = M2 2 X (1 - Z)
 
+        if(S == 0 and L==J):
+            return self.singlet(J, q)
+
+        elif(S == 1):
+            # Triplet
+
+            if (L == J):
+                pass
+            elif (L == J+1):
+                pass
+            elif (L == J-1):
+                pass
+
+        raise Exception("Cannof Handle L,S,J = {L},{S},{J}")
+
+
+    def singlet(self, J, q):
+        return #TODO work out conversion with MM
+        return self.f_l_q_at(0, J, q)  - 3 * self.f_l_q_at(1, J, q) - np.square(mom_q_grid) * self.f_l_q_at(2, J, q) \
+                + np.power(mom_r_grid, 4) * (SpectroscopicConversion.A(J) * self.f_l_q_at(4, J-2, q) + (SpectroscopicConversion.B(J) - 1) * self.f_l_q_at(4, J, q) + SpectroscopicConversion.C(J) * self.f_l_q_at(4, J + 2, q))
     
-        
     
 
 class AmplitudeHandlerFitfunc(AmplitudeHandler):

@@ -13,6 +13,7 @@ from data.Dataloader import Dataloader
 from FTHandler import *
 
 from visualization.plotting import Plotter, PlotterFullAmplitude
+from spectroscopic.SpectroscopicConversions import SpectroscopicConversion
 
 plt.rcParams['text.usetex'] = True
 
@@ -119,13 +120,17 @@ def main():
 
     # Perform FT
 
+    ampHandler_rho_qx, qx__f_l_r, qx__r_grid = perform_FT_of_amplitudes(dataloader_qx, plotter_qx, tensorBasisNamesRho, "quark_exchange")
+    ampHandler_rho_dqx, dqx__f_l_r, dqx__r_grid = perform_FT_of_amplitudes(dataloader_dqx, plotter_dqx, tensorBasisNamesRho, "diquark_exchange")
+
     plotter_qx.show_plots = True
     plotter_dqx.show_plots = True
     plotter_combined.show_plots = True
-
-    ampHandler_rho_qx, qx__f_l_r, qx__r_grid = perform_FT_of_amplitudes(dataloader_qx, plotter_qx, tensorBasisNamesRho, "quark_exchange")
-    ampHandler_rho_dqx, dqx__f_l_r, dqx__r_grid = perform_FT_of_amplitudes(dataloader_dqx, plotter_dqx, tensorBasisNamesRho, "diquark_exchange")
     
+    spectroscopic = SpectroscopicConversion(ampHandler_rho_qx, ampHandler_rho_dqx)
+    spectroscopic.spectroscopic_basis_run(plotter_qx)
+
+    exit()
 
     ############################################## Position Space ##############################################
     r_grid = qx__r_grid
