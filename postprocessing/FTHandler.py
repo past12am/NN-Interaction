@@ -47,7 +47,7 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
     ########################### (1) ##############################
     #Perform Partial Wave Expansion to get V_l(X) from V(X, Z)         (i.e. get V_qx_l[basis, l, X]   from    V[basis, X, Z])
 
-    degree_pwave_exp = 4
+    degree_pwave_exp = 6
     ampHandler_rho.partial_wave_expand(degree_pwave_exp)
 
     # Plot partial wave amplitudes

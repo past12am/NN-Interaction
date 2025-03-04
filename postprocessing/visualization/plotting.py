@@ -175,19 +175,19 @@ class Plotter:
         plt.savefig(self.base_path_for(base_type, basis_idx) + "/" + f"{step_idx:02d}__{fig_name}_{base_type}_{basis_idx + 1}.pdf", dpi=600)
 
 
-    def plot_form_factor_np(self, X: np.ndarray, Z: np.ndarray, dressing_f: np.ndarray, dressing_f_name: str, xlabel_str, tensor_basis_elem: str, base_type: str, basis_idx: int, fig_name: str, step_idx: int, do_title: bool=False):
+    def plot_form_factor_np(self, X: np.ndarray, Z: np.ndarray, dressing_f: np.ndarray, dressing_f_name: str, xlabel_str, tensor_basis_elem: str, base_type: str, basis_idx: int, fig_name: str, step_idx: int, do_title: bool=False, imag_mode:bool=False):
         fig = plt.figure(figsize=(5, 5))
 
         if do_title:
-            fig.suptitle("Tensor Basis Element " + tensor_basis_elem)
+            fig.suptitle("Tensor Basis Element " + tensor_basis_elem + "" if not imag_mode else " imaginary part")
 
         # Subplot real
         ax = fig.add_subplot(1, 1, 1, projection='3d')
         ax.set_title(f"${dressing_f_name}({xlabel_str}, Z)$", fontsize="xx-large")
-        ax.plot_trisurf(X, Z, np.real(dressing_f.flatten()), cmap=cm.coolwarm)
+        ax.plot_trisurf(X, Z, np.real(dressing_f.flatten()) if not imag_mode else np.imag(dressing_f.flatten()), cmap=cm.coolwarm)
         ax.set_xlabel(f"${xlabel_str}$")
         ax.set_ylabel("$Z$")
-        ax.set_zlabel(f"${dressing_f_name}$", labelpad=10)
+        ax.set_zlabel(f"${dressing_f_name}$" if not imag_mode else f"Imag ${dressing_f_name}$", labelpad=10)
         ax.set_ylim([-1, 1])
         ax.zaxis.set_rotate_label(False)
 
@@ -349,9 +349,9 @@ class Plotter:
             self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.F[base_idx, :, :], f"F^{{({process_abbrev})}}_{base_idx + 1}", "X", f"$T_{base_idx + 1} = $ " + self.tensorBasisNamesDict["T"][base_idx], "T", base_idx, fig_name=f"{fig_name_F}_{base_idx + 1}", step_idx=step_idx)
 
 
-    def plotAmplitudes_h(self, dataloader, fig_name_h, projection_basis_type: str, step_idx: int, process_abbrev: str):
+    def plotAmplitudes_h(self, dataloader, fig_name_h, projection_basis_type: str, step_idx: int, process_abbrev: str, imag_mode: bool=False):
         for base_idx in range(5):
-            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.h[base_idx, :, :], f"h^{{({process_abbrev})}}_{base_idx + 1}", "X", self.tensorBasisNamesDict[projection_basis_type][base_idx], projection_basis_type, base_idx, fig_name=f"{fig_name_h}_{base_idx + 1}", step_idx=step_idx, do_title=False)
+            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.h[base_idx, :, :], f"h^{{({process_abbrev})}}_{base_idx + 1}", "X", self.tensorBasisNamesDict[projection_basis_type][base_idx], projection_basis_type, base_idx, fig_name=f"{fig_name_h}_{base_idx + 1}", step_idx=step_idx, do_title=False, imag_mode=imag_mode)
 
     
     def plotAmplitudes_rhoBasis(self, X, Z, V, fig_name, step_idx: int, process_abbrev: str):
