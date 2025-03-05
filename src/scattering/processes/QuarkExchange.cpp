@@ -209,9 +209,7 @@ gsl_complex QuarkExchange::integrate_process(int basisElemIdx, int externalImpul
         return integralKernelWrapper(externalImpulseIdx, basisElemIdx, threadIdx, k2, z, y, phi);
     };
 
-    gsl_complex res = momentumLoop.k2Integral(scatteringMatrixIntegrand, 0, k2_cutoff);
-    res = gsl_complex_mul_real(res, 1.0/pow(2.0 * std::numbers::pi, 4) * 0.5);
-
+    gsl_complex res = momentumLoop.integrate_4d(scatteringMatrixIntegrand, k2_cutoff);
     return res;
 }
 

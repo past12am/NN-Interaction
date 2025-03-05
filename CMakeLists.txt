@@ -33,7 +33,7 @@ add_executable(NNInteraction main.cpp
         include/utils/math/Commutator.hpp
         include/numerics/Integration.hpp
         include/scattering/impulse/ExternalImpulseGrid.hpp
-        include/scattering/MomentumLoop.hpp
+        include/scattering/momentumloops/QuarkExchangeMomentumLoop.hpp
         include/numerics/Integratable.hpp
         include/scattering/impulse/LoopComplexImpulseGrid.hpp
         include/scattering/impulse/LoopImpulseGrid.hpp
@@ -56,7 +56,7 @@ add_executable(NNInteraction main.cpp
         src/numerics/Integration.cpp
         src/scattering/impulse/ExternalImpulseGrid.cpp
         src/scattering/ScatteringProcess.cpp
-        src/scattering/MomentumLoop.cpp
+        src/scattering/momentumloops/QuarkExchangeMomentumLoop.cpp
         src/scattering/impulse/LoopComplexImpulseGrid.cpp
         src/scattering/impulse/LoopImpulseGrid.cpp
         src/numerics/integration/GaussChebyshev.cpp
@@ -66,7 +66,10 @@ add_executable(NNInteraction main.cpp
         src/scattering/processes/DiquarkExchange.cpp
         include/scattering/processes/DiquarkExchange.hpp
         src/data/QuarkDiquarkAmplitudeReader.cpp
-        include/data/QuarkDiquarkAmplitudeReader.hpp)
+        include/data/QuarkDiquarkAmplitudeReader.hpp
+        src/scattering/momentumloops/DeformedQuarkExchangeMomentumLoop.cpp
+        include/scattering/momentumloops/DeformedQuarkExchangeMomentumLoop.hpp
+        include/scattering/momentumloops/MomentumLoop.hpp)
 
 target_link_libraries(NNInteraction GSL::gsl jsoncpp)
 #target_link_libraries(NNInteraction "${TORCH_LIBRARIES}")

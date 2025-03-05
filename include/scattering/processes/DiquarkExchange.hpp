@@ -10,7 +10,7 @@
 #include "../../qcd/propagators/QuarkPropagator.hpp"
 #include "../../qcd/propagators/ScalarDiquarkPropagator.hpp"
 #include "../../qcd/amplitudes/ScalarQuarkDiquarkAmplitude.hpp"
-#include "../MomentumLoop.hpp"
+#include "../momentumloops/QuarkExchangeMomentumLoop.hpp"
 
 class DiquarkExchange : public ScatteringProcess
 {
@@ -29,7 +29,7 @@ class DiquarkExchange : public ScatteringProcess
         ScalarQuarkDiquarkAmplitude* Gamma_pf;
         ScalarQuarkDiquarkAmplitude* Gamma_kf;
 
-        MomentumLoop momentumLoop;
+        QuarkExchangeMomentumLoop momentumLoop;
 
 
         // Temporary Variables --> Lock when multithreading or create multiple
