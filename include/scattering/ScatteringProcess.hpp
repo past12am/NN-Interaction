@@ -11,6 +11,7 @@
 #include "impulse/ExternalImpulseGrid.hpp"
 #include "basis/TensorBasis.hpp"
 #include "../numerics/Integratable.hpp"
+#include "momentumloops/MomentumLoop.hpp"
 
 class ScatteringProcess
 {
@@ -33,7 +34,7 @@ class ScatteringProcess
         ExternalImpulseGrid externalImpulseGrid;
         TensorBasis tensorBasis;
 
-        void calc_k(double k2, double z, double y, double phi, gsl_vector_complex* k);
+        MomentumLoop* momentumLoop;
 
     public:
         ScatteringProcess(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, int threadIdx);

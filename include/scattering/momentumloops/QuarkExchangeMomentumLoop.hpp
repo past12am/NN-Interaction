@@ -27,6 +27,8 @@ class QuarkExchangeMomentumLoop : public MomentumLoop
     public:
         virtual gsl_complex integrate_4d(const std::function<gsl_complex(double, double, double, double)>& f, double cutoff);
 
+        virtual void calc_k(double k2, double z, double y, double phi, gsl_vector_complex* k);
+
         QuarkExchangeMomentumLoop(int k2Points, int zPoints, int yPoints, int phiPoints);
         virtual ~QuarkExchangeMomentumLoop();
 };

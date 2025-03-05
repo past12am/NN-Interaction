@@ -65,3 +65,13 @@ gsl_complex QuarkExchangeMomentumLoop::integrate_4d(const std::function<gsl_comp
 
     return res;
 }
+
+void QuarkExchangeMomentumLoop::calc_k(double k2, double z, double y, double phi, gsl_vector_complex* k)
+{
+    gsl_vector_complex_set(k, 0, gsl_complex_rect(sqrt(1.0 - pow(z, 2)) * sqrt(1.0 - pow(y, 2)) * sin(phi), 0));
+    gsl_vector_complex_set(k, 1, gsl_complex_rect(sqrt(1.0 - pow(z, 2)) * sqrt(1.0 - pow(y, 2)) * cos(phi), 0));
+    gsl_vector_complex_set(k, 2, gsl_complex_rect(sqrt(1.0 - pow(z, 2)) * y, 0));
+    gsl_vector_complex_set(k, 2, gsl_complex_rect(z, 0));
+
+    gsl_vector_complex_scale(k, gsl_complex_rect(sqrt(k2), 0));
+}

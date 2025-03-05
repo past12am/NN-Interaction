@@ -5,12 +5,15 @@
 #include <gsl/gsl_blas.h>
 #include "../../../include/scattering/processes/DiquarkExchange.hpp"
 
+#include "../../../include/scattering/momentumloops/QuarkExchangeMomentumLoop.hpp"
+
 DiquarkExchange::DiquarkExchange(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double ZCutoffLower, double ZCutoffUpper,
                                  gsl_complex nucleon_mass, double eta, int k2Points, int zPoints, int yPoints, int phiPoints, int threadIdx) :
         ScatteringProcess(lenX, lenZ, XCutoffLower, XCutoffUpper, ZCutoffLower, ZCutoffUpper, nucleon_mass, threadIdx),
-        eta(eta),
-        momentumLoop(k2Points, zPoints, yPoints, phiPoints)
+        eta(eta)
 {
+    momentumLoop = new QuarkExchangeMomentumLoop(k2Points, zPoints, yPoints, phiPoints);
+
     lmr_half = gsl_vector_complex_alloc(4);
     lpr_half = gsl_vector_complex_alloc(4);
 
@@ -88,6 +91,8 @@ DiquarkExchange::~DiquarkExchange()
 
     delete S_k;
     delete S_p;
+
+    delete static_cast<QuarkExchangeMomentumLoop*>(momentumLoop);
 }
 
 void DiquarkExchange::calc_k_q(gsl_vector_complex *k, gsl_vector_complex *l, gsl_vector_complex *r, gsl_vector_complex *P, gsl_vector_complex *k_q)
@@ -266,6 +271,6 @@ gsl_complex DiquarkExchange::integrate_process(int basisElemIdx, int externalImp
         return integralKernelWrapper(externalImpulseIdx, basisElemIdx, threadIdx, k2, z, y, phi);
     };
 
-    gsl_complex res = momentumLoop.integrate_4d(scatteringMatrixIntegrand, k2_cutoff);
+    gsl_complex res = momentumLoop->integrate_4d(scatteringMatrixIntegrand, k2_cutoff);
     return res;
 }
