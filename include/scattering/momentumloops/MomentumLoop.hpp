@@ -12,7 +12,7 @@ class MomentumLoop
     public:
         virtual gsl_complex integrate_4d(const std::function<gsl_complex(double, double, double, double)>& f, double cutoff) = 0;
 
-        virtual void calc_k(double k2, double z, double y, double phi, gsl_vector_complex* k) = 0;
+        virtual void calc_k(double var1, double var2, double var3, double var4, gsl_vector_complex* k) = 0;
 
         virtual ~MomentumLoop() {}
 };
