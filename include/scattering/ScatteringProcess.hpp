@@ -24,8 +24,6 @@ class ScatteringProcess
     protected:
         int threadIdx;
 
-        gsl_complex nucleon_mass;
-
         gsl_complex* scattering_amplitude_basis_projected;  // h_i
         gsl_complex* form_factors;                          // f_i
 
@@ -37,13 +35,13 @@ class ScatteringProcess
         MomentumLoop* momentumLoop;
 
     public:
-        ScatteringProcess(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, int threadIdx);
+        ScatteringProcess(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper, int threadIdx);
         virtual ~ScatteringProcess();
 
         void performScatteringCalculation(double k2_cutoff);
         void buildScatteringMatrix();
 
-        void calculateFormFactors(int XIdx, int ZIdx, gsl_complex M, gsl_vector_complex* f);
+        void calculateFormFactors(int XIdx, int ZIdx, gsl_vector_complex* f);
         void build_h_vector(int externalImpulseIdx, gsl_vector_complex* h);
 
         TensorBasis* getTensorBasis();

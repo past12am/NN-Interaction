@@ -7,11 +7,12 @@
 #include "../../../include/scattering/impulse/ExternalImpulseGrid.hpp"
 
 #include "complex"
+#include "../../../include/Definitions.h"
 #include "gsl/gsl_complex_math.h"
 #include "gsl/gsl_math.h"
 
-ExternalImpulseGrid::ExternalImpulseGrid(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass) :
-        ZXGrid(lenX, lenZ, XCutoffLower, XCutoffUpper, zCutoffLower, zCutoffUpper), nucleon_mass(nucleon_mass)
+ExternalImpulseGrid::ExternalImpulseGrid(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper) :
+        ZXGrid(lenX, lenZ, XCutoffLower, XCutoffUpper, zCutoffLower, zCutoffUpper)
 {
     int len = getLength();
 
@@ -33,9 +34,9 @@ ExternalImpulseGrid::ExternalImpulseGrid(int lenX, int lenZ, double XCutoffLower
             l_ext[i] = gsl_vector_complex_alloc(4);
             r_ext[i] = gsl_vector_complex_alloc(4);
             P_ext[i] = gsl_vector_complex_alloc(4);
-            calc_l_ext(l_ext[i], getXAt(XIdx), getZAt(ZIdx), nucleon_mass);
-            calc_r_ext(r_ext[i], getXAt(XIdx), getZAt(ZIdx), nucleon_mass);
-            calc_P_ext(P_ext[i], getXAt(XIdx), getZAt(ZIdx), nucleon_mass);
+            calc_l_ext(l_ext[i], getXAt(XIdx), getZAt(ZIdx));
+            calc_r_ext(r_ext[i], getXAt(XIdx), getZAt(ZIdx));
+            calc_P_ext(P_ext[i], getXAt(XIdx), getZAt(ZIdx));
 
             p_i[i] = gsl_vector_complex_alloc(4);
             p_f[i] = gsl_vector_complex_alloc(4);
@@ -73,7 +74,7 @@ ExternalImpulseGrid::~ExternalImpulseGrid()
     delete []P_ext;
 }
 
-void ExternalImpulseGrid::calc_l_ext(gsl_vector_complex* l_ext, double X, double Z, gsl_complex nucleon_mass)
+void ExternalImpulseGrid::calc_l_ext(gsl_vector_complex* l_ext, double X, double Z)
 {
     assert(X > 0);
     assert(X < 1);
@@ -81,15 +82,14 @@ void ExternalImpulseGrid::calc_l_ext(gsl_vector_complex* l_ext, double X, double
     gsl_vector_complex_set_zero(l_ext);
     gsl_vector_complex_set(l_ext, 2, GSL_COMPLEX_ONE);
 
-    gsl_complex pref = gsl_complex_mul_real(nucleon_mass, sqrt(X));
-
+    gsl_complex pref = gsl_complex_rect(M_nucleon * sqrt(X), 0); //gsl_complex_mul_real(nucleon_mass, sqrt(X));
     gsl_vector_complex_scale(l_ext, pref);
 
     assert(GSL_REAL(pref) > 0);
     assert(GSL_IMAG(pref) == 0);
 }
 
-void ExternalImpulseGrid::calc_r_ext(gsl_vector_complex* r_ext, double X, double Z, gsl_complex nucleon_mass)
+void ExternalImpulseGrid::calc_r_ext(gsl_vector_complex* r_ext, double X, double Z)
 {
     assert(X > 0);
     assert(X < 1);
@@ -98,15 +98,14 @@ void ExternalImpulseGrid::calc_r_ext(gsl_vector_complex* r_ext, double X, double
     gsl_vector_complex_set(r_ext, 1, gsl_complex_sqrt_real(1.0 - gsl_pow_2(Z)));
     gsl_vector_complex_set(r_ext, 2, gsl_complex_rect(Z, 0));
 
-    gsl_complex pref = gsl_complex_mul_real(nucleon_mass, sqrt(X));
-
+    gsl_complex pref = gsl_complex_rect(M_nucleon * sqrt(X), 0); //gsl_complex_mul_real(nucleon_mass, sqrt(X));
     gsl_vector_complex_scale(r_ext, pref);
 
     assert(GSL_REAL(pref) > 0);
     assert(GSL_IMAG(pref) == 0);
 }
 
-void ExternalImpulseGrid::calc_P_ext(gsl_vector_complex* P_ext, double X, double Z, gsl_complex nucleon_mass)
+void ExternalImpulseGrid::calc_P_ext(gsl_vector_complex* P_ext, double X, double Z)
 {
     assert(X > 0);
     assert(X < 1);
@@ -114,8 +113,7 @@ void ExternalImpulseGrid::calc_P_ext(gsl_vector_complex* P_ext, double X, double
     gsl_vector_complex_set_zero(P_ext);
     gsl_vector_complex_set(P_ext, 3, GSL_COMPLEX_ONE);
 
-    gsl_complex pref = gsl_complex_mul(nucleon_mass, gsl_complex_rect(0, 2.0 * sqrt(1.0 + X)));
-
+    gsl_complex pref = gsl_complex_rect(0, 2.0 * M_nucleon * sqrt(1.0 + X)); //gsl_complex_mul(nucleon_mass, gsl_complex_rect(0, 2.0 * sqrt(1.0 + X)));
     gsl_vector_complex_scale(P_ext, pref);
 
     assert(GSL_IMAG(pref) > 0);

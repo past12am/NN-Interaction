@@ -192,7 +192,7 @@ void TensorBasis::matProd3Elem(const gsl_matrix_complex* A, const gsl_matrix_com
 }
 
 
-TensorBasis::TensorBasis(ExternalImpulseGrid* externalImpulseGrid, gsl_complex nucleon_mass) : len(externalImpulseGrid->getLength())
+TensorBasis::TensorBasis(ExternalImpulseGrid* externalImpulseGrid) : len(externalImpulseGrid->getLength())
 {
     tauGrid = new Tensor4<4, 4, 4, 4>* [basis_size];
     tauPrimeGrid = new Tensor4<4, 4, 4, 4>* [basis_size];

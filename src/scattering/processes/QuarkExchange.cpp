@@ -17,8 +17,8 @@
 
 
 QuarkExchange::QuarkExchange(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double ZCutoffLower, double ZCutoffUpper,
-                             gsl_complex nucleon_mass, double eta, int k2Points, int zPoints, int yPoints, int phiPoints, int threadIdx) :
-                                        ScatteringProcess(lenX, lenZ, XCutoffLower, XCutoffUpper, ZCutoffLower, ZCutoffUpper, nucleon_mass, threadIdx),
+                             double eta, int k2Points, int zPoints, int yPoints, int phiPoints, int threadIdx) :
+                                        ScatteringProcess(lenX, lenZ, XCutoffLower, XCutoffUpper, ZCutoffLower, ZCutoffUpper, threadIdx),
                                         eta(eta)
 {
     momentumLoop = new QuarkExchangeMomentumLoop(k2Points, zPoints, yPoints, phiPoints);

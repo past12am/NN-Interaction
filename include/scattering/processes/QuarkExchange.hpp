@@ -74,7 +74,7 @@ class QuarkExchange : public ScatteringProcess
 
     public:
         QuarkExchange(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double ZCutoffLower, double ZCutoffUpper,
-                      gsl_complex nucleon_mass, double eta, int k2Points, int zPoints, int yPoints, int phiPoints, int threadIdx);
+                      double eta, int k2Points, int zPoints, int yPoints, int phiPoints, int threadIdx);
         ~QuarkExchange() override;
 
 

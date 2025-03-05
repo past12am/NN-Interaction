@@ -39,7 +39,6 @@ int main(int argc, char *argv[])
 {
     double m_q = 0.55; // GeV
     double m_d = 0.8;  // GeV (scalar diquark)
-    gsl_complex M_nucleon = gsl_complex_rect(0.94, 0); // GeV
 
     double eta = m_q/(m_q + m_d);
 
@@ -68,7 +67,7 @@ int main(int argc, char *argv[])
 
     double loop_cutoff = 1E4;       // Note: additional effects with 1E6
 
-    int k2_integration_points = 64;
+    int k2_integration_points = 40;
     int z_integration_points = 32;
     int y_integration_points = 32;
     int phi_integration_points = 20;
@@ -103,7 +102,7 @@ int main(int argc, char *argv[])
                                                       k2_integration_points, z_integration_points,
                                                       y_integration_points, phi_integration_points,
                                                       eta, X_lower, X_upper,
-                                                      Z_lower, Z_upper, M_nucleon);
+                                                      Z_lower, Z_upper);
 
     scatteringProcessHandler.calculateScattering(loop_cutoff);
     scatteringProcessHandler.store_scattering_amplitude(argv[1],

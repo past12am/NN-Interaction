@@ -12,8 +12,6 @@
 class ExternalImpulseGrid : public ZXGrid
 {
     private:
-        gsl_complex nucleon_mass;
-
         // Set A
         //gsl_vector_complex** q_ext;
         //gsl_vector_complex** p_ext;
@@ -25,9 +23,9 @@ class ExternalImpulseGrid : public ZXGrid
         gsl_vector_complex** r_ext;
         gsl_vector_complex** P_ext;
 
-        void calc_l_ext(gsl_vector_complex* l_ext, double X, double Z, gsl_complex nucleon_mass);
-        void calc_r_ext(gsl_vector_complex* r_ext, double X, double Z, gsl_complex nucleon_mass);
-        void calc_P_ext(gsl_vector_complex* P_ext, double X, double Z, gsl_complex nucleon_mass);
+        void calc_l_ext(gsl_vector_complex* l_ext, double X, double Z);
+        void calc_r_ext(gsl_vector_complex* r_ext, double X, double Z);
+        void calc_P_ext(gsl_vector_complex* P_ext, double X, double Z);
 
 
         gsl_vector_complex** p_i;
@@ -42,7 +40,7 @@ class ExternalImpulseGrid : public ZXGrid
 
 
     public:
-        ExternalImpulseGrid(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass);
+        ExternalImpulseGrid(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper);
         virtual ~ExternalImpulseGrid();
 
         gsl_vector_complex* get_l_ext(int idx);

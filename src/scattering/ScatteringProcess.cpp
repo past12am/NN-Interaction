@@ -13,10 +13,10 @@
 #include "../../include/utils/print/PrintGSLElements.hpp"
 
 
-ScatteringProcess::ScatteringProcess(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper, gsl_complex nucleon_mass, int threadIdx) :
-        threadIdx(threadIdx), nucleon_mass(nucleon_mass),
-        externalImpulseGrid(lenX, lenZ, XCutoffLower, XCutoffUpper, zCutoffLower, zCutoffUpper, nucleon_mass),
-        tensorBasis(&externalImpulseGrid, nucleon_mass)
+ScatteringProcess::ScatteringProcess(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper, int threadIdx) :
+        threadIdx(threadIdx),
+        externalImpulseGrid(lenX, lenZ, XCutoffLower, XCutoffUpper, zCutoffLower, zCutoffUpper),
+        tensorBasis(&externalImpulseGrid)
 {
     scattering_amplitude_basis_projected = new gsl_complex[tensorBasis.getTensorBasisElementCount() * externalImpulseGrid.getLength()];
     form_factors = new gsl_complex[tensorBasis.getTensorBasisElementCount() * externalImpulseGrid.getLength()];
@@ -156,7 +156,7 @@ void ScatteringProcess::build_h_vector(int externalImpulseIdx, gsl_vector_comple
     }
 }
 
-void ScatteringProcess::calculateFormFactors(int XIdx, int ZIdx, gsl_complex M, gsl_vector_complex* f)
+void ScatteringProcess::calculateFormFactors(int XIdx, int ZIdx, gsl_vector_complex* f)
 {
     int externalImpulseIdx = externalImpulseGrid.getGridIdx(XIdx, ZIdx);
 
@@ -198,7 +198,7 @@ void ScatteringProcess::buildScatteringMatrix()
 
             // find f
             gsl_vector_complex_set_zero(f);
-            calculateFormFactors(XIdx, ZIdx, nucleon_mass, f);
+            calculateFormFactors(XIdx, ZIdx, f);
 
             // loop over tensor basis
             scattering_amplitude[externalImpulseIdx].setZero();

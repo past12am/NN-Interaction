@@ -71,7 +71,7 @@ class TensorBasis
 
 
     public:
-        TensorBasis(ExternalImpulseGrid* externalImpulseGrid, gsl_complex nucleon_mass);
+        TensorBasis(ExternalImpulseGrid* externalImpulseGrid);
         virtual ~TensorBasis();
 
         int getTensorBasisElementCount() const;

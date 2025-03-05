@@ -17,9 +17,11 @@
 
 # define AMPLITUDE_ISOSPIN 0
 
-#define SCATTERING_PROCESS_TYPE ScatteringProcessType::DIQUARK_EXCHANGE
+#define SCATTERING_PROCESS_TYPE ScatteringProcessType::QUARK_EXCHANGE
 
 #define INVERT_STRATEGY InvertStrategy::ANALYTIC
+
+#define M_nucleon 0.94
 
 enum class InvertStrategy
 {

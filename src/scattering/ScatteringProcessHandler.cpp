@@ -15,10 +15,9 @@ ScatteringProcessHandler::ScatteringProcessHandler(int numThreads, int lenX, int
                                                    int k2Points, int zPoints, int yPoints, int phiPoints,
                                                    double eta,
                                                    double XCutoffLower, double XCutoffUpper,
-                                                   double ZCutoffLower, double ZCutoffUpper,
-                                                   const gsl_complex nucleonMass) :
+                                                   double ZCutoffLower, double ZCutoffUpper) :
     numThreads(numThreads), lenX(lenX), lenZ(lenZ), k2Points(k2Points), zPoints(zPoints), yPoints(yPoints),
-    phiPoints(phiPoints), eta(eta), nucleon_mass(nucleonMass)
+    phiPoints(phiPoints), eta(eta)
 {
     subgridScatteringProcess = new ScatteringProcess*[numThreads];
     subgridIntegrationThread = new std::thread*[numThreads];
@@ -45,7 +44,7 @@ ScatteringProcessHandler::ScatteringProcessHandler(int numThreads, int lenX, int
             subgridScatteringProcess[threadIdx] = new QuarkExchange(numXPerThread, lenZ,
                                                                     curXCutoffLower, curXCutoffUpper,
                                                                     ZCutoffLower, ZCutoffUpper,
-                                                                    nucleon_mass, eta,
+                                                                    eta,
                                                                     k2Points, zPoints, yPoints, phiPoints,
                                                                     threadIdx);
         }
@@ -54,7 +53,7 @@ ScatteringProcessHandler::ScatteringProcessHandler(int numThreads, int lenX, int
             subgridScatteringProcess[threadIdx] = new DiquarkExchange(numXPerThread, lenZ,
                                                                       curXCutoffLower, curXCutoffUpper,
                                                                       ZCutoffLower, ZCutoffUpper,
-                                                                      nucleon_mass, eta,
+                                                                      eta,
                                                                       k2Points, zPoints, yPoints, phiPoints,
                                                                       threadIdx);
         }
