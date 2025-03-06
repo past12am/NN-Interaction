@@ -73,8 +73,8 @@ class QuarkExchange : public ScatteringProcess
 
 
     public:
-        QuarkExchange(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double ZCutoffLower, double ZCutoffUpper,
-                      double eta, int k2Points, int zPoints, int yPoints, int phiPoints, int threadIdx);
+        QuarkExchange(int lenX, int lenZ, int lenContourDef, double XCutoffLower, double XCutoffUpper, double ZCutoffLower, double ZCutoffUpper, double contourEpsLower, double contourEpsUpper,
+                         double eta, int k2Points, int zPoints, int yPoints, int phiPoints, int threadIdx);
         ~QuarkExchange() override;
 
 
@@ -83,7 +83,7 @@ class QuarkExchange : public ScatteringProcess
                             gsl_vector_complex* k_f, gsl_vector_complex* k_i,
                             Tensor4<4, 4, 4, 4>* integralKernelTensor) override;
 
-        gsl_complex integrate_process(int basisElemIdx, int externalImpulseIdx, double k2_cutoff) override;
+        gsl_complex integrate_process(int basisElemIdx, int contourDefEpsIdx, int externalImpulseIdx, double k2_cutoff) override;
 };
 
 

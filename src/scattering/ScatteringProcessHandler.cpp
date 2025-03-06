@@ -11,11 +11,12 @@
 #include "../../include/Definitions.h"
 #include "../../include/scattering/processes/DiquarkExchange.hpp"
 
-ScatteringProcessHandler::ScatteringProcessHandler(int numThreads, int lenX, int lenZ,
+ScatteringProcessHandler::ScatteringProcessHandler(int numThreads, int lenX, int lenZ, int lenContourDef,
                                                    int k2Points, int zPoints, int yPoints, int phiPoints,
                                                    double eta,
                                                    double XCutoffLower, double XCutoffUpper,
-                                                   double ZCutoffLower, double ZCutoffUpper) :
+                                                   double ZCutoffLower, double ZCutoffUpper,
+                                                   double contourEpsLower, double contourEpsUpper) :
     numThreads(numThreads), lenX(lenX), lenZ(lenZ), k2Points(k2Points), zPoints(zPoints), yPoints(yPoints),
     phiPoints(phiPoints), eta(eta)
 {
@@ -41,18 +42,20 @@ ScatteringProcessHandler::ScatteringProcessHandler(int numThreads, int lenX, int
 
         if(SCATTERING_PROCESS_TYPE == ScatteringProcessType::QUARK_EXCHANGE)
         {
-            subgridScatteringProcess[threadIdx] = new QuarkExchange(numXPerThread, lenZ,
+            subgridScatteringProcess[threadIdx] = new QuarkExchange(numXPerThread, lenZ, lenContourDef,
                                                                     curXCutoffLower, curXCutoffUpper,
                                                                     ZCutoffLower, ZCutoffUpper,
+                                                                    contourEpsLower, contourEpsUpper,
                                                                     eta,
                                                                     k2Points, zPoints, yPoints, phiPoints,
                                                                     threadIdx);
         }
         else if (SCATTERING_PROCESS_TYPE == ScatteringProcessType::DIQUARK_EXCHANGE)
         {
-            subgridScatteringProcess[threadIdx] = new DiquarkExchange(numXPerThread, lenZ,
+            subgridScatteringProcess[threadIdx] = new DiquarkExchange(numXPerThread, lenZ, lenContourDef,
                                                                       curXCutoffLower, curXCutoffUpper,
                                                                       ZCutoffLower, ZCutoffUpper,
+                                                                      contourEpsLower, contourEpsUpper,
                                                                       eta,
                                                                       k2Points, zPoints, yPoints, phiPoints,
                                                                       threadIdx);
@@ -206,7 +209,7 @@ void ScatteringProcessHandler::store_scattering_amplitude(std::string data_path,
         std::ofstream data_file;
         data_file.open(fnamestrstream.str(), std::ofstream::out | std::ios::trunc);
 
-        data_file << "X,Z,h,f,|scattering_amp|2" << std::endl;
+        data_file << "eps,X,Z,h,f,|scattering_amp|2" << std::endl;
 
         for (int threadIdx = 0; threadIdx < numThreads; threadIdx++)
         {

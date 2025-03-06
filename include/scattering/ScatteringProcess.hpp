@@ -29,27 +29,30 @@ class ScatteringProcess
 
         Tensor4<4, 4, 4, 4>* scattering_amplitude;
 
+        int len_contour_def_epsilon;
+        double* contour_def_epsilon;
+
         ExternalImpulseGrid externalImpulseGrid;
         TensorBasis tensorBasis;
 
         MomentumLoop* momentumLoop;
 
     public:
-        ScatteringProcess(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper, int threadIdx);
+        ScatteringProcess(int lenX, int lenZ, int lenContourDef, double XCutoffLower, double XCutoffUpper, double zCutoffLower, double zCutoffUpper, double contourEpsLower, double contourEpsUpper, int threadIdx);
         virtual ~ScatteringProcess();
 
         void performScatteringCalculation(double k2_cutoff);
         void buildScatteringMatrix();
 
-        void calculateFormFactors(int XIdx, int ZIdx, gsl_vector_complex* f);
-        void build_h_vector(int externalImpulseIdx, gsl_vector_complex* h);
+        void calculateFormFactors(int contour_def_idx, int XIdx, int ZIdx, gsl_vector_complex* f);
+        void build_h_vector(int contour_def_idx, int externalImpulseIdx, gsl_vector_complex* h);
 
         TensorBasis* getTensorBasis();
 
-        int calcScatteringAmpIdx(int basisElemIdx, int externalImpulseIdx);
+        int calcScatteringAmpIdx(int basisElemIdx, int contour_def_idx, int externalImpulseIdx);
 
         void store_scattering_amplitude(int basisElemIdx, std::ofstream& data_file);
-        double calcSquaredNormOfScatteringMatrix(int externalImpulseIdx);
+        double calcSquaredNormOfScatteringMatrix(int contour_def_idx, int externalImpulseIdx);
 
 
         gsl_complex integralKernelWrapper(int externalImpulseIdx, int basisElemIdx, int threadIdx, double k2, double z, double y, double phi);
@@ -62,7 +65,8 @@ class ScatteringProcess
                                     gsl_vector_complex* k_f, gsl_vector_complex* k_i,
                                     Tensor4<4, 4, 4, 4>* integralKernelTensor) = 0;
 
-        virtual gsl_complex integrate_process(int basisElemIdx, int externalImpulseIdx, double k2_cutoff) = 0;
+        // TODO proceed from here with epsilon implementation
+        virtual gsl_complex integrate_process(int basisElemIdx, int contourDefEpsIdx, int externalImpulseIdx, double k2_cutoff) = 0;
 
 };
 

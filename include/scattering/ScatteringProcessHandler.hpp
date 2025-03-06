@@ -33,9 +33,12 @@ class ScatteringProcessHandler
 
 
     public:
-        ScatteringProcessHandler(int numThreads, int lenX, int lenZ, int k2Points, int zPoints, int yPoints,
-                                 int phiPoints, double eta, double XCutoffLower, double XCutoffUpper,
-                                 double ZCutoffLower, double ZCutoffUpper);
+    ScatteringProcessHandler(int numThreads, int lenX, int lenZ, int lenContourDef,
+                             int k2Points, int zPoints, int yPoints, int phiPoints,
+                             double eta,
+                             double XCutoffLower, double XCutoffUpper,
+                             double ZCutoffLower, double ZCutoffUpper,
+                             double contourEpsLower, double contourEpsUpper);
 
         virtual ~ScatteringProcessHandler();
 

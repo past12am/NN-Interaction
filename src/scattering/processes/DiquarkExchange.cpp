@@ -7,9 +7,9 @@
 
 #include "../../../include/scattering/momentumloops/QuarkExchangeMomentumLoop.hpp"
 
-DiquarkExchange::DiquarkExchange(int lenX, int lenZ, double XCutoffLower, double XCutoffUpper, double ZCutoffLower, double ZCutoffUpper,
+DiquarkExchange::DiquarkExchange(int lenX, int lenZ, int lenContourDef, double XCutoffLower, double XCutoffUpper, double ZCutoffLower, double ZCutoffUpper, double contourEpsLower, double contourEpsUpper,
                                  double eta, int k2Points, int zPoints, int yPoints, int phiPoints, int threadIdx) :
-        ScatteringProcess(lenX, lenZ, XCutoffLower, XCutoffUpper, ZCutoffLower, ZCutoffUpper, threadIdx),
+        ScatteringProcess(lenX, lenZ, lenContourDef, XCutoffLower, XCutoffUpper, ZCutoffLower, ZCutoffUpper, contourEpsLower, contourEpsUpper, threadIdx),
         eta(eta)
 {
     momentumLoop = new QuarkExchangeMomentumLoop(k2Points, zPoints, yPoints, phiPoints);
@@ -265,8 +265,10 @@ void DiquarkExchange::integralKernel(gsl_vector_complex *k, gsl_vector_complex *
     }
 }
 
-gsl_complex DiquarkExchange::integrate_process(int basisElemIdx, int externalImpulseIdx, double k2_cutoff)
+gsl_complex DiquarkExchange::integrate_process(int basisElemIdx, int contourDefEpsIdx, int externalImpulseIdx, double k2_cutoff)
 {
+    // TODO proceed incorporating contourDefEps from here
+
     std::function<gsl_complex(double, double, double, double)> scatteringMatrixIntegrand = [=, this](double k2, double z, double y, double phi) -> gsl_complex {
         return integralKernelWrapper(externalImpulseIdx, basisElemIdx, threadIdx, k2, z, y, phi);
     };
