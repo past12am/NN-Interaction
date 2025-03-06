@@ -48,6 +48,7 @@ class SpectroscopicConversion:
     def spectroscopic_basis_run(self, plotter: Plotter):
         LSJ_singlet = [(0, 0, 0), (1, 0, 1), (2, 0, 2), (3, 0, 3), (4, 0, 4)]
         LSJ_triplet__L_eq_J_plus_1 = [(None, None, None), (1, 1, 0), (2, 1, 1), (3, 1, 2), (4, 1, 3), (5, 1, 4)]
+        LSJ_triplet__L_eq_J = [(None, None, None), (1, 1, 1), (2, 1, 2), (3, 1, 3), (4, 1, 4), (5, 1, 5)]
         LSJ_triplet__L_eq_J_minus_1 = [(0, 1, 1), (1, 1, 2), (2, 1, 3), (3, 1, 4), (4, 1, 5), (5, 1, 6)]
 
         ########################### (5) ##############################
@@ -73,7 +74,12 @@ class SpectroscopicConversion:
 
         
         #           L = J
-        # TODO
+        triplet_l_is_j__pwaveEqual__C_I0_grid = SpectroscopicConversion.partial_wave_expand(degree_pwave_expansion, q_grid, Z_grid, self.triplet_l_is_j__pwaveEqual__C, I=0)
+        triplet_l_is_j__pwavePlusMinus__C_I0_grid = SpectroscopicConversion.partial_wave_expand(degree_pwave_expansion, q_grid, Z_grid, self.triplet_l_is_j__pwavePlusMinus__C, I=0)
+
+        triplet_l_is_j__pwaveEqual__C_I1_grid = SpectroscopicConversion.partial_wave_expand(degree_pwave_expansion, q_grid, Z_grid, self.triplet_l_is_j__pwaveEqual__C, I=1)
+        triplet_l_is_j__pwavePlusMinus__C_I1_grid = SpectroscopicConversion.partial_wave_expand(degree_pwave_expansion, q_grid, Z_grid, self.triplet_l_is_j__pwavePlusMinus__C, I=1)
+
 
         #           L = J + 1
         triplet_l_is_j_Plus_1__pwaveEqual__C_I0_grid = SpectroscopicConversion.partial_wave_expand(degree_pwave_expansion, q_grid, Z_grid, self.triplet_l_is_j_Plus_1__pwaveEqual__C, I=0)
@@ -86,18 +92,25 @@ class SpectroscopicConversion:
         #       Construct Full combination
         triplet_l_is_j_Plus_1__C_I0_grid = np.zeros_like(triplet_l_is_j_Plus_1__pwaveEqual__C_I0_grid)
         triplet_l_is_j_Plus_1__C_I1_grid = np.zeros_like(triplet_l_is_j_Plus_1__pwaveEqual__C_I0_grid)
+        triplet_l_is_j__C_I0_grid = np.zeros_like(triplet_l_is_j__pwaveEqual__C_I0_grid)
+        triplet_l_is_j__C_I1_grid = np.zeros_like(triplet_l_is_j__pwaveEqual__C_I1_grid)
         triplet_l_is_j_Minus_1__C_I0_grid = np.zeros_like(triplet_l_is_j_Minus_1__pwaveEqual__C_I0_grid)
         triplet_l_is_j_Minus_1__C_I1_grid = np.zeros_like(triplet_l_is_j_Minus_1__pwaveEqual__C_I1_grid)
 
         #       L = J - 1
         for l in range(0, degree_pwave_expansion):
-            triplet_l_is_j_Minus_1__C_I0_grid[l, :] = triplet_l_is_j_Minus_1__pwaveEqual__C_I0_grid[l + 1, :] + triplet_l_is_j_Minus_1__pwaveMinus__C_I0_grid[l]
-            triplet_l_is_j_Minus_1__C_I1_grid[l, :] = triplet_l_is_j_Minus_1__pwaveEqual__C_I1_grid[l + 1, :] + triplet_l_is_j_Minus_1__pwaveMinus__C_I1_grid[l]
+            triplet_l_is_j_Minus_1__C_I0_grid[l, :] = triplet_l_is_j_Minus_1__pwaveEqual__C_I0_grid[l + 1, :] + triplet_l_is_j_Minus_1__pwaveMinus__C_I0_grid[l, :]
+            triplet_l_is_j_Minus_1__C_I1_grid[l, :] = triplet_l_is_j_Minus_1__pwaveEqual__C_I1_grid[l + 1, :] + triplet_l_is_j_Minus_1__pwaveMinus__C_I1_grid[l, :]
+
+        #       L = J
+        for l in range(1, degree_pwave_expansion):
+            triplet_l_is_j__C_I0_grid[l, :] = triplet_l_is_j__pwaveEqual__C_I0_grid[l, :] + (triplet_l_is_j__pwavePlusMinus__C_I0_grid[l + 1, :] + triplet_l_is_j__pwavePlusMinus__C_I0_grid[l - 1, :])
+            triplet_l_is_j__C_I1_grid[l, :] = triplet_l_is_j__pwaveEqual__C_I1_grid[l, :] + (triplet_l_is_j__pwavePlusMinus__C_I1_grid[l + 1, :] + triplet_l_is_j__pwavePlusMinus__C_I1_grid[l - 1, :])
 
         #       L = J + 1
         for l in range(1, degree_pwave_expansion + 1):
-            triplet_l_is_j_Plus_1__C_I0_grid[l, :] = triplet_l_is_j_Plus_1__pwaveEqual__C_I0_grid[l-1, :] + triplet_l_is_j_Plus_1__pwavePlus__C_I0_grid[l, 0]   # Note that l = 0 is not a valid quantum number here
-            triplet_l_is_j_Plus_1__C_I1_grid[l, :] = triplet_l_is_j_Plus_1__pwaveEqual__C_I1_grid[l-1, :] + triplet_l_is_j_Plus_1__pwavePlus__C_I1_grid[l, 0]   # Note that l = 0 is not a valid quantum number here
+            triplet_l_is_j_Plus_1__C_I0_grid[l, :] = triplet_l_is_j_Plus_1__pwaveEqual__C_I0_grid[l-1, :] + triplet_l_is_j_Plus_1__pwavePlus__C_I0_grid[l, :]   # Note that l = 0 is not a valid quantum number here
+            triplet_l_is_j_Plus_1__C_I1_grid[l, :] = triplet_l_is_j_Plus_1__pwaveEqual__C_I1_grid[l-1, :] + triplet_l_is_j_Plus_1__pwavePlus__C_I1_grid[l, :]   # Note that l = 0 is not a valid quantum number here
 
 
 
@@ -118,6 +131,8 @@ class SpectroscopicConversion:
 
         triplet_l_is_j_Minus_1__C_I0_splines = SpectroscopicConversion.interpolate_expanded_in_var(triplet_l_is_j_Minus_1__C_I0_grid, q_grid)
         triplet_l_is_j_Minus_1__C_I1_splines = SpectroscopicConversion.interpolate_expanded_in_var(triplet_l_is_j_Minus_1__C_I1_grid, q_grid)
+        triplet_l_is_j__C_I0_splines = SpectroscopicConversion.interpolate_expanded_in_var(triplet_l_is_j__C_I0_grid, q_grid)
+        triplet_l_is_j__C_I1_splines = SpectroscopicConversion.interpolate_expanded_in_var(triplet_l_is_j__C_I1_grid, q_grid)
         triplet_l_is_j_Plus_1__C_I0_splines = SpectroscopicConversion.interpolate_expanded_in_var(triplet_l_is_j_Plus_1__C_I0_grid, q_grid)
         triplet_l_is_j_Plus_1__C_I1_splines = SpectroscopicConversion.interpolate_expanded_in_var(triplet_l_is_j_Plus_1__C_I1_grid, q_grid)
 
@@ -140,6 +155,8 @@ class SpectroscopicConversion:
 
         triplet_l_is_j_Minus_1__C_I0_r = np.zeros((len(triplet_l_is_j_Minus_1__C_I0_splines), len(r_grid)))
         triplet_l_is_j_Minus_1__C_I1_r = np.zeros((len(triplet_l_is_j_Minus_1__C_I1_splines), len(r_grid)))
+        triplet_l_is_j__C_I0_r = np.zeros((len(triplet_l_is_j__C_I0_splines), len(r_grid)))
+        triplet_l_is_j__C_I1_r = np.zeros((len(triplet_l_is_j__C_I1_splines), len(r_grid)))
         triplet_l_is_j_Plus_1__C_I0_r = np.zeros((len(triplet_l_is_j_Plus_1__C_I0_splines), len(r_grid)))
         triplet_l_is_j_Plus_1__C_I1_r = np.zeros((len(triplet_l_is_j_Plus_1__C_I1_splines), len(r_grid)))
 
@@ -150,6 +167,8 @@ class SpectroscopicConversion:
 
             triplet_l_is_j_Minus_1__C_I0_r[l, :] = quad_ft.fourierTransform(lambda q : triplet_l_is_j_Minus_1__C_I0_splines[l](q), r_grid)
             triplet_l_is_j_Minus_1__C_I1_r[l, :] = quad_ft.fourierTransform(lambda q : triplet_l_is_j_Minus_1__C_I1_splines[l](q), r_grid)
+            triplet_l_is_j__C_I0_r[l, :] = quad_ft.fourierTransform(lambda q : triplet_l_is_j__C_I0_splines[l](q), r_grid)
+            triplet_l_is_j__C_I1_r[l, :] = quad_ft.fourierTransform(lambda q : triplet_l_is_j__C_I1_splines[l](q), r_grid)
             triplet_l_is_j_Plus_1__C_I0_r[l, :] = quad_ft.fourierTransform(lambda q : triplet_l_is_j_Plus_1__C_I0_splines[l](q), r_grid)
             triplet_l_is_j_Plus_1__C_I1_r[l, :] = quad_ft.fourierTransform(lambda q : triplet_l_is_j_Plus_1__C_I1_splines[l](q), r_grid)
 
@@ -162,6 +181,10 @@ class SpectroscopicConversion:
         # Triplet L = J - 1
         plotter.plot_pwave_LSJ(triplet_l_is_j_Minus_1__C_I0_grid, LSJ_triplet__L_eq_J_minus_1, q_grid, "q", "GeV", "rho", "C", 0, "Central LSJ Triplet for I = 0, L = J - 1", "LSJ_Triplet_I=0_L=J-1", 101)
         plotter.plot_pwave_LSJ(triplet_l_is_j_Minus_1__C_I1_grid, LSJ_triplet__L_eq_J_minus_1, q_grid, "q", "GeV", "rho", "C", 1, "Central LSJ Triplet for I = 1, L = J - 1", "LSJ_Triplet_I=1_L=J-1", 101)
+
+        # Triplet L = J
+        plotter.plot_pwave_LSJ(triplet_l_is_j__C_I0_grid, LSJ_triplet__L_eq_J, q_grid, "q", "GeV", "rho", "C", 0, "Central LSJ Triplet for I = 0, L = J", "LSJ_Triplet_I=0_L=J", 101)
+        plotter.plot_pwave_LSJ(triplet_l_is_j__C_I1_grid, LSJ_triplet__L_eq_J, q_grid, "q", "GeV", "rho", "C", 1, "Central LSJ Triplet for I = 1, L = J", "LSJ_Triplet_I=1_L=J", 101)
 
         # Triplet L = J + 1
         plotter.plot_pwave_LSJ(triplet_l_is_j_Plus_1__C_I0_grid, LSJ_triplet__L_eq_J_plus_1, q_grid, "q", "GeV", "rho", "C", 0, "Central LSJ Triplet for I = 0, L = J + 1", "LSJ_Triplet_I=0_L=J+1", 101)
@@ -178,11 +201,17 @@ class SpectroscopicConversion:
         plotter.plot_pwave_LSJ(triplet_l_is_j_Minus_1__C_I0_r, LSJ_triplet__L_eq_J_minus_1, r_grid, "r", "1/GeV", "rho", "C", 0, "Central LSJ Triplet for I = 0, L = J - 1", "LSJ_Triplet_I=0_L=J-1", 101)
         plotter.plot_pwave_LSJ(triplet_l_is_j_Minus_1__C_I1_r, LSJ_triplet__L_eq_J_minus_1, r_grid, "r", "1/GeV", "rho", "C", 1, "Central LSJ Triplet for I = 1, L = J - 1", "LSJ_Triplet_I=1_L=J-1", 101)
 
+        # Triplet L = J
+        plotter.plot_pwave_LSJ(triplet_l_is_j__C_I0_r, LSJ_triplet__L_eq_J, r_grid, "r", "1/GeV", "rho", "C", 0, "Central LSJ Triplet for I = 0, L = J", "LSJ_Triplet_I=0_L=J", 101)
+        plotter.plot_pwave_LSJ(triplet_l_is_j__C_I1_r, LSJ_triplet__L_eq_J, r_grid, "r", "1/GeV", "rho", "C", 1, "Central LSJ Triplet for I = 1, L = J", "LSJ_Triplet_I=1_L=J", 101)
+
         # Triplet L = J + 1
         plotter.plot_pwave_LSJ(triplet_l_is_j_Plus_1__C_I0_r, LSJ_triplet__L_eq_J_plus_1, r_grid, "r", "1/GeV", "rho", "C", 0, "Central LSJ Triplet for I = 0, L = J + 1", "LSJ_Triplet_I=0_L=J+1", 101)
         plotter.plot_pwave_LSJ(triplet_l_is_j_Plus_1__C_I1_r, LSJ_triplet__L_eq_J_plus_1, r_grid, "r", "1/GeV", "rho", "C", 1, "Central LSJ Triplet for I = 1, L = J + 1", "LSJ_Triplet_I=1_L=J+1", 101)
 
 
+    def calculate_LSJ_result_in_basis():
+        pass #TODO
 
         
 
@@ -263,8 +292,44 @@ class SpectroscopicConversion:
 
 
     # Triplet, L = J
-    def triplet_l_is_j__kernel(self, q, Z, I):
-        pass
+    def triplet_l_is_j__pwaveEqual__C(self, q, Z, I):
+        return self.U(0, I, q, Z)
+    
+    def triplet_l_is_j__pwaveEqual__SS(self, q, Z, I):
+        return self.U(1, I, q, Z)
+    
+    def triplet_l_is_j__pwaveEqual__T(self, q, Z, I):
+        r = self.r_of_q_Z(q, Z)
+        return 2 * np.square(r) * (1 + Z) * self.U(2, I, q, Z)
+    
+    def triplet_l_is_j__pwaveEqual__SO(self, q, Z, I):
+        r = self.r_of_q_Z(q, Z)
+        return -4 * np.square(r) * Z * self.U(3, I, q, Z)
+    
+    def triplet_l_is_j__pwaveEqual__Q(self, q, Z, I):
+        r = self.r_of_q_Z(q, Z)
+        return -np.power(r, 4) * (3 * np.square(Z) + 1) * self.U(4, I, q, Z)
+
+
+
+    def triplet_l_is_j__pwavePlusMinus__C(self, q, Z, I):
+        return 0
+
+    def triplet_l_is_j__pwavePlusMinus__SS(self, q, Z, I):
+        return 0
+
+    def triplet_l_is_j__pwavePlusMinus__T(self, q, Z, I):
+        r = self.r_of_q_Z(q, Z)
+        return -2 * np.square(r) * self.U(2, I, q, Z)
+
+    def triplet_l_is_j__pwavePlusMinus__SO(self, q, Z, I):
+        r = self.r_of_q_Z(q, Z)
+        return 2 * np.square(r) * self.U(3, I, q, Z)
+
+    def triplet_l_is_j__pwavePlusMinus__Q(self, q, Z, I):
+        r = self.r_of_q_Z(q, Z)
+        return 2 * np.power(r, 4) * Z * self.U(4, I, q, Z)
+    
 
 
     # Triplet, L = J - 1
