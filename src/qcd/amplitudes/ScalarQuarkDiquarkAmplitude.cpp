@@ -66,13 +66,19 @@ void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_comple
 
 
     gsl_complex compl_z;
-    gsl_blas_zdotu(p_copy, P_copy, &compl_z);
+    gsl_blas_zdotc(p_copy, P_copy, &compl_z);
+
+    // TODO remove next 3 lines
+    gsl_complex compl_z_validate;
+    gsl_blas_zdotu(p_copy, P_copy, &compl_z_validate);
+    assert(compl_z.dat[0] == compl_z_validate.dat[0] && compl_z.dat[1] == compl_z_validate.dat[1]);
+
     if(abs(GSL_IMAG(compl_z)) > 1E-15)
     {
         throw std::out_of_range("Encountered complex angle for quark-diquark amplitude momenta");
     }
 
-    double norm = sqrt(abs(GSL_REAL(p2) * GSL_REAL(P2)));
+    double norm = sqrt(gsl_complex_abs(p2) * gsl_complex_abs(P2));
     double z = GSL_REAL(compl_z) / norm;
     if(z > 1 || z < -1)
     {
@@ -81,6 +87,8 @@ void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_comple
 
 
     Projectors::posEnergyProjector(P_copy, posEnergyProj);
+
+    //gsl_matrix_complex_set_zero(quarkDiquarkAmp);   // TODO remove when adding back LO tensor
 
 
     // 0: Leading Tensor    ( = unity)
@@ -109,8 +117,8 @@ void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_comple
 
     gsl_complex q2_check;
     gsl_blas_zdotu(q, q, &q2_check);
-    assert(GSL_REAL(q2_check) - 1 < 1E-10);    //TODO ensure this is correct
-    assert(GSL_IMAG(q2_check) < 1E-10);    //TODO ensure this is correct
+    assert(abs(GSL_REAL(q2_check)) - 1 < 1E-10);
+    assert(GSL_IMAG(q2_check) < 1E-10);
 
     // tmpTensor = slash(q)
     DiracStructuresHelper::diracStructures.slash(q, tmpTensor);
@@ -126,6 +134,10 @@ void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_comple
     // Add tensor contibutions together
     gsl_matrix_complex_add(quarkDiquarkAmp, NLOTensor);
     */
+
+
+    // Also, in the end the amplitude should be multiplied by the normalization factor 22.805, which comes from the canonical normalization condition. // TODO check
+    gsl_matrix_complex_scale(quarkDiquarkAmp, gsl_complex_rect(22.805, 0));
 
     if(chargeConj)
     {

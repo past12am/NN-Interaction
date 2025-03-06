@@ -66,8 +66,8 @@ int main(int argc, char *argv[])
 
     int numThreads = NUM_THREADS;
     int lenX = 12;
-    int lenZ = 7;
-    int lenContourDef = 3;
+    int lenZ = 13;
+    int lenContourDef = 1;
 
     double loop_cutoff = 1E4;       // Note: additional effects with 1E6
 
