@@ -94,9 +94,9 @@ def main():
 
     plotter_combined = PlotterFullAmplitude(output_base_path, dataloader_qx, dataloader_dqx, True)
 
-    plotter_qx.show_plots = True
-    plotter_dqx.show_plots = True
-    plotter_combined.show_plots = True
+    plotter_qx.show_plots = False
+    plotter_dqx.show_plots = False
+    plotter_combined.show_plots = False
 
 
 
@@ -106,31 +106,31 @@ def main():
     # Plot amplitudes
     print(f"QX run: {dataloader_qx.latest_run_dir_process}")
     print(f"DQX run: {dataloader_dqx.latest_run_dir_process}")
-    #plotter_qx.plotAmplitudes_h(dataloader_qx, "AmplitudeQuarkExchange_h", dataloader_qx.process_spec["projection_basis"], 0, process_abbrev="q")
-    #plotter_qx.plotAmplitudes_h(dataloader_qx, "AmplitudeQuarkExchange_h", dataloader_qx.process_spec["projection_basis"], 0, process_abbrev="q", imag_mode=True)
-    #plotter_qx.plotAmplitudes(dataloader_qx, "AmplitudeQuarkExchange_f", "AmplitudeQuarkExchange_F", 0, process_abbrev="q")
+    plotter_qx.plotAmplitudes_h(dataloader_qx, "AmplitudeQuarkExchange_h", dataloader_qx.process_spec["projection_basis"], 0, process_abbrev="q")
+    plotter_qx.plotAmplitudes_h(dataloader_qx, "AmplitudeQuarkExchange_h", dataloader_qx.process_spec["projection_basis"], 0, process_abbrev="q", imag_mode=True)
+    plotter_qx.plotAmplitudes(dataloader_qx, "AmplitudeQuarkExchange_f", "AmplitudeQuarkExchange_F", 0, process_abbrev="q")
 
-    #plotter_dqx.plotAmplitudes_h(dataloader_dqx, "AmplitudeDiquarkExchange_h", dataloader_dqx.process_spec["projection_basis"], 0, process_abbrev="dq")
-    #plotter_dqx.plotAmplitudes_h(dataloader_dqx, "AmplitudeDiquarkExchange_h", dataloader_dqx.process_spec["projection_basis"], 0, process_abbrev="dq", imag_mode=True)
-    #plotter_dqx.plotAmplitudes(dataloader_dqx, "AmplitudeDiquarkExchange_f", "AmplitudeDiquarkExchange_F", 0, process_abbrev="dq")
+    plotter_dqx.plotAmplitudes_h(dataloader_dqx, "AmplitudeDiquarkExchange_h", dataloader_dqx.process_spec["projection_basis"], 0, process_abbrev="dq")
+    plotter_dqx.plotAmplitudes_h(dataloader_dqx, "AmplitudeDiquarkExchange_h", dataloader_dqx.process_spec["projection_basis"], 0, process_abbrev="dq", imag_mode=True)
+    plotter_dqx.plotAmplitudes(dataloader_dqx, "AmplitudeDiquarkExchange_f", "AmplitudeDiquarkExchange_F", 0, process_abbrev="dq")
 
     plotter_combined.plotFullSymAmplitudeIsospin0(tensorBasisNamesT, "FullSymAmplitudeI0")
     plotter_combined.plotFullSymAmplitudeIsospin1(tensorBasisNamesT, "FullSymAmplitudeI1")
 
 
     # Perform FT
-
+    #   TODO clean that up (split the preprocessing and the actual FT, spectroscopic part does a FT as well)
     ampHandler_rho_qx, qx__f_l_r, qx__r_grid = perform_FT_of_amplitudes(dataloader_qx, plotter_qx, tensorBasisNamesRho, "quark_exchange")
     ampHandler_rho_dqx, dqx__f_l_r, dqx__r_grid = perform_FT_of_amplitudes(dataloader_dqx, plotter_dqx, tensorBasisNamesRho, "diquark_exchange")
 
-    plotter_qx.show_plots = True
-    plotter_dqx.show_plots = True
-    plotter_combined.show_plots = True
     
     spectroscopic = SpectroscopicConversion(ampHandler_rho_qx, ampHandler_rho_dqx)
-    spectroscopic.spectroscopic_basis_run(plotter_qx)
+    spectroscopic.spectroscopic_basis_run(plotter_combined)
 
+    
+    # TODO from here, we should redo it
     exit()
+    
 
     ############################################## Position Space ##############################################
     r_grid = qx__r_grid

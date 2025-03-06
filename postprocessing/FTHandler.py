@@ -131,10 +131,6 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
                                          q_qx_extended_reconst, Z_grid_q_extended_reconst, V_qx_q_reconst[basis_idx, :, :], "V", "q",
                                          tensorBasisNamesRho[basis_idx], basis_idx, "rho", "Amplitudes_Comparison_V(X, Z)_vs_V(q, Z)", 41)
         pass
-        
-    
-    # TODO we need access to the amplitude handler at that point
-    return ampHandler_rho, None, None
 
 
     ########################### (5) ##############################

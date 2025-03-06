@@ -125,6 +125,38 @@ class PlotterFullAmplitude:
             plt.close()
 
 
+    def plot_pwave_LSJ(self, LSJ_amplitudes, LSJ_descriptions, x, xlabel, x_label_unit, basis_element, isospin, title, fig_name):
+
+        fig, ax = plt.subplots(1, 1, figsize=(6, 6))
+        axs = [ax]
+
+        fig.subplots_adjust(top=0.88, bottom=0.11, left=0.2, right=0.92, hspace=0.2, wspace=0.2)
+
+        for idx in range(len(LSJ_amplitudes)):
+            L, S, J = LSJ_descriptions[idx]
+
+            if(L is None or S is None or J is None):    # Skip invalid quantum numbers
+                continue
+
+            axs[0].plot(x, LSJ_amplitudes[idx], label=f"$^{{{2 * S + 1}}}{pwave_names_capital[L]}_{J}$")
+
+            
+        mid = (fig.subplotpars.right + fig.subplotpars.left)/2
+        fig.suptitle(title, x=mid, fontsize="xx-large")
+
+        axs[0].set_xlabel(f"${xlabel}$  [{x_label_unit}]", fontsize="large")
+        axs[0].set_ylabel(f"$\\left. U_{{{basis_element}}}^{{I = {(isospin)}}}({xlabel}) \\right|_{{L,S,J}}$", fontsize="large")
+        axs[0].grid(color='lightgray', linestyle='dashed')
+        axs[0].legend()
+
+        if(self.savefig):
+            self.save_active_fig(fig_name)
+
+        if(self.show_plots):
+            plt.show()
+
+        plt.close()
+
 
 
 class Plotter:
@@ -160,7 +192,7 @@ class Plotter:
                 os.makedirs(self.base_path_for("T", basis_idx), exist_ok=True) 
                 os.makedirs(self.base_path_for("tau", basis_idx), exist_ok=True) 
                 os.makedirs(self.base_path_for("tau_prime", basis_idx), exist_ok=True) 
-                os.makedirs(self.base_path_for("rho", basis_idx), exist_ok=True) 
+                os.makedirs(self.base_path_for("rho", basis_idx), exist_ok=True)
 
             os.makedirs(self.base_path_for("generic"), exist_ok=True)
 
@@ -173,7 +205,7 @@ class Plotter:
     
 
     def save_active_fig(self, fig_name, step_idx, base_type, basis_idx: int=None):
-        plt.savefig(self.base_path_for(base_type, basis_idx) + "/" + f"{step_idx:02d}__{fig_name}_{base_type}_{basis_idx + 1}.pdf", dpi=600)
+        plt.savefig(self.base_path_for(base_type, basis_idx) + "/" + f"{step_idx:03d}__{fig_name}_{base_type}_{basis_idx + 1 if basis_idx is not None else ""}.pdf", dpi=600)
 
 
     def plot_form_factor_np(self, X: np.ndarray, Z: np.ndarray, dressing_f: np.ndarray, dressing_f_name: str, xlabel_str, tensor_basis_elem: str, base_type: str, basis_idx: int, fig_name: str, step_idx: int, do_title: bool=False, imag_mode:bool=False):
@@ -470,49 +502,6 @@ class Plotter:
                 plt.show()
 
             plt.close()
-
-    
-    def plot_pwave_LSJ(self, LSJ_amplitudes, LSJ_descriptions, x, xlabel, x_label_unit, base_type, basis_element, isospin, title, fig_name, step_idx: int):
-
-        if(self.include_loglog_plots):
-            fig, axs = plt.subplots(1, 2, figsize=(14, 7))
-        else:
-            fig, ax = plt.subplots(1, 1, figsize=(6, 6))
-            axs = [ax]
-
-        fig.subplots_adjust(top=0.88, bottom=0.11, left=0.2, right=0.92, hspace=0.2, wspace=0.2)
-
-        for idx in range(len(LSJ_amplitudes)):
-            L, S, J = LSJ_descriptions[idx]
-
-            if(L is None or S is None or J is None):    # Skip invalid quantum numbers
-                continue
-
-            axs[0].plot(x, LSJ_amplitudes[idx], label=f"$^{{{2 * S + 1}}}{pwave_names_capital[L]}_{J}$")
-
-            if(self.include_loglog_plots):
-                axs[1].loglog(x, LSJ_amplitudes[idx], label=f"$^{{{2 * S + 1}}}{pwave_names_capital[L]}_{J}$")
-            
-        mid = (fig.subplotpars.right + fig.subplotpars.left)/2
-        fig.suptitle(title, x=mid, fontsize="xx-large")
-
-        axs[0].set_xlabel(f"${xlabel}$  [{x_label_unit}]", fontsize="large")
-        axs[0].set_ylabel(f"$\\left. U_{basis_element}^{{I = {(isospin)}}}({xlabel}) \\right|_{{L,S,J}}$", fontsize="large")
-        axs[0].grid(color='lightgray', linestyle='dashed')
-        axs[0].legend()
-
-        if(self.include_loglog_plots):
-            axs[1].set_xlabel(f"$\\log {xlabel}$  [{x_label_unit}]")
-            axs[1].set_ylabel(f"$\\log V_l({xlabel})$")
-            axs[1].legend()
-
-        if(self.savefig):
-            self.save_active_fig(fig_name, step_idx, base_type, 0) #f"V_l({xlabel})"
-
-        if(self.show_plots):
-            plt.show()
-
-        plt.close()
 
     
     def plot_pwave_amp_scaled(self, f_l, x, xlabel, x_label_unit, fig_name, base_type, step_idx: int, x_lim: typing.Tuple):

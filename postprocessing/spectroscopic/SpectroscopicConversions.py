@@ -9,7 +9,7 @@ from data.Dataloader import Dataloader
 from numerics.NumericQuadratureFT import NumericQuadratureFT
 from pwave.PartialWaveExpansion import PartialWaveExpansion
 from utils.fitfunctions import yukawa_2_exponentials_v3_fitparams
-from visualization.plotting import Plotter
+from visualization.plotting import Plotter, PlotterFullAmplitude
 
 
 class SpectroscopicConversion:
@@ -45,7 +45,7 @@ class SpectroscopicConversion:
         self.amplitude_handler_dqx = amplitude_handler_dqx
 
 
-    def spectroscopic_basis_run(self, plotter: Plotter):
+    def spectroscopic_basis_run(self, plotter: PlotterFullAmplitude):
         LSJ_singlet = [(0, 0, 0), (1, 0, 1), (2, 0, 2), (3, 0, 3), (4, 0, 4)]
         LSJ_triplet__L_eq_J_plus_1 = [(None, None, None), (1, 1, 0), (2, 1, 1), (3, 1, 2), (4, 1, 3), (5, 1, 4)]
         LSJ_triplet__L_eq_J = [(None, None, None), (1, 1, 1), (2, 1, 2), (3, 1, 3), (4, 1, 4), (5, 1, 5)]
@@ -62,61 +62,59 @@ class SpectroscopicConversion:
         degree_pwave_expansion = 4
 
 
-        singlet__callables = [self.singlet_C]
+        # Define which contributions to calculat (Note that array indices need to match)
+        contribs = ["C", "SS", "SO"]
 
-        triplet_l_is_j_Minus_1__callable_tuples = [(self.triplet_l_is_j_Minus_1__pwaveEqual__C, self.triplet_l_is_j_Minus_1__pwaveMinus__C)]
-        triplet_l_is_j__callable_tuples = [(self.triplet_l_is_j__pwaveEqual__C, self.triplet_l_is_j__pwavePlusMinus__C)]
-        triplet_l_is_j_Plus_1__callable_tuples = [(self.triplet_l_is_j_Plus_1__pwaveEqual__C, self.triplet_l_is_j_Plus_1__pwavePlus__C)]
+        singlet__callables = [self.singlet_C, self.singlet_SS, self.singlet_SO]
 
-
-        (singlet_C_I0_grid, triplet_l_is_j_Minus_1__C_I0_grid, triplet_l_is_j__C_I0_grid, triplet_l_is_j_Plus_1__C_I0_grid, singlet_C_I0_r, triplet_l_is_j_Minus_1__C_I0_r, triplet_l_is_j__C_I0_r, triplet_l_is_j_Plus_1__C_I0_r)\
-            = self.calculate_LSJ_result_in_basis(0, q_grid, Z_grid, degree_pwave_expansion, r_grid, singlet__callables, triplet_l_is_j_Minus_1__callable_tuples, triplet_l_is_j__callable_tuples, triplet_l_is_j_Plus_1__callable_tuples)
-        (singlet_C_I1_grid, triplet_l_is_j_Minus_1__C_I1_grid, triplet_l_is_j__C_I1_grid, triplet_l_is_j_Plus_1__C_I1_grid, singlet_C_I1_r, triplet_l_is_j_Minus_1__C_I1_r, triplet_l_is_j__C_I1_r, triplet_l_is_j_Plus_1__C_I1_r)\
-            = self.calculate_LSJ_result_in_basis(1, q_grid, Z_grid, degree_pwave_expansion, r_grid, singlet__callables, triplet_l_is_j_Minus_1__callable_tuples, triplet_l_is_j__callable_tuples, triplet_l_is_j_Plus_1__callable_tuples)
-
-        (singlet_C_I0_grid, triplet_l_is_j_Minus_1__C_I0_grid, triplet_l_is_j__C_I0_grid, triplet_l_is_j_Plus_1__C_I0_grid, singlet_C_I0_r, triplet_l_is_j_Minus_1__C_I0_r, triplet_l_is_j__C_I0_r, triplet_l_is_j_Plus_1__C_I0_r)\
-            = (singlet_C_I0_grid[0], triplet_l_is_j_Minus_1__C_I0_grid[0], triplet_l_is_j__C_I0_grid[0], triplet_l_is_j_Plus_1__C_I0_grid[0], singlet_C_I0_r[0], triplet_l_is_j_Minus_1__C_I0_r[0], triplet_l_is_j__C_I0_r[0], triplet_l_is_j_Plus_1__C_I0_r[0])
-        (singlet_C_I1_grid, triplet_l_is_j_Minus_1__C_I1_grid, triplet_l_is_j__C_I1_grid, triplet_l_is_j_Plus_1__C_I1_grid, singlet_C_I1_r, triplet_l_is_j_Minus_1__C_I1_r, triplet_l_is_j__C_I1_r, triplet_l_is_j_Plus_1__C_I1_r)\
-            = (singlet_C_I1_grid[0], triplet_l_is_j_Minus_1__C_I1_grid[0], triplet_l_is_j__C_I1_grid[0], triplet_l_is_j_Plus_1__C_I1_grid[0], singlet_C_I1_r[0], triplet_l_is_j_Minus_1__C_I1_r[0], triplet_l_is_j__C_I1_r[0], triplet_l_is_j_Plus_1__C_I1_r[0])
+        triplet_l_is_j_Minus_1__callable_tuples = [(self.triplet_l_is_j_Minus_1__pwaveEqual__C, self.triplet_l_is_j_Minus_1__pwaveMinus__C), 
+                                                   (self.triplet_l_is_j_Minus_1__pwaveEqual__SS, self.triplet_l_is_j_Minus_1__pwaveMinus__SS),
+                                                   (self.triplet_l_is_j_Minus_1__pwaveEqual__SO, self.triplet_l_is_j_Minus_1__pwaveMinus__SO)]
+        triplet_l_is_j__callable_tuples = [(self.triplet_l_is_j__pwaveEqual__C, self.triplet_l_is_j__pwavePlusMinus__C), 
+                                                   (self.triplet_l_is_j__pwaveEqual__SS, self.triplet_l_is_j__pwavePlusMinus__SS),
+                                                   (self.triplet_l_is_j__pwaveEqual__SO, self.triplet_l_is_j__pwavePlusMinus__SO)]
+        triplet_l_is_j_Plus_1__callable_tuples = [(self.triplet_l_is_j_Plus_1__pwaveEqual__C, self.triplet_l_is_j_Plus_1__pwavePlus__C), 
+                                                   (self.triplet_l_is_j_Plus_1__pwaveEqual__SS, self.triplet_l_is_j_Plus_1__pwavePlus__SS),
+                                                   (self.triplet_l_is_j_Plus_1__pwaveEqual__SO, self.triplet_l_is_j_Plus_1__pwavePlus__SO)]
 
 
+        for I in [0, 1]:
+            # Calculate
+            (singlet_contrib_grid_list, triplet_l_is_j_Minus_1__contrib_grid_list, triplet_l_is_j__contrib_grid_list, triplet_l_is_j_Plus_1__contrib_grid_list, singlet_contrib_r_list, triplet_l_is_j_Minus_1__contrib_r_list, triplet_l_is_j__contrib_r_list, triplet_l_is_j_Plus_1__contrib_r_list)\
+                = self.calculate_LSJ_result_in_basis(I, q_grid, Z_grid, degree_pwave_expansion, r_grid, singlet__callables, triplet_l_is_j_Minus_1__callable_tuples, triplet_l_is_j__callable_tuples, triplet_l_is_j_Plus_1__callable_tuples)
 
-        # Singlet
-        plotter.plot_pwave_LSJ(singlet_C_I0_grid, LSJ_singlet, q_grid, "q", "GeV", "rho", "C", 0, "Central LSJ Singlet for I = 0", "LSJ_Singlet_I=0", 100)
-        plotter.plot_pwave_LSJ(singlet_C_I1_grid, LSJ_singlet, q_grid, "q", "GeV", "rho", "C", 1, "Central LSJ Singlet for I = 1", "LSJ_Singlet_I=1", 100)
+            # Plot
+            #   Singlet
+            for c_idx, singlet_contrib_grid in enumerate(singlet_contrib_grid_list):
+                plotter.plot_pwave_LSJ(singlet_contrib_grid, LSJ_singlet, q_grid, "q", "GeV", contribs[c_idx], I, f"Singlet {contribs[c_idx]} for I = {I}", f"LSJ_Singlet_{contribs[c_idx]}_I={I}")
 
-        # Triplet L = J - 1
-        plotter.plot_pwave_LSJ(triplet_l_is_j_Minus_1__C_I0_grid, LSJ_triplet__L_eq_J_minus_1, q_grid, "q", "GeV", "rho", "C", 0, "Central LSJ Triplet for I = 0, L = J - 1", "LSJ_Triplet_I=0_L=J-1", 101)
-        plotter.plot_pwave_LSJ(triplet_l_is_j_Minus_1__C_I1_grid, LSJ_triplet__L_eq_J_minus_1, q_grid, "q", "GeV", "rho", "C", 1, "Central LSJ Triplet for I = 1, L = J - 1", "LSJ_Triplet_I=1_L=J-1", 101)
-
-        # Triplet L = J
-        plotter.plot_pwave_LSJ(triplet_l_is_j__C_I0_grid, LSJ_triplet__L_eq_J, q_grid, "q", "GeV", "rho", "C", 0, "Central LSJ Triplet for I = 0, L = J", "LSJ_Triplet_I=0_L=J", 101)
-        plotter.plot_pwave_LSJ(triplet_l_is_j__C_I1_grid, LSJ_triplet__L_eq_J, q_grid, "q", "GeV", "rho", "C", 1, "Central LSJ Triplet for I = 1, L = J", "LSJ_Triplet_I=1_L=J", 101)
-
-        # Triplet L = J + 1
-        plotter.plot_pwave_LSJ(triplet_l_is_j_Plus_1__C_I0_grid, LSJ_triplet__L_eq_J_plus_1, q_grid, "q", "GeV", "rho", "C", 0, "Central LSJ Triplet for I = 0, L = J + 1", "LSJ_Triplet_I=0_L=J+1", 101)
-        plotter.plot_pwave_LSJ(triplet_l_is_j_Plus_1__C_I1_grid, LSJ_triplet__L_eq_J_plus_1, q_grid, "q", "GeV", "rho", "C", 1, "Central LSJ Triplet for I = 1, L = J + 1", "LSJ_Triplet_I=1_L=J+1", 101)
+            for c_idx, singlet_contrib_r in enumerate(singlet_contrib_r_list):
+                plotter.plot_pwave_LSJ(singlet_contrib_r, LSJ_singlet, r_grid, "r", "1/GeV", contribs[c_idx], I, f"Singlet {contribs[c_idx]} for I = {I}", f"LSJ_Singlet_{contribs[c_idx]}_I={I}")
 
 
+            #   Triplet
+            for c_idx, triplet_l_is_j_Minus_1__contrib_grid in enumerate(triplet_l_is_j_Minus_1__contrib_grid_list):
+                plotter.plot_pwave_LSJ(triplet_l_is_j_Minus_1__contrib_grid, LSJ_triplet__L_eq_J_minus_1, q_grid, "q", "GeV", contribs[c_idx], I, f"Triplet L=J-1 {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J-1_{contribs[c_idx]}_I={I}")
+            
+            for c_idx, triplet_l_is_j_Minus_1__contrib_r in enumerate(triplet_l_is_j_Minus_1__contrib_r_list):
+                plotter.plot_pwave_LSJ(triplet_l_is_j_Minus_1__contrib_r, LSJ_triplet__L_eq_J_minus_1, r_grid, "r", "1/GeV", contribs[c_idx], I, f"Triplet L=J-1 {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J-1_{contribs[c_idx]}_I={I}")
 
 
-        # Singlet
-        plotter.plot_pwave_LSJ(singlet_C_I0_r, LSJ_singlet, r_grid, "r", "1/GeV", "rho", "C", 0, "Central LSJ Singlet for I = 0", "LSJ_Singlet_I=0", 110)
-        plotter.plot_pwave_LSJ(singlet_C_I1_r, LSJ_singlet, r_grid, "r", "1/GeV", "rho", "C", 1, "Central LSJ Singlet for I = 1", "LSJ_Singlet_I=1", 110)
+            for c_idx, triplet_l_is_j__contrib_grid in enumerate(triplet_l_is_j__contrib_grid_list):
+                plotter.plot_pwave_LSJ(triplet_l_is_j__contrib_grid, LSJ_triplet__L_eq_J, q_grid, "q", "GeV", contribs[c_idx], I, f"Triplet L=J {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J_{contribs[c_idx]}_I={I}")
 
-        # Triplet L = J - 1
-        plotter.plot_pwave_LSJ(triplet_l_is_j_Minus_1__C_I0_r, LSJ_triplet__L_eq_J_minus_1, r_grid, "r", "1/GeV", "rho", "C", 0, "Central LSJ Triplet for I = 0, L = J - 1", "LSJ_Triplet_I=0_L=J-1", 101)
-        plotter.plot_pwave_LSJ(triplet_l_is_j_Minus_1__C_I1_r, LSJ_triplet__L_eq_J_minus_1, r_grid, "r", "1/GeV", "rho", "C", 1, "Central LSJ Triplet for I = 1, L = J - 1", "LSJ_Triplet_I=1_L=J-1", 101)
-
-        # Triplet L = J
-        plotter.plot_pwave_LSJ(triplet_l_is_j__C_I0_r, LSJ_triplet__L_eq_J, r_grid, "r", "1/GeV", "rho", "C", 0, "Central LSJ Triplet for I = 0, L = J", "LSJ_Triplet_I=0_L=J", 101)
-        plotter.plot_pwave_LSJ(triplet_l_is_j__C_I1_r, LSJ_triplet__L_eq_J, r_grid, "r", "1/GeV", "rho", "C", 1, "Central LSJ Triplet for I = 1, L = J", "LSJ_Triplet_I=1_L=J", 101)
-
-        # Triplet L = J + 1
-        plotter.plot_pwave_LSJ(triplet_l_is_j_Plus_1__C_I0_r, LSJ_triplet__L_eq_J_plus_1, r_grid, "r", "1/GeV", "rho", "C", 0, "Central LSJ Triplet for I = 0, L = J + 1", "LSJ_Triplet_I=0_L=J+1", 101)
-        plotter.plot_pwave_LSJ(triplet_l_is_j_Plus_1__C_I1_r, LSJ_triplet__L_eq_J_plus_1, r_grid, "r", "1/GeV", "rho", "C", 1, "Central LSJ Triplet for I = 1, L = J + 1", "LSJ_Triplet_I=1_L=J+1", 101)
+            for c_idx, triplet_l_is_j__contrib_r in enumerate(triplet_l_is_j__contrib_r_list):
+                plotter.plot_pwave_LSJ(triplet_l_is_j__contrib_r, LSJ_triplet__L_eq_J, r_grid, "r", "1/GeV", contribs[c_idx], I, f"Triplet L=J {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J_{contribs[c_idx]}_I={I}")
 
 
+            for c_idx, triplet_l_is_j_Plus_1__contrib_grid in enumerate(triplet_l_is_j_Plus_1__contrib_grid_list):
+                plotter.plot_pwave_LSJ(triplet_l_is_j_Plus_1__contrib_grid, LSJ_triplet__L_eq_J_plus_1, q_grid, "q", "GeV", contribs[c_idx], I, f"Triplet L=J+1 {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J+1_{contribs[c_idx]}_I={I}")
+
+            for c_idx, triplet_l_is_j_Plus_1__contrib_r in enumerate(triplet_l_is_j_Plus_1__contrib_r_list):
+                plotter.plot_pwave_LSJ(triplet_l_is_j_Plus_1__contrib_r, LSJ_triplet__L_eq_J_plus_1, r_grid, "r", "1/GeV", contribs[c_idx], I, f"Triplet L=J+1 {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J+1_{contribs[c_idx]}_I={I}")
+
+            
+            
 
     # TODO correction factor for J dependent elements
     def calculate_LSJ_result_in_basis(self, I: int, q_grid: np.array, Z_grid: np.array, degree_pwave_expansion: int, r_grid: np.array,
@@ -269,15 +267,6 @@ class SpectroscopicConversion:
         return [CubicSpline(var_grid, to_interpolate[l]) for l in range(to_interpolate.shape[0])]
 
 
-    def singlet_LSJ_of_q(self, singlet_spline_list, L, S, J, q):
-        if(S != 0 or L != J):
-            raise Exception("L,S,J = {L}, {S}, {J} is not a singlet")
-        
-        return singlet_spline_list[J](q)
-    
-
-    def triplet_LSJ_of_q(self, triplet_spline_list, L, S, J, q):
-        pass
 
 
     # Triplet, L = J + 1
