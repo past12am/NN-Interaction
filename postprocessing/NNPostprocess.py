@@ -12,7 +12,7 @@ from data.Dataloader import Dataloader
 
 from FTHandler import *
 
-from visualization.plotting import Plotter, PlotterFullAmplitude
+from visualization.plotting import Plotter, PlotterFullAmplitude, pwave_names_capital
 from spectroscopic.SpectroscopicConversions import SpectroscopicConversion
 
 plt.rcParams['text.usetex'] = True
@@ -81,8 +81,8 @@ def main():
     # Load data files
     qx_process_type = "quark_exchange"
     dqx_process_type = "diquark_exchange"
-    dataloader_qx = Dataloader(data_base_path, tensorbase_type, qx_process_type, dq_1_type, dq_2_type, Z_range, X_range_lower, run_nr=29)
-    dataloader_dqx = Dataloader(data_base_path, tensorbase_type, dqx_process_type, dq_1_type, dq_2_type, Z_range, X_range_lower, run_nr=29)
+    dataloader_qx = Dataloader(data_base_path, tensorbase_type, qx_process_type, dq_1_type, dq_2_type, Z_range, X_range_lower, run_nr=35)
+    dataloader_dqx = Dataloader(data_base_path, tensorbase_type, dqx_process_type, dq_1_type, dq_2_type, Z_range, X_range_lower, run_nr=35)
 
 
     # Instantiate Plotter
@@ -125,7 +125,20 @@ def main():
 
     
     spectroscopic = SpectroscopicConversion(ampHandler_rho_qx, ampHandler_rho_dqx)
-    spectroscopic.spectroscopic_basis_run(plotter_combined)
+    LSJ_isospin_res, tensor_basis_names, r_grid_spectr = spectroscopic.spectroscopic_basis_run(plotter_combined)
+
+    for I, (process_singlet_contrib_r_list, 
+            process_triplet_l_is_j_Minus_1__contrib_r_list, 
+            process_triplet_l_is_j__contrib_r_list, 
+            process_triplet_l_is_j_Plus_1__contrib_r_list) in enumerate(LSJ_isospin_res):
+        
+        # Singlet
+        export_result_list_LSJ(plotter_combined, I, process_singlet_contrib_r_list, SpectroscopicConversion.LSJ_singlet, tensor_basis_names, r_grid_spectr, "singlet")
+
+        # Triplet
+        export_result_list_LSJ(plotter_combined, I, process_triplet_l_is_j_Minus_1__contrib_r_list, SpectroscopicConversion.LSJ_triplet__L_eq_J_minus_1, tensor_basis_names, r_grid_spectr, "triplet_l=j-1")
+        export_result_list_LSJ(plotter_combined, I, process_triplet_l_is_j__contrib_r_list, SpectroscopicConversion.LSJ_triplet__L_eq_J, tensor_basis_names, r_grid_spectr, "triplet_l=j")
+        export_result_list_LSJ(plotter_combined, I, process_triplet_l_is_j_Plus_1__contrib_r_list, SpectroscopicConversion.LSJ_triplet__L_eq_J_plus_1, tensor_basis_names, r_grid_spectr, "triplet_l=j+1")
 
     
     # TODO from here, we should redo it
@@ -239,6 +252,45 @@ def export_results(datapath, num_basis_el, fname_prefix, grid, f_l_var, varname)
             for grid_idx, grid_val in enumerate(grid):
                 row = [grid_val, f_l_var[base_idx, 0, grid_idx], f_l_var[base_idx, 1, grid_idx], f_l_var[base_idx, 2, grid_idx], f_l_var[base_idx, 3, grid_idx], f_l_var[base_idx, 4, grid_idx]]
                 res_writer.writerow(row)
+
+
+def export_result_list_LSJ(plotter_combined, I, process_contrib_r_list, LSJ_quantum_numbers, tensor_basis_names, r_grid_spectr, lsj_part):
+
+    for tensor_basis_name, process_singlet_contrib_r in zip(tensor_basis_names, process_contrib_r_list):
+
+        lsj_names = list()
+        for lsj_idx in range(len(process_singlet_contrib_r)):
+            # construct LSJ string
+            lsj_tuple = LSJ_quantum_numbers[lsj_idx]
+
+            # skip partial waves that don't exist
+            if(None in lsj_tuple):
+                continue
+
+            (L, S, J) = lsj_tuple
+
+            lsj_names.append(f"{2 * S + 1}{pwave_names_capital[L]}{J}")
+
+        export_results_LSJ(plotter_combined.cur_proc_run_base_path, I, tensor_basis_name, r_grid_spectr, process_singlet_contrib_r, "r", lsj_names, lsj_part)
+
+
+def export_results_LSJ(datapath, process_isospin, tensor_name, var_grid, LSJ_results, varname, LSJ_Names, lsj_part):
+    header = [varname]
+    header.extend(LSJ_Names)
+
+    with open(datapath + "/" + f"LSJ_I={process_isospin}_{tensor_name}_{varname}_{lsj_part}.csv", "w") as csvfile:
+        res_writer = csv.writer(csvfile, delimiter=";")
+
+        # header
+        res_writer.writerow(header)
+
+        for grid_idx, grid_val in enumerate(var_grid):
+            row = [grid_val]
+
+            for lsj_idx in range(len(LSJ_results)):
+                row.append(LSJ_results[lsj_idx][grid_idx])
+
+            res_writer.writerow(row)
 
 
 
