@@ -60,27 +60,44 @@ def import_results_own(datapath, isospin, tensor_name_abbrv):
                     var_grids[-1][idx].append(float(row["r"]))
                     LSJ_grids[-1][idx].append(float(row[lsj]))
 
-    return flatten_dim1(var_grids), flatten_dim1(LSJ_grids), LSJ_names
+    var_grids = flatten_dim1(var_grids)
+    LSJ_grids = flatten_dim1(LSJ_grids)
+
+    var_grids = [np.array(var_grid) for var_grid in var_grids]
+    LSJ_grids = [np.array(LSJ_grid) for LSJ_grid in LSJ_grids]
+
+    return var_grids, LSJ_grids, LSJ_names
 
 def main():
     process = "NN"
+    M_nucleon = 0.94    # GeV
 
     # literature results (reid93)   (currently only central)
     NN_C_r_grid_list__lit, NN_C_LSJ_grid_list__lit, NN_C_LSJ_names__lit = import_results_lit("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/ExperimentalPotentials/reid93/", process)
 
-    # our results   # TODO sum up tensor contributions, reid doesn't distinguish them
+    # our results   # Note: sum up tensor contributions, reid doesn't distinguish them
     NN_C_r_grid_list, NN_C_LSJ_grid_list, NN_C_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_35_dqx-run_35", 1, "C")
+    NN_SS_r_grid_list, NN_SS_LSJ_grid_list, NN_SS_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_35_dqx-run_35", 1, "SS")
+    NN_T_r_grid_list, NN_T_LSJ_grid_list, NN_T_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_35_dqx-run_35", 1, "T")
+    NN_SO_r_grid_list, NN_SO_LSJ_grid_list, NN_SO_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_35_dqx-run_35", 1, "SO")
+    NN_Q_r_grid_list, NN_Q_LSJ_grid_list, NN_Q_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_35_dqx-run_35", 1, "Q")
     
+    # TODO: Do this? Move factor for dimensionless basis elements to amplitudes
+    #NN_T_LSJ_grid_list = [NN_T_LSJ_grid / (4.0 * np.square(M_nucleon)) for NN_T_LSJ_grid in NN_T_LSJ_grid_list]
+    #NN_SO_LSJ_grid_list = [NN_SO_LSJ_grid / (4.0 * np.square(M_nucleon)) for NN_SO_LSJ_grid in NN_SO_LSJ_grid_list]
+    #NN_Q_LSJ_grid_list = [NN_Q_LSJ_grid / (4.0 * np.power(M_nucleon, 4)) for NN_Q_LSJ_grid in NN_Q_LSJ_grid_list]
 
+    NN_full_grid_list = [NN_C_LSJ_grid + NN_SS_LSJ_grid + NN_T_LSJ_grid + NN_SO_LSJ_grid + NN_Q_LSJ_grid for NN_C_LSJ_grid, NN_SS_LSJ_grid, NN_T_LSJ_grid, NN_SO_LSJ_grid, NN_Q_LSJ_grid in zip(NN_C_LSJ_grid_list, NN_SS_LSJ_grid_list, NN_T_LSJ_grid_list, NN_SO_LSJ_grid_list, NN_Q_LSJ_grid_list)]
+    NN_LSJ_names = NN_C_LSJ_names
 
     for (NN_C_r_grid__lit, NN_C_LSJ_grid__lit, NN_C_LSJ_name__lit) in zip(NN_C_r_grid_list__lit, NN_C_LSJ_grid_list__lit, NN_C_LSJ_names__lit):
-        for (NN_C_r_grid, NN_C_LSJ_grid, NN_C_LSJ_name) in zip(NN_C_r_grid_list, NN_C_LSJ_grid_list, NN_C_LSJ_names):
-            if(NN_C_LSJ_name__lit != NN_C_LSJ_name):
+        for (NN_C_r_grid, NN_full_LSJ_grid, NN_LSJ_name) in zip(NN_C_r_grid_list, NN_full_grid_list, NN_LSJ_names):
+            if(NN_C_LSJ_name__lit != NN_LSJ_name):
                 continue
 
 
             # Scale to have things match up
-            reid_scaler = np.nanmax(np.abs(NN_C_LSJ_grid)) / np.nanmax(np.abs(NN_C_LSJ_grid__lit))
+            reid_scaler = np.nanmax(np.abs(NN_full_LSJ_grid)) / np.nanmax(np.abs(NN_C_LSJ_grid__lit))
             if(reid_scaler == 0):
                 reid_scaler = 1
 
@@ -90,8 +107,8 @@ def main():
 
             fig.subplots_adjust(top=0.88, bottom=0.11, left=0.2, right=0.92, hspace=0.2, wspace=0.2)
 
-            ax.plot(NN_C_r_grid, NN_C_LSJ_grid, label=f"{NN_C_LSJ_name} Own")
-            ax.plot(NN_C_r_grid__lit, reid_scaler * NN_C_LSJ_grid__lit, label=f"{NN_C_LSJ_name} Reid93")
+            ax.plot(NN_C_r_grid, NN_full_LSJ_grid, label=f"{NN_LSJ_name} Own")
+            ax.plot(NN_C_r_grid__lit, reid_scaler * NN_C_LSJ_grid__lit, label=f"{NN_LSJ_name} Reid93")
 
                 
             #mid = (fig.subplotpars.right + fig.subplotpars.left)/2
