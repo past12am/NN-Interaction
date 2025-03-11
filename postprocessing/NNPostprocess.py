@@ -259,6 +259,7 @@ def export_result_list_LSJ(plotter_combined, I, process_contrib_r_list, LSJ_quan
     for tensor_basis_name, process_singlet_contrib_r in zip(tensor_basis_names, process_contrib_r_list):
 
         lsj_names = list()
+        process_contrib_export_r_list = list()
         for lsj_idx in range(len(process_singlet_contrib_r)):
             # construct LSJ string
             lsj_tuple = LSJ_quantum_numbers[lsj_idx]
@@ -270,8 +271,9 @@ def export_result_list_LSJ(plotter_combined, I, process_contrib_r_list, LSJ_quan
             (L, S, J) = lsj_tuple
 
             lsj_names.append(f"{2 * S + 1}{pwave_names_capital[L]}{J}")
+            process_contrib_export_r_list.append(process_singlet_contrib_r[lsj_idx])
 
-        export_results_LSJ(plotter_combined.cur_proc_run_base_path, I, tensor_basis_name, r_grid_spectr, process_singlet_contrib_r, "r", lsj_names, lsj_part)
+        export_results_LSJ(plotter_combined.cur_proc_run_base_path, I, tensor_basis_name, r_grid_spectr, process_contrib_export_r_list, "r", lsj_names, lsj_part)
 
 
 def export_results_LSJ(datapath, process_isospin, tensor_name, var_grid, LSJ_results, varname, LSJ_Names, lsj_part):

@@ -276,21 +276,22 @@ class SpectroscopicConversion:
             for l in range(0, degree_pwave_expansion):
                 J = l + 1
                 triplet_l_is_j_Minus_1__amplitude_grid_list[idx][l, :] = \
-                            triplet_l_is_j_Minus_1__pwaveEqual__amplitude_grid_list[idx][l + 1, :] + triplet_l_is_j_Minus_1__pwaveMinus__amplitude_grid_list[idx][l, :] \
-                            + 1/(2 * J + 1) * (triplet_l_is_j_Minus_1__pwaveEqual__amplitude_grid_list__Jnoncorr[idx][l + 1, :] + triplet_l_is_j_Minus_1__pwaveMinus__amplitude_grid_list__Jnoncorr[idx][l, :])
+                            triplet_l_is_j_Minus_1__pwaveEqual__amplitude_grid_list[idx][J, :] + triplet_l_is_j_Minus_1__pwaveMinus__amplitude_grid_list[idx][J - 1, :] \
+                            + 1/(2 * J + 1) * (triplet_l_is_j_Minus_1__pwaveEqual__amplitude_grid_list__Jnoncorr[idx][J, :] + triplet_l_is_j_Minus_1__pwaveMinus__amplitude_grid_list__Jnoncorr[idx][J - 1, :])
                 
         #       L = J
         for idx in range(len(triplet_l_is_j__amplitude_grid_list)):
             for l in range(1, degree_pwave_expansion):
-                triplet_l_is_j__amplitude_grid_list[idx][l, :] = triplet_l_is_j__pwaveEqual__amplitude_grid_list[idx][l, :] + (triplet_l_is_j__pwavePlusMinus__amplitude_grid_list[idx][l + 1, :] + triplet_l_is_j__pwavePlusMinus__amplitude_grid_list[idx][l - 1, :])
+                J = l
+                triplet_l_is_j__amplitude_grid_list[idx][J, :] = triplet_l_is_j__pwaveEqual__amplitude_grid_list[idx][J, :] + (triplet_l_is_j__pwavePlusMinus__amplitude_grid_list[idx][J + 1, :] + triplet_l_is_j__pwavePlusMinus__amplitude_grid_list[idx][J - 1, :])
 
         #       L = J + 1
         for idx in range(len(triplet_l_is_j_Plus_1__amplitude_grid_list)):
             for l in range(1, degree_pwave_expansion + 1):  # Note that l = 0 is not a valid quantum number here
                 J = l - 1
                 triplet_l_is_j_Plus_1__amplitude_grid_list[idx][l, :] = \
-                            triplet_l_is_j_Plus_1__pwaveEqual__amplitude_grid_list[idx][l-1, :] + triplet_l_is_j_Plus_1__pwavePlus__amplitude_grid_list[idx][l, :] \
-                            + 1/(2 * J + 1) * (triplet_l_is_j_Plus_1__pwaveEqual__amplitude_grid_list__Jnoncorr[idx][l-1, :] + triplet_l_is_j_Plus_1__pwavePlus__amplitude_grid_list__Jnoncorr[idx][l, :])
+                            triplet_l_is_j_Plus_1__pwaveEqual__amplitude_grid_list[idx][J, :] + triplet_l_is_j_Plus_1__pwavePlus__amplitude_grid_list[idx][J+1, :] \
+                            + 1/(2 * J + 1) * (triplet_l_is_j_Plus_1__pwaveEqual__amplitude_grid_list__Jnoncorr[idx][J, :] + triplet_l_is_j_Plus_1__pwavePlus__amplitude_grid_list__Jnoncorr[idx][J+1, :])
 
 
 
