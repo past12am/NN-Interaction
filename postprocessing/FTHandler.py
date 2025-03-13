@@ -147,7 +147,8 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
     plotter.plot_pwave_amp(ampHandler_rho.f_l_q, ampHandler_rho.q, "q", "GeV", "PWaves_V_l(q)", "rho", process_shorthand, 52)
 
 
-
+    # TODO remove?
+    return ampHandler_rho, None, None
 
 
 
