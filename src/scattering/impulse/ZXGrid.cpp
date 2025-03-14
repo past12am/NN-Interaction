@@ -11,6 +11,20 @@ int ZXGrid::getGridIdx(int XIdx, int ZIdx)
     return XIdx * lenZ + ZIdx;
 }
 
+double ZXGrid::getZAtGridIdx(int gridIdx)
+{
+    // TODO check
+    int Zidx = gridIdx % lenZ;
+    return Z[Zidx];
+}
+
+double ZXGrid::getXAtGridIdx(int gridIdx)
+{
+    // TODO check
+    int Xidx = gridIdx / lenZ;
+    return X[Xidx];
+}
+
 int ZXGrid::getLength() const
 {
     return lenX * lenZ;

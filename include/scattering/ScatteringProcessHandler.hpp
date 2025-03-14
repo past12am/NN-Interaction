@@ -18,8 +18,8 @@ class ScatteringProcessHandler
         int lenX;
         int lenZ;
 
-        int k2Points;
-        int zPoints;
+        int var1Points;
+        int var2Points;
         int yPoints;
         int phiPoints;
 
@@ -34,7 +34,7 @@ class ScatteringProcessHandler
 
     public:
     ScatteringProcessHandler(int numThreads, int lenX, int lenZ, int lenContourDef,
-                             int k2Points, int zPoints, int yPoints, int phiPoints,
+                             int var1Points, int var2Points, int yPoints, int phiPoints,
                              double eta,
                              double XCutoffLower, double XCutoffUpper,
                              double ZCutoffLower, double ZCutoffUpper,

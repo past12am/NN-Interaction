@@ -34,6 +34,9 @@ class ZXGrid
         double getZAt(int ZIdx);
         double getXAt(int XIdx);
 
+        double getZAtGridIdx(int gridIdx);
+        double getXAtGridIdx(int gridIdx);
+
         int getGridIdx(int XIdx, int ZIdx);
 
         int getLenX() const;

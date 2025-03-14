@@ -15,13 +15,22 @@
 
 #include <iostream>
 
+#include "../../../include/scattering/momentumloops/DeformedQuarkExchangeMomentumLoop.hpp"
+
 
 QuarkExchange::QuarkExchange(int lenX, int lenZ, int lenContourDef, double XCutoffLower, double XCutoffUpper, double ZCutoffLower, double ZCutoffUpper, double contourEpsLower, double contourEpsUpper,
-                             double eta, int k2Points, int zPoints, int yPoints, int phiPoints, int threadIdx) :
+                             double eta, int var1Points, int var2Points, int yPoints, int phiPoints, int threadIdx) :
                                         ScatteringProcess(lenX, lenZ, lenContourDef, XCutoffLower, XCutoffUpper, ZCutoffLower, ZCutoffUpper, contourEpsLower, contourEpsUpper, threadIdx),
                                         eta(eta)
 {
-    momentumLoop = new QuarkExchangeMomentumLoop(k2Points, zPoints, yPoints, phiPoints);
+    if(CONTOUR_DEF_ACTIVE)
+    {
+        momentumLoop = new DeformedQuarkExchangeMomentumLoop(var1Points, var2Points, yPoints, phiPoints);
+    }
+    else
+    {
+        momentumLoop = new QuarkExchangeMomentumLoop(var1Points, var2Points, yPoints, phiPoints);
+    }
 
     lmr_half = gsl_vector_complex_alloc(4);
     lpr_half = gsl_vector_complex_alloc(4);
@@ -207,15 +216,132 @@ void QuarkExchange::integralKernel(gsl_vector_complex* k, gsl_vector_complex* l,
     }
 }
 
+void QuarkExchange::deformedIntegralKernel(gsl_vector_complex* k, gsl_complex x_4, double absx, double y, double phi, double epsilon,
+    double X, double Z,
+    gsl_vector_complex* l, gsl_vector_complex* r, gsl_vector_complex* P, gsl_vector_complex* p_f,
+    gsl_vector_complex* p_i, gsl_vector_complex* k_f, gsl_vector_complex* k_i,
+    Tensor4<4, 4, 4, 4>* integralKernelTensor)
+{
+    // precalc
+    //      lmr_half = (l-r)/2
+    gsl_vector_complex_memcpy(lmr_half, l);
+    gsl_vector_complex_sub(lmr_half, r);
+    gsl_vector_complex_scale(lmr_half, gsl_complex_rect(0.5, 0));
+
+    // precalc
+    //      lpr_half = (l+r)/2
+    gsl_vector_complex_memcpy(lpr_half, l);
+    gsl_vector_complex_add(lpr_half, r);
+    gsl_vector_complex_scale(lpr_half, gsl_complex_rect(0.5, 0));
+
+
+    // Calculate internal impulses
+    calc_k_q(k, l, r, P, k_q);
+    calc_p_q(k, l, r, P, p_q);
+    calc_k_d(k, l, r, P, k_d);
+    calc_p_d(k, l, r, P, p_d);
+
+    calc_k_r(k, l, r, k_r);
+    calc_k_rp(k, l, r, k_rp);
+    calc_p_r(k, l, r, p_r);
+    calc_p_rp(k, l, r, p_rp);
+
+
+
+    // Calculate tensor-valued integral Kernel
+
+    // matrix_Conj_Gamma_pf = ChargeConj(Gamma(p_r', p_f))
+    Gamma_pf->Gamma(p_rp, p_f, true, threadIdx, matrix_Conj_Gamma_pf);
+
+    // matrix_S_k = S(k_q)
+    S_k->S(k_q,  matrix_S_k, x_4, absx, y, phi, true, X, Z, eta, epsilon);
+
+    // matrix_Gamma_ki = Gamma(k_r, k_i)
+    Gamma_ki->Gamma(k_r, k_i, false, threadIdx, matrix_Gamma_ki);
+
+
+    // S_Gamma__alpha_delta = S(k_q) Gamma(k_r, k_i)
+    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), matrix_S_k, matrix_Gamma_ki, gsl_complex_rect(0, 0), S_Gamma__alpha_delta);
+
+    // GammaConj_S_Gamma__alpha_delta = ChargeConj(Gamma(p_r', p_f)) S_Gamma__alpha_delta
+    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), matrix_Conj_Gamma_pf, S_Gamma__alpha_delta, gsl_complex_rect(0, 0), GammaConj_S_Gamma__alpha_delta);
+
+    // GammaConj_S_Gamma__alpha_delta = ChargeConj(Gamma(p_r', p_f)) S(k_q) Gamma(k_r, k_i)
+
+
+
+
+    // matrix_Conj_Gamma_kf = ChargeConj(Gamma(k_r', k_f))
+    Gamma_pf->Gamma(k_rp, k_f, true, threadIdx, matrix_Conj_Gamma_kf);
+
+    // matrix_S_p = S(p_q)
+    S_k->S(p_q,  matrix_S_p, x_4, absx, y, phi, false, X, Z, eta, epsilon);
+
+    // matrix_Gamma_pi = Gamma(p_r, p_i)
+    Gamma_ki->Gamma(p_r, p_i, false, threadIdx, matrix_Gamma_pi);
+
+
+    // S_Gamma__gamma_beta = S(p_q) Gamma(p_r, p_i)
+    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), matrix_S_p, matrix_Gamma_pi, gsl_complex_rect(0, 0), S_Gamma__gamma_beta);
+
+    // GammaConj_S_Gamma__gamma_beta = ChargeConj(Gamma(k_r', k_f)) GammaConj_S_Gamma__gamma_beta
+    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, gsl_complex_rect(1, 0), matrix_Conj_Gamma_kf, S_Gamma__gamma_beta, gsl_complex_rect(0, 0), GammaConj_S_Gamma__gamma_beta);
+
+    // GammaConj_S_Gamma__gamma_beta = ChargeConj(Gamma(k_r', k_f)) S(p_q) Gamma(p_r, p_i)
+
+
+
+    // scalar_D_p = D(p_d)
+    gsl_complex scalar_D_p;
+    D_p->D(x_4, absx, y, phi, false, X, Z, eta, &scalar_D_p, epsilon);
+
+    // scalar_D_k = D(k_d)
+    gsl_complex scalar_D_k;
+    D_p->D(x_4, absx, y, phi, true, X, Z, eta, &scalar_D_p, epsilon);
+
+
+
+    // Construct M
+    for(size_t alpha = 0; alpha < GammaConj_S_Gamma__alpha_delta->size1; alpha++)
+    {
+        for(size_t delta = 0; delta < GammaConj_S_Gamma__alpha_delta->size2; delta++)
+        {
+            for(size_t gamma = 0; gamma < GammaConj_S_Gamma__gamma_beta->size1; gamma++)
+            {
+                for(size_t beta = 0; beta < GammaConj_S_Gamma__gamma_beta->size2; beta++)
+                {
+                    gsl_complex kernelElement = gsl_complex_mul(gsl_complex_mul(scalar_D_p,
+                                                                                   scalar_D_k),
+                                                                gsl_complex_mul(gsl_matrix_complex_get(GammaConj_S_Gamma__alpha_delta, alpha, delta),
+                                                                                   gsl_matrix_complex_get(GammaConj_S_Gamma__gamma_beta, gamma, beta)));
+                    integralKernelTensor->setElement(alpha, beta, gamma, delta, kernelElement);
+                }
+            }
+        }
+    }
+}
+
 gsl_complex QuarkExchange::integrate_process(int basisElemIdx, int contourDefEpsIdx, int externalImpulseIdx, double k2_cutoff)
 {
     // TODO proceed incorporating contourDefEps from here
 
-    std::function<gsl_complex(double, double, double, double)> scatteringMatrixIntegrand = [=, this](double k2, double z, double y, double phi) -> gsl_complex {
-        return integralKernelWrapper(externalImpulseIdx, basisElemIdx, threadIdx, k2, z, y, phi);
-    };
+    gsl_complex res = {0, 0};
 
-    gsl_complex res = momentumLoop->integrate_4d(scatteringMatrixIntegrand, k2_cutoff);
+    if (CONTOUR_DEF_ACTIVE)
+    {
+        std::function<gsl_complex(gsl_complex, double, double, double)> scatteringMatrixIntegrand = [=, this](gsl_complex x_4, double absx, double y, double phi) -> gsl_complex {
+            return deformedIntegralKernelWrapper(externalImpulseIdx, contourDefEpsIdx, basisElemIdx, threadIdx, x_4, absx, y, phi);
+        };
+        res = momentumLoop->integrate_4d_deformed(scatteringMatrixIntegrand, k2_cutoff);
+    }
+    else
+    {
+        std::function<gsl_complex(double, double, double, double)> scatteringMatrixIntegrand = [=, this](double k2, double z, double y, double phi) -> gsl_complex {
+            return integralKernelWrapper(externalImpulseIdx, basisElemIdx, threadIdx, k2, z, y, phi);
+        };
+        res = momentumLoop->integrate_4d(scatteringMatrixIntegrand, k2_cutoff);
+    }
+
     return res;
 }
 

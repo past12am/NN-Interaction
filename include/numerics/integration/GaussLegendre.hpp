@@ -14,7 +14,7 @@
 
 class GaussLegendre
 {
-    private:
+    protected:
         int n;
 
         double* w_arr;

@@ -84,6 +84,38 @@ gsl_complex ScatteringProcess::integralKernelWrapper(int externalImpulseIdx, int
     return kernel_res;
 }
 
+gsl_complex ScatteringProcess::deformedIntegralKernelWrapper(int externalImpulseIdx, int contourDefEpsIdx, int basisElemIdx, int threadIdx,
+    gsl_complex x_4, double absx, double y, double phi)
+{
+    if(!k_mutex.try_lock())
+    {
+        std::cout << "Probable race condition on temporary k impulse" << std::endl;
+        exit(-1);
+    }
+
+    // Set current k
+    gsl_vector_complex_set_zero(k);
+    momentumLoop->calc_k_deformed(x_4, absx, y, phi, k);
+
+    // get basis Element
+    Tensor4<4, 4, 4, 4>* currentBasisProjectionElement = tensorBasis.basisTensorProjection(basisElemIdx, externalImpulseIdx);
+
+    // get Tensor
+    Tensor4<4, 4, 4, 4> integralKernelTensor = Tensor4<4, 4, 4, 4>();
+    deformedIntegralKernel(k, x_4, absx, y, phi, contour_def_epsilon[contourDefEpsIdx],
+                           externalImpulseGrid.getXAtGridIdx(externalImpulseIdx), externalImpulseGrid.getZAtGridIdx(externalImpulseIdx),
+                           externalImpulseGrid.get_l_ext(externalImpulseIdx), externalImpulseGrid.get_r_ext(externalImpulseIdx),
+                           externalImpulseGrid.get_P_ext(externalImpulseIdx),
+                           externalImpulseGrid.get_p_f(externalImpulseIdx), externalImpulseGrid.get_p_i(externalImpulseIdx),
+                           externalImpulseGrid.get_k_f(externalImpulseIdx), externalImpulseGrid.get_k_i(externalImpulseIdx),
+                           &integralKernelTensor);
+
+    k_mutex.unlock();
+
+    gsl_complex kernel_res = integralKernelTensor.leftContractWith(currentBasisProjectionElement);
+    return kernel_res;
+}
+
 void ScatteringProcess::integrate(double k2_cutoff)
 {
     int num_progress_char = 100;

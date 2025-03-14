@@ -8,27 +8,30 @@
 
 
 #include "../../numerics/integration/GaussLegendre.hpp"
+#include "../../numerics/integration/GaussLegendreDeformed.hpp"
 
 
 class DeformedQuarkExchangeMomentumLoop : public MomentumLoop
 {
     private:
-        GaussLegendre gaussLegendreIntegrator_k_4;
-        GaussLegendre gaussLegendreIntegrator_absk;
+        GaussLegendreDeformed gaussLegendreIntegrator_x_4;
+        GaussLegendre gaussLegendreIntegrator_absx;
         GaussLegendre gaussLegendreIntegrator_y;
         GaussLegendre gaussLegendreIntegrator_phi;
 
-        gsl_complex k_4Integral(const std::function<gsl_complex(double, double, double, double)>& f, double lowerIntegrationBound, double upperIntegrationBound);
-        gsl_complex abskIntegral(double k2, const std::function<gsl_complex(double, double, double, double)>& f);
-        gsl_complex yIntegral(double k2, double z, const std::function<gsl_complex(double, double, double, double)>& f);
-        gsl_complex phiIntegral(double k2, double z, double y, const std::function<gsl_complex(double, double, double, double)>& f);
+        gsl_complex x_4Integral(const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double lowerIntegrationBound, double upperIntegrationBound);
+        gsl_complex absxIntegral(gsl_complex x_4, const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double upperIntegrationBound);
+        gsl_complex yIntegral(gsl_complex x_4, double absx, const std::function<gsl_complex(gsl_complex, double, double, double)>& f);
+        gsl_complex phiIntegral(gsl_complex x_4, double absx, double y, const std::function<gsl_complex(gsl_complex, double, double, double)>& f);
 
     public:
-        virtual gsl_complex integrate_4d(const std::function<gsl_complex(double, double, double, double)>& f, double cutoff);
+        gsl_complex integrate_4d_deformed(const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double cutoff) override;
+        void calc_k_deformed(gsl_complex x_4, double absx, double y, double phi, gsl_vector_complex* k) override;
 
-        virtual void calc_k(double k_4, double absk, double y, double phi, gsl_vector_complex* k);
+        gsl_complex integrate_4d(const std::function<gsl_complex(double, double, double, double)>& f, double cutoff) override;
+        void calc_k(double x_4, double absx, double y, double phi, gsl_vector_complex* k) override;
 
-        DeformedQuarkExchangeMomentumLoop(int k2Points, int zPoints, int yPoints, int phiPoints);
+        DeformedQuarkExchangeMomentumLoop(int x_4Points, int absxPoints, int yPoints, int phiPoints);
         virtual ~DeformedQuarkExchangeMomentumLoop();
 };
 

@@ -73,13 +73,19 @@ class DiquarkExchange : public ScatteringProcess
 
     public:
         DiquarkExchange(int lenX, int lenZ, int lenContourDef, double XCutoffLower, double XCutoffUpper, double ZCutoffLower, double ZCutoffUpper, double contourEpsLower, double contourEpsUpper,
-                             double eta, int k2Points, int zPoints, int yPoints, int phiPoints, int threadIdx);
+                             double eta, int var1Points, int var2Points, int yPoints, int phiPoints, int threadIdx);
         ~DiquarkExchange() override;
 
 
         void integralKernel(gsl_vector_complex *k, gsl_vector_complex *l, gsl_vector_complex *r, gsl_vector_complex *P,
                             gsl_vector_complex *p_f, gsl_vector_complex *p_i, gsl_vector_complex *k_f,
                             gsl_vector_complex *k_i, Tensor4<4, 4, 4, 4> *integralKernelTensor) override;
+        void deformedIntegralKernel(gsl_vector_complex* k, gsl_complex x_4, double absx, double y, double phi, double epsilon,
+                                    double X, double Z,
+                                    gsl_vector_complex* l, gsl_vector_complex* r, gsl_vector_complex* P,
+                                    gsl_vector_complex* p_f, gsl_vector_complex* p_i,
+                                    gsl_vector_complex* k_f, gsl_vector_complex* k_i,
+                                    Tensor4<4, 4, 4, 4>* integralKernelTensor) override;
 
         gsl_complex integrate_process(int basisElemIdx, int contourDefEpsIdx, int externalImpulseIdx, double k2_cutoff) override;
 };

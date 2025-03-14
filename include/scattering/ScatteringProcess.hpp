@@ -56,6 +56,7 @@ class ScatteringProcess
 
 
         gsl_complex integralKernelWrapper(int externalImpulseIdx, int basisElemIdx, int threadIdx, double k2, double z, double y, double phi);
+        gsl_complex deformedIntegralKernelWrapper(int externalImpulseIdx, int contourDefEpsIdx, int basisElemIdx, int threadIdx, gsl_complex x_4, double absx, double y, double phi);
 
         virtual void integrate(double k2_cutoff);
 
@@ -64,6 +65,12 @@ class ScatteringProcess
                                     gsl_vector_complex* p_f, gsl_vector_complex* p_i,
                                     gsl_vector_complex* k_f, gsl_vector_complex* k_i,
                                     Tensor4<4, 4, 4, 4>* integralKernelTensor) = 0;
+        virtual void deformedIntegralKernel(gsl_vector_complex* k, gsl_complex x_4, double absx, double y, double phi, double epsilon,
+                                            double X, double Z,
+                                            gsl_vector_complex* l, gsl_vector_complex* r, gsl_vector_complex* P,
+                                            gsl_vector_complex* p_f, gsl_vector_complex* p_i,
+                                            gsl_vector_complex* k_f, gsl_vector_complex* k_i,
+                                            Tensor4<4, 4, 4, 4>* integralKernelTensor) = 0;
 
         // TODO proceed from here with epsilon implementation
         virtual gsl_complex integrate_process(int basisElemIdx, int contourDefEpsIdx, int externalImpulseIdx, double k2_cutoff) = 0;

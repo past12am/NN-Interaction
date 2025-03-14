@@ -39,6 +39,7 @@ add_executable(NNInteraction main.cpp
         include/scattering/impulse/LoopImpulseGrid.hpp
         include/numerics/integration/GaussChebyshev.hpp
         include/numerics/integration/GaussLegendre.hpp
+        include/numerics/integration/GaussLegendreDeformed.hpp
         include/numerics/polynomials/LegendrePolynomials.hpp
         include/numerics/roots/NewtonRootFinder.hpp
         src/qcd/propagators/QuarkPropagator.cpp
@@ -61,6 +62,7 @@ add_executable(NNInteraction main.cpp
         src/scattering/impulse/LoopImpulseGrid.cpp
         src/numerics/integration/GaussChebyshev.cpp
         src/numerics/integration/GaussLegendre.cpp
+        src/numerics/integration/GaussLegendreDeformed.cpp
         src/numerics/polynomials/LegendrePolynomials.cpp
         src/numerics/roots/NewtonRootFinder.cpp src/utils/print/PrintGSLElements.cpp include/utils/print/PrintGSLElements.hpp src/scattering/ScatteringProcessHandler.cpp include/scattering/ScatteringProcessHandler.hpp src/scattering/impulse/ZXGrid.cpp include/scattering/impulse/ZXGrid.hpp include/Definitions.h
         src/scattering/processes/DiquarkExchange.cpp

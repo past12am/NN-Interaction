@@ -12,12 +12,12 @@
 #include "../../include/scattering/processes/DiquarkExchange.hpp"
 
 ScatteringProcessHandler::ScatteringProcessHandler(int numThreads, int lenX, int lenZ, int lenContourDef,
-                                                   int k2Points, int zPoints, int yPoints, int phiPoints,
+                                                   int var1Points, int var2Points, int yPoints, int phiPoints,
                                                    double eta,
                                                    double XCutoffLower, double XCutoffUpper,
                                                    double ZCutoffLower, double ZCutoffUpper,
                                                    double contourEpsLower, double contourEpsUpper) :
-    numThreads(numThreads), lenX(lenX), lenZ(lenZ), k2Points(k2Points), zPoints(zPoints), yPoints(yPoints),
+    numThreads(numThreads), lenX(lenX), lenZ(lenZ), var1Points(var1Points), var2Points(var2Points), yPoints(yPoints),
     phiPoints(phiPoints), eta(eta)
 {
     subgridScatteringProcess = new ScatteringProcess*[numThreads];
@@ -47,7 +47,7 @@ ScatteringProcessHandler::ScatteringProcessHandler(int numThreads, int lenX, int
                                                                     ZCutoffLower, ZCutoffUpper,
                                                                     contourEpsLower, contourEpsUpper,
                                                                     eta,
-                                                                    k2Points, zPoints, yPoints, phiPoints,
+                                                                    var1Points, var2Points, yPoints, phiPoints,
                                                                     threadIdx);
         }
         else if (SCATTERING_PROCESS_TYPE == ScatteringProcessType::DIQUARK_EXCHANGE)
@@ -57,7 +57,7 @@ ScatteringProcessHandler::ScatteringProcessHandler(int numThreads, int lenX, int
                                                                       ZCutoffLower, ZCutoffUpper,
                                                                       contourEpsLower, contourEpsUpper,
                                                                       eta,
-                                                                      k2Points, zPoints, yPoints, phiPoints,
+                                                                      var1Points, var2Points, yPoints, phiPoints,
                                                                       threadIdx);
         }
         else

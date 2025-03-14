@@ -26,8 +26,11 @@ class QuarkExchangeMomentumLoop : public MomentumLoop
 
     public:
         virtual gsl_complex integrate_4d(const std::function<gsl_complex(double, double, double, double)>& f, double cutoff);
-
         virtual void calc_k(double k2, double z, double y, double phi, gsl_vector_complex* k);
+
+        gsl_complex integrate_4d_deformed(const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double cutoff) override;
+        void calc_k_deformed(gsl_complex x_4, double absx, double y, double phi, gsl_vector_complex* k) override;
+
 
         QuarkExchangeMomentumLoop(int k2Points, int zPoints, int yPoints, int phiPoints);
         virtual ~QuarkExchangeMomentumLoop();

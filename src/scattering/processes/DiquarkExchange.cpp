@@ -5,14 +5,23 @@
 #include <gsl/gsl_blas.h>
 #include "../../../include/scattering/processes/DiquarkExchange.hpp"
 
+#include "../../../include/Definitions.h"
 #include "../../../include/scattering/momentumloops/QuarkExchangeMomentumLoop.hpp"
+#include "../../../include/scattering/momentumloops/DeformedQuarkExchangeMomentumLoop.hpp"
 
 DiquarkExchange::DiquarkExchange(int lenX, int lenZ, int lenContourDef, double XCutoffLower, double XCutoffUpper, double ZCutoffLower, double ZCutoffUpper, double contourEpsLower, double contourEpsUpper,
-                                 double eta, int k2Points, int zPoints, int yPoints, int phiPoints, int threadIdx) :
+                                      double eta, int var1Points, int var2Points, int yPoints, int phiPoints, int threadIdx) :
         ScatteringProcess(lenX, lenZ, lenContourDef, XCutoffLower, XCutoffUpper, ZCutoffLower, ZCutoffUpper, contourEpsLower, contourEpsUpper, threadIdx),
         eta(eta)
 {
-    momentumLoop = new QuarkExchangeMomentumLoop(k2Points, zPoints, yPoints, phiPoints);
+    if(CONTOUR_DEF_ACTIVE)
+    {
+        momentumLoop = new DeformedQuarkExchangeMomentumLoop(var1Points, var2Points, yPoints, phiPoints);
+    }
+    else
+    {
+        momentumLoop = new QuarkExchangeMomentumLoop(var1Points, var2Points, yPoints, phiPoints);
+    }
 
     lmr_half = gsl_vector_complex_alloc(4);
     lpr_half = gsl_vector_complex_alloc(4);
@@ -237,6 +246,88 @@ void DiquarkExchange::integralKernel(gsl_vector_complex *k, gsl_vector_complex *
 
     gsl_complex scalar_D_k;
     D_k->D(k_d, &scalar_D_k);
+
+    // Construct M
+    for(size_t alpha = 0; alpha < GammaConj_S_Gamma__alpha_beta->size1; alpha++)
+    {
+        for(size_t beta = 0; beta < GammaConj_S_Gamma__alpha_beta->size2; beta++)
+        {
+            for(size_t gamma = 0; gamma < GammaConj_S_Gamma__gamma_delta->size1; gamma++)
+            {
+                for(size_t delta = 0; delta < GammaConj_S_Gamma__gamma_delta->size2; delta++)
+                {
+
+                    gsl_complex kernelElement = gsl_complex_mul(gsl_complex_mul(scalar_D_p,
+                                                                                   scalar_D_k),
+                                                                gsl_complex_mul(gsl_matrix_complex_get(GammaConj_S_Gamma__alpha_beta, alpha, beta),
+                                                                                   gsl_matrix_complex_get(GammaConj_S_Gamma__gamma_delta, gamma, delta)));
+                    // Set 0 if < 1E-30
+                    //if(abs(kernelElement.dat[0]) < 1E-30)
+                    //    kernelElement.dat[0] = 0;
+                    //if(abs(kernelElement.dat[1]) < 1E-30)
+                    //    kernelElement.dat[1] = 0;
+
+                    integralKernelTensor->setElement(alpha, beta, gamma, delta, kernelElement);
+                }
+            }
+        }
+    }
+}
+
+void DiquarkExchange::deformedIntegralKernel(gsl_vector_complex* k, gsl_complex x_4, double absx, double y, double phi,
+    double epsilon, double X, double Z, gsl_vector_complex* l, gsl_vector_complex* r, gsl_vector_complex* P,
+    gsl_vector_complex* p_f, gsl_vector_complex* p_i, gsl_vector_complex* k_f, gsl_vector_complex* k_i,
+    Tensor4<4, 4, 4, 4>* integralKernelTensor)
+{
+    // precalc
+    //      lmr_half = (l-r)/2
+    gsl_vector_complex_memcpy(lmr_half, l);
+    gsl_vector_complex_sub(lmr_half, r);
+    gsl_vector_complex_scale(lmr_half, gsl_complex_rect(0.5, 0));
+
+    // precalc
+    //      lpr_half = (l+r)/2
+    gsl_vector_complex_memcpy(lpr_half, l);
+    gsl_vector_complex_add(lpr_half, r);
+    gsl_vector_complex_scale(lpr_half, gsl_complex_rect(0.5, 0));
+
+
+    // Calculate internal impulses
+    calc_k_q(k, l, r, P, k_q);
+    calc_p_q(k, l, r, P, p_q);
+    calc_k_d(k, l, r, P, k_d);
+    calc_p_d(k, l, r, P, p_d);
+
+    calc_k_r(k, l, r, k_r);
+    calc_k_rp(k, l, r, k_rp);
+    calc_p_r(k, l, r, p_r);
+    calc_p_rp(k, l, r, p_rp);
+
+
+
+    // Calculate tensor-valued integral Kernel
+
+    Gamma_pf->Gamma(p_rp, p_f, true, threadIdx, matrix_Conj_Gamma_pf);
+    S_p->S(p_q, matrix_S_p, x_4, absx, y, phi, false, X, Z, eta, epsilon);
+    Gamma_pi->Gamma(p_r, p_i, false, threadIdx, matrix_Gamma_pi);
+
+    Gamma_kf->Gamma(k_rp, k_f, true, threadIdx, matrix_Conj_Gamma_kf);
+    S_k->S(k_q, matrix_S_k, x_4, absx, y, phi, true, X, Z, eta, epsilon);
+    Gamma_ki->Gamma(k_r, k_i, false, threadIdx, matrix_Gamma_ki);
+
+
+    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, GSL_COMPLEX_ONE, matrix_S_p, matrix_Gamma_pi, GSL_COMPLEX_ZERO, S_Gamma__alpha_beta);
+    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, GSL_COMPLEX_ONE, matrix_Conj_Gamma_pf, S_Gamma__alpha_beta, GSL_COMPLEX_ZERO, GammaConj_S_Gamma__alpha_beta);
+
+
+    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, GSL_COMPLEX_ONE, matrix_S_k, matrix_Gamma_ki, GSL_COMPLEX_ZERO, S_Gamma__gamma_delta);
+    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, GSL_COMPLEX_ONE, matrix_Conj_Gamma_kf, S_Gamma__gamma_delta, GSL_COMPLEX_ZERO, GammaConj_S_Gamma__gamma_delta);
+
+    gsl_complex scalar_D_p;
+    D_p->D(x_4, absx, y, phi, false, X, Z, eta, &scalar_D_p, epsilon);
+
+    gsl_complex scalar_D_k;
+    D_k->D(x_4, absx, y, phi, true, X, Z, eta, &scalar_D_k, epsilon);
 
     // Construct M
     for(size_t alpha = 0; alpha < GammaConj_S_Gamma__alpha_beta->size1; alpha++)
