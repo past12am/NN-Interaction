@@ -69,7 +69,8 @@ add_executable(NNInteraction main.cpp
         include/data/QuarkDiquarkAmplitudeReader.hpp
         src/scattering/momentumloops/DeformedQuarkExchangeMomentumLoop.cpp
         include/scattering/momentumloops/DeformedQuarkExchangeMomentumLoop.hpp
-        include/scattering/momentumloops/MomentumLoop.hpp)
+        include/scattering/momentumloops/MomentumLoop.hpp
+        include/gslhacks/GSLComplexOperators.hpp)
 
 target_link_libraries(NNInteraction GSL::gsl jsoncpp)
 #target_link_libraries(NNInteraction "${TORCH_LIBRARIES}")

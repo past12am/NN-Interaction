@@ -20,12 +20,16 @@ class ScalarDiquarkPropagator
 
         static double m_sc;
 
-        gsl_complex M(gsl_complex p2);
+        gsl_complex calc_p2_with_epsilon_shift(gsl_complex x_4, double A_imag, double D_plusminus, double epsilon);
+
+        static double A_imag(double X, double eta);
+        static double D_plusminus(double x2, double absx, double y, double phi, double X, double Z, bool sign_plus);
+        static double Omega(double y, double phi, double Z);
 
     public:
 
         void D(gsl_vector_complex* p, gsl_complex* diquarkPropScalar);
-
+        void D(gsl_complex x_4, double absx, double y, double phi, bool sign_plus, double X, double Z, double eta, gsl_complex* diquarkPropScalar, double epsilon);
 };
 
 
