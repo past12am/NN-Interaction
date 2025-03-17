@@ -79,13 +79,12 @@ ScatteringProcessHandler::~ScatteringProcessHandler()
     delete[] subgridScatteringProcess;
 }
 
-void ScatteringProcessHandler::calculateScattering(double k2_cutoff)
+void ScatteringProcessHandler::calculateScattering()
 {
     for (int threadIdx = 0; threadIdx < numThreads; threadIdx++)
     {
         subgridIntegrationThread[threadIdx] = new std::thread(&QuarkExchange::performScatteringCalculation,
-                                                                  ((QuarkExchange*) subgridScatteringProcess[threadIdx]),
-                                                                  k2_cutoff);
+                                                                  ((QuarkExchange*) subgridScatteringProcess[threadIdx]));
     }
 
     for (int threadIdx = 0; threadIdx < numThreads; threadIdx++)
@@ -101,7 +100,6 @@ void ScatteringProcessHandler::store_scattering_amplitude(std::string data_path,
                                                           double X_upper,
                                                           double Z_lower,
                                                           double Z_upper,
-                                                          double loop_cutoff,
                                                           int k2_integration_points,
                                                           int z_integration_points,
                                                           int y_integration_points,
@@ -171,11 +169,27 @@ void ScatteringProcessHandler::store_scattering_amplitude(std::string data_path,
     spec_json_root["Z_points"] = std::to_string(lenZ);
     spec_json_root["X_range"] = (std::ostringstream() << "[" << X_lower << ", " << X_upper << "]").str();
     spec_json_root["Z_range"] = (std::ostringstream() << "[" << Z_lower << ", " << Z_upper << "]").str();
-    spec_json_root["loop_cutoff"] = std::to_string(loop_cutoff);
-    spec_json_root["k2_integration_points"] = std::to_string(k2_integration_points);
-    spec_json_root["z_integration_points"] = std::to_string(z_integration_points);
-    spec_json_root["y_integration_points"] = std::to_string(y_integration_points);
-    spec_json_root["phi_integration_points"] = std::to_string(phi_integration_points);
+    spec_json_root["contour_def_active"] = CONTOUR_DEF_ACTIVE;
+
+    if(CONTOUR_DEF_ACTIVE)
+    {
+        spec_json_root["loop_cutoff_x_4"] = std::to_string(CUTOFF_x_4);
+        spec_json_root["loop_cutoff_absx"] = std::to_string(CUTOFF_absx);
+
+        spec_json_root["x_4_integration_points"] = std::to_string(k2_integration_points);
+        spec_json_root["absx_integration_points"] = std::to_string(z_integration_points);
+        spec_json_root["y_integration_points"] = std::to_string(y_integration_points);
+        spec_json_root["phi_integration_points"] = std::to_string(phi_integration_points);
+    }
+    else
+    {
+        spec_json_root["loop_cutoff_k2"] = std::to_string(CUTOFF_k2);
+
+        spec_json_root["k2_integration_points"] = std::to_string(k2_integration_points);
+        spec_json_root["z_integration_points"] = std::to_string(z_integration_points);
+        spec_json_root["y_integration_points"] = std::to_string(y_integration_points);
+        spec_json_root["phi_integration_points"] = std::to_string(phi_integration_points);
+    }
 
     spec_json_root["projection_basis"] = (std::ostringstream() << PROJECTION_BASIS).str();
     spec_json_root["invert_strategy"] = (std::ostringstream() << INVERT_STRATEGY).str();

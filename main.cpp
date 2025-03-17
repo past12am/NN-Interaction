@@ -52,8 +52,8 @@ int main(int argc, char *argv[])
     double Z_lower = -1; // -1 + 1E-4;
     double Z_upper = 1; // 1 - 1E-4;
 
-    double contour_def_eps_lower = 1E-2;
-    double contour_def_eps_upper = 1;
+    double contour_def_eps_lower = 0.01;
+    double contour_def_eps_upper = 0.1;
 
 
     // Note: grid lengths for X must be even (edge case not handled)
@@ -65,14 +65,13 @@ int main(int argc, char *argv[])
     }
 
     int numThreads = NUM_THREADS;
-    int lenX = 12;
-    int lenZ = 13;
+    int lenX = 8;
+    int lenZ = 11;
     int lenContourDef = 1;
 
-    double loop_cutoff = 1E4;       // Note: additional effects with 1E6
 
-    int k2_integration_points = 40;
-    int z_integration_points = 32;
+    int k2_integration_points = 100;
+    int z_integration_points = 60;
     int y_integration_points = 32;
     int phi_integration_points = 20;
 
@@ -109,7 +108,7 @@ int main(int argc, char *argv[])
                                                       Z_lower, Z_upper,
                                                       contour_def_eps_lower, contour_def_eps_upper);
 
-    scatteringProcessHandler.calculateScattering(loop_cutoff);
+    scatteringProcessHandler.calculateScattering();
     scatteringProcessHandler.store_scattering_amplitude(argv[1],
                                                         lenX,
                                                         lenZ,
@@ -117,7 +116,6 @@ int main(int argc, char *argv[])
                                                         X_upper,
                                                         Z_lower,
                                                         Z_upper,
-                                                        loop_cutoff,
                                                         k2_integration_points,
                                                         z_integration_points,
                                                         y_integration_points,

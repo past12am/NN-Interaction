@@ -7,7 +7,7 @@
 
 #include <ostream>
 
-#define NUM_THREADS 12
+#define NUM_THREADS 8
 
 # define BASIS Basis::tau
 # define PROJECTION_BASIS Basis::tau_prime
@@ -24,6 +24,11 @@
 #define CONTOUR_DEF_ACTIVE true
 
 #define M_nucleon 0.94
+
+#define CUTOFF_x_4 50.0
+#define CUTOFF_absx 50.0
+
+#define CUTOFF_k2 1E4
 
 enum class InvertStrategy
 {

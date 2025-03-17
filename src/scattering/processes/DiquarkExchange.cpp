@@ -356,7 +356,7 @@ void DiquarkExchange::deformedIntegralKernel(gsl_vector_complex* k, gsl_complex 
     }
 }
 
-gsl_complex DiquarkExchange::integrate_process(int basisElemIdx, int contourDefEpsIdx, int externalImpulseIdx, double cutoff)
+gsl_complex DiquarkExchange::integrate_process(int basisElemIdx, int contourDefEpsIdx, int externalImpulseIdx)
 {
 
     gsl_complex res = {0, 0};
@@ -370,7 +370,7 @@ gsl_complex DiquarkExchange::integrate_process(int basisElemIdx, int contourDefE
             return deformedIntegralKernelWrapper(externalImpulseIdx, contourDefEpsIdx, basisElemIdx, threadIdx, x_4, absx, y, phi);
         };
 
-        res = momentumLoop->integrate_4d_deformed(scatteringMatrixIntegrand, cutoff, X, epsilon, eta);
+        res = momentumLoop->integrate_4d_deformed(scatteringMatrixIntegrand, X, epsilon, eta);
     }
     else
     {
@@ -378,7 +378,7 @@ gsl_complex DiquarkExchange::integrate_process(int basisElemIdx, int contourDefE
             return integralKernelWrapper(externalImpulseIdx, basisElemIdx, threadIdx, k2, z, y, phi);
         };
 
-        res = momentumLoop->integrate_4d(scatteringMatrixIntegrand, cutoff);
+        res = momentumLoop->integrate_4d(scatteringMatrixIntegrand);
     }
 
     return res;

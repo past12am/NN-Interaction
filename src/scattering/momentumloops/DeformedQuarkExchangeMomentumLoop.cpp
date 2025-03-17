@@ -9,27 +9,25 @@
 #include "../../../include/Definitions.h"
 
 gsl_complex DeformedQuarkExchangeMomentumLoop::x_4Integral(
-    const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double lowerIntegrationBound,
-    double upperIntegrationBound, double X, double epsilon, double eta)
+    const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double X, double epsilon, double eta)
 {
     // TODO check k_4 = M_nucleon x_4 ?
     std::function<gsl_complex(gsl_complex)> x_4Integrand = [=, this](gsl_complex x_4) -> gsl_complex {
-        return gsl_complex_mul_real(absxIntegral(x_4, f, upperIntegrationBound), M_nucleon);
+        return gsl_complex_mul_real(absxIntegral(x_4, f), M_nucleon);
     };
 
     return gaussLegendreIntegrator_x_4.integrateComplexDeformed(x_4Integrand, contour_parameterization, deriv_contour_parameterization,
-        lowerIntegrationBound, upperIntegrationBound, X, epsilon, eta);
+        -CUTOFF_x_4, CUTOFF_x_4, X, epsilon, eta);
 }
 
 gsl_complex DeformedQuarkExchangeMomentumLoop::absxIntegral(gsl_complex x_4,
-    const std::function<gsl_complex(gsl_complex, double, double, double)>& f,
-    double upperIntegrationBound)
+    const std::function<gsl_complex(gsl_complex, double, double, double)>& f)
 {
     std::function<gsl_complex(double)> absxIntegrand = [=, this](double absx) -> gsl_complex {
         return gsl_complex_mul_real(yIntegral(x_4, absx, f), M_nucleon * M_nucleon * absx * absx);      // TODO check k2 = M2 * absx2
     };
 
-    return gaussLegendreIntegrator_absx.integrateComplex(absxIntegrand, 0, upperIntegrationBound);
+    return gaussLegendreIntegrator_absx.integrateComplex(absxIntegrand, 0, CUTOFF_absx);
 }
 
 gsl_complex DeformedQuarkExchangeMomentumLoop::yIntegral(gsl_complex x_4, double absx,
@@ -82,10 +80,10 @@ gsl_complex DeformedQuarkExchangeMomentumLoop::deriv_contour_parameterization(do
 }
 
 gsl_complex DeformedQuarkExchangeMomentumLoop::integrate_4d_deformed(
-    const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double cutoff, double X, double epsilon, double eta)
+    const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double X, double epsilon, double eta)
 {
-    gsl_complex res = x_4Integral(f, -cutoff, cutoff, X, epsilon, eta);
-    res = gsl_complex_mul_real(res, 1.0/pow(2.0 * std::numbers::pi, 4));
+    gsl_complex res = x_4Integral(f, X, epsilon, eta);
+    res = gsl_complex_mul_real(res, 1.0/pow(2.0 * std::numbers::pi, 4) * M_nucleon);
 
     return res;
 }
@@ -99,7 +97,7 @@ void DeformedQuarkExchangeMomentumLoop::calc_k_deformed(gsl_complex x_4, double 
 }
 
 gsl_complex DeformedQuarkExchangeMomentumLoop::integrate_4d(
-    const std::function<gsl_complex(double, double, double, double)>& f, double cutoff)
+    const std::function<gsl_complex(double, double, double, double)>& f)
 {
     throw std::invalid_argument("Cannot use non-deformed function with deformed contour");
 }

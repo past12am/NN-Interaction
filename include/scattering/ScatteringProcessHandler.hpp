@@ -42,7 +42,7 @@ class ScatteringProcessHandler
 
         virtual ~ScatteringProcessHandler();
 
-        void calculateScattering(double k2_cutoff);
+        void calculateScattering();
         void store_scattering_amplitude(std::string data_path,
                                         int lenX,
                                         int lenZ,
@@ -50,7 +50,6 @@ class ScatteringProcessHandler
                                         double X_upper,
                                         double Z_lower,
                                         double Z_upper,
-                                        double loop_cutoff,
                                         int k2_integration_points,
                                         int z_integration_points,
                                         int y_integration_points,
