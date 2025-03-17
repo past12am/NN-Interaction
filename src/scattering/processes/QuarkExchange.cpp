@@ -321,7 +321,7 @@ void QuarkExchange::deformedIntegralKernel(gsl_vector_complex* k, gsl_complex x_
     }
 }
 
-gsl_complex QuarkExchange::integrate_process(int basisElemIdx, int contourDefEpsIdx, int externalImpulseIdx, double k2_cutoff)
+gsl_complex QuarkExchange::integrate_process(int basisElemIdx, int contourDefEpsIdx, int externalImpulseIdx, double cutoff)
 {
     // TODO proceed incorporating contourDefEps from here
 
@@ -329,17 +329,20 @@ gsl_complex QuarkExchange::integrate_process(int basisElemIdx, int contourDefEps
 
     if (CONTOUR_DEF_ACTIVE)
     {
+        double X = externalImpulseGrid.getXAtGridIdx(externalImpulseIdx);
+        double epsilon = contour_def_epsilon[contourDefEpsIdx];
+
         std::function<gsl_complex(gsl_complex, double, double, double)> scatteringMatrixIntegrand = [=, this](gsl_complex x_4, double absx, double y, double phi) -> gsl_complex {
             return deformedIntegralKernelWrapper(externalImpulseIdx, contourDefEpsIdx, basisElemIdx, threadIdx, x_4, absx, y, phi);
         };
-        res = momentumLoop->integrate_4d_deformed(scatteringMatrixIntegrand, k2_cutoff);
+        res = momentumLoop->integrate_4d_deformed(scatteringMatrixIntegrand, cutoff, X, epsilon, eta);
     }
     else
     {
         std::function<gsl_complex(double, double, double, double)> scatteringMatrixIntegrand = [=, this](double k2, double z, double y, double phi) -> gsl_complex {
             return integralKernelWrapper(externalImpulseIdx, basisElemIdx, threadIdx, k2, z, y, phi);
         };
-        res = momentumLoop->integrate_4d(scatteringMatrixIntegrand, k2_cutoff);
+        res = momentumLoop->integrate_4d(scatteringMatrixIntegrand, cutoff);
     }
 
     return res;

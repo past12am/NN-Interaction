@@ -147,7 +147,7 @@ void ScatteringProcess::integrate(double k2_cutoff)
                 gsl_complex res = integrate_process(basisElemIdx, contour_def_idx, externalImpulseIdx, k2_cutoff);
                 scattering_amplitude_basis_projected[calcScatteringAmpIdx(basisElemIdx, contour_def_idx, externalImpulseIdx)] = res;
 
-                std::cout << "Basis[" << basisElemIdx << "], eps-idx=" << externalImpulseIdx << ", impulse-idx=" << externalImpulseIdx << ": " << GSL_REAL(res) << " + i " << GSL_IMAG(res) << std::endl;
+                std::cout << "Basis[" << basisElemIdx << "], eps-idx=" << contour_def_idx << ", impulse-idx=" << externalImpulseIdx << ": " << GSL_REAL(res) << " + i " << GSL_IMAG(res) << std::endl;
 
                 clock_at_end = std::chrono::high_resolution_clock::now();
             }

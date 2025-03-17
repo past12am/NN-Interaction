@@ -19,13 +19,16 @@ class DeformedQuarkExchangeMomentumLoop : public MomentumLoop
         GaussLegendre gaussLegendreIntegrator_y;
         GaussLegendre gaussLegendreIntegrator_phi;
 
-        gsl_complex x_4Integral(const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double lowerIntegrationBound, double upperIntegrationBound);
+        gsl_complex x_4Integral(const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double lowerIntegrationBound, double upperIntegrationBound, double X, double epsilon, double eta);
         gsl_complex absxIntegral(gsl_complex x_4, const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double upperIntegrationBound);
         gsl_complex yIntegral(gsl_complex x_4, double absx, const std::function<gsl_complex(gsl_complex, double, double, double)>& f);
         gsl_complex phiIntegral(gsl_complex x_4, double absx, double y, const std::function<gsl_complex(gsl_complex, double, double, double)>& f);
 
+        static gsl_complex contour_parameterization(double t, double X, double epsilon, double eta);
+        static gsl_complex deriv_contour_parameterization(double t, double X, double epsilon, double eta);
+
     public:
-        gsl_complex integrate_4d_deformed(const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double cutoff) override;
+        gsl_complex integrate_4d_deformed(const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double cutoff, double X, double epsilon, double eta) override;
         void calc_k_deformed(gsl_complex x_4, double absx, double y, double phi, gsl_vector_complex* k) override;
 
         gsl_complex integrate_4d(const std::function<gsl_complex(double, double, double, double)>& f, double cutoff) override;
