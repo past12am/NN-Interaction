@@ -45,18 +45,18 @@ class PlotterFullAmplitude:
         plt.savefig(self.cur_proc_run_base_path + "/" + f"{fig_name}.pdf", dpi=600)
 
 
-    def plotFullSymAmplitudeIsospin0(self, tensor_basis_names, fig_name):
+    def plotFullSymAmplitudeIsospin0(self, tensor_basis_names, fig_name, imag_mode: bool=False):
         # Plot Full (Anti-) Symmetric Amplitude
         F_complete_I0 = 1/2 * (self.dataloader_dqx.F - self.dataloader_qx.F)
-        self.plot_full_amplitude_np(self.dataloader_qx.X, self.dataloader_qx.Z, F_complete_I0, tensor_basis_names, isospin=0, fig_name=fig_name)
+        self.plot_full_amplitude_np(self.dataloader_qx.X, self.dataloader_qx.Z, F_complete_I0, tensor_basis_names, isospin=0, fig_name=fig_name, imag_mode=imag_mode)
 
-    def plotFullSymAmplitudeIsospin1(self, tensor_basis_names, fig_name):
+    def plotFullSymAmplitudeIsospin1(self, tensor_basis_names, fig_name, imag_mode: bool=False):
         # Plot Full (Anti-) Symmetric Amplitude
         F_complete_I1 = 1/2 * (self.dataloader_dqx.F + self.dataloader_qx.F)
-        self.plot_full_amplitude_np(self.dataloader_qx.X, self.dataloader_qx.Z, F_complete_I1, tensor_basis_names, isospin=1, fig_name=fig_name)
+        self.plot_full_amplitude_np(self.dataloader_qx.X, self.dataloader_qx.Z, F_complete_I1, tensor_basis_names, isospin=1, fig_name=fig_name, imag_mode=imag_mode)
 
 
-    def plot_full_amplitude_np(self, X: np.ndarray, Z: np.ndarray, F: np.ndarray, tensor_basis_names, isospin: int, fig_name: str):
+    def plot_full_amplitude_np(self, X: np.ndarray, Z: np.ndarray, F: np.ndarray, tensor_basis_names, isospin: int, fig_name: str, imag_mode: bool=False):
         fig = plt.figure(figsize=(7, 9))
         fig.tight_layout()
 
@@ -71,16 +71,16 @@ class PlotterFullAmplitude:
         for basis_idx in range(F.shape[0]):
             ax = axs[basis_idx]
             ax.ticklabel_format(style='plain')
-            ax.plot_trisurf(X, Z, F[basis_idx, :, :].flatten(), cmap=cm.coolwarm)
+            ax.plot_trisurf(X, Z, np.imag(F[basis_idx, :, :].flatten()) if imag_mode else np.real(F[basis_idx, :, :].flatten()), cmap=cm.coolwarm)
             ax.set_xlabel("$X$")
             ax.set_ylabel("$Z$")
 
             if(basis_idx < 2):
                 ax.set_title(tensor_basis_names[basis_idx] + f": $f^{{({isospin})}}_{basis_idx + 1}(X, Z)$")
-                ax.set_zlabel(f"$f^{{({isospin})}}_{basis_idx + 1}$", labelpad=10)
+                ax.set_zlabel(("Im " if imag_mode else "") + f"$f^{{({isospin})}}_{basis_idx + 1}$", labelpad=10)
             else:
                 ax.set_title(tensor_basis_names[basis_idx] + f": $g^{{({isospin})}}_{basis_idx + 1 - 2}(X, Z)$")
-                ax.set_zlabel(f"$g^{{({isospin})}}_{basis_idx + 1 - 2}$", labelpad=10)
+                ax.set_zlabel(("Im " if imag_mode else "") + f"$g^{{({isospin})}}_{basis_idx + 1 - 2}$", labelpad=10)
             ax.set_ylim([-1, 1])
             ax.zaxis.set_rotate_label(False)
 
@@ -88,7 +88,7 @@ class PlotterFullAmplitude:
         fig.subplots_adjust(wspace=0, hspace=0.385, top=0.94, bottom=0.04, left=0.01, right=0.945)
 
         if(self.savefig):
-            self.save_active_fig(fig_name)
+            self.save_active_fig(fig_name + ("_imag" if imag_mode else ""))
 
         if(self.show_plots):
             plt.show()
@@ -132,6 +132,10 @@ class Plotter:
         self.base_path = base_path
 
         self.tensorBasisNamesDict = tensorBasisNamesDict
+
+        # TODO remove
+        if ("invert_strategy" not in run_spec_dict.keys()):
+            run_spec_dict["invert_strategy"] = "numeric_matrix_inverse"
 
         self.run_spec_dict = run_spec_dict
         self.base_spec_dir_name = run_spec_dict["basis"] + "_" + run_spec_dict["invert_strategy"]
@@ -340,13 +344,13 @@ class Plotter:
 
 
 
-    def plotAmplitudes(self, dataloader, fig_name_f, fig_name_F, step_idx: int, process_abbrev: str):
+    def plotAmplitudes(self, dataloader, fig_name_f, fig_name_F, step_idx: int, process_abbrev: str, imag_mode: bool=False):
         # process_abbrev = q (Quark Exchange), dq (Diquark Exchange)
         for base_idx in range(5):
-            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.f[base_idx, :, :], f"f^{{({process_abbrev})}}_{base_idx + 1}", "X", f"$\\tau_{base_idx + 1} = $ " + self.tensorBasisNamesDict["tau"][base_idx], "tau", base_idx, fig_name=f"{fig_name_f}_{base_idx + 1}", step_idx=step_idx)
+            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.f[base_idx, :, :], f"f^{{({process_abbrev})}}_{base_idx + 1}", "X", f"$\\tau_{base_idx + 1} = $ " + self.tensorBasisNamesDict["tau"][base_idx], "tau", base_idx, fig_name=f"{fig_name_f}_{base_idx + 1}", step_idx=step_idx, imag_mode=imag_mode)
 
         for base_idx in range(5):
-            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.F[base_idx, :, :], f"F^{{({process_abbrev})}}_{base_idx + 1}", "X", f"$T_{base_idx + 1} = $ " + self.tensorBasisNamesDict["T"][base_idx], "T", base_idx, fig_name=f"{fig_name_F}_{base_idx + 1}", step_idx=step_idx)
+            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.F[base_idx, :, :], f"F^{{({process_abbrev})}}_{base_idx + 1}", "X", f"$T_{base_idx + 1} = $ " + self.tensorBasisNamesDict["T"][base_idx], "T", base_idx, fig_name=f"{fig_name_F}_{base_idx + 1}", step_idx=step_idx, imag_mode=imag_mode)
 
 
     def plotAmplitudes_h(self, dataloader, fig_name_h, projection_basis_type: str, step_idx: int, process_abbrev: str, imag_mode: bool=False):

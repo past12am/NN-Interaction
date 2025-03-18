@@ -92,7 +92,7 @@ class Dataloader:
     
     @staticmethod
     def build_matrix_from_pd_list(pd_scattering_list: typing.List, lenX: int, lenZ: int, colname: str):
-        col_vals_matrix = np.zeros((len(pd_scattering_list), len(pd.unique(pd_scattering_list[0]["X"])), len(pd.unique(pd_scattering_list[0]["Z"]))))
+        col_vals_matrix = np.zeros((len(pd_scattering_list), len(pd.unique(pd_scattering_list[0]["X"])), len(pd.unique(pd_scattering_list[0]["Z"]))), dtype=np.complex128)
 
         for basis_idx, pd_scattering in enumerate(pd_scattering_list):
             pd_scattering = pd_scattering.sort_values(["X", "Z"], ascending=True)
@@ -115,7 +115,7 @@ class Dataloader:
                     Z_idx = 0
                     last_Z = row["Z"]
 
-                col_vals_matrix[basis_idx, X_idx, Z_idx] = np.real(row[colname])
+                col_vals_matrix[basis_idx, X_idx, Z_idx] = np.complex128(row[colname])
 
         return col_vals_matrix
 

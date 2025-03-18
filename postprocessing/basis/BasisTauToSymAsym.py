@@ -51,7 +51,7 @@ class BasisTauToSymAsym:
     @staticmethod
     def build_alternate_basis_inverse_numpy(F: np.ndarray):
         #base_conv_prefs = np.array([[1, 1, 1, 1, 0], [1, -1, 1, -1, 0], [0, 1/2, 0, -(1/2), 1], [0, -(1/2), 0, 1/2, 1], [-(1/24), 0, 1/8, 0, 0]])
-        base_conv_prefs = {{3/8, 3/8, 0, 0, -(3/4)}, {1/4, -(1/4), 1/2, -(1/2), 0}, {1/8, 1/8, 0, 0, 3/4}, {1/4, -(1/4), -(1/2), 1/2, 0}, {0, 0, 1/2, 1/2, 0}}
+        base_conv_prefs = np.linalg.inv(np.array([[3/8, 3/8, 0, 0, -(3/4)], [1/4, -(1/4), 1/2, -(1/2), 0], [1/8, 1/8, 0, 0, 3/4], [1/4, -(1/4), -(1/2), 1/2, 0], [0, 0, 1/2, 1/2, 0]])) #TODO via mathematica
 
         f_transformed = np.zeros_like(F)
         for X_idx in range(F.shape[1]):
