@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     int lenContourDef = 1;
 
 
-    int k2_integration_points = 100;
+    int k2_integration_points = 60;
     int z_integration_points = 60;
     int y_integration_points = 32;
     int phi_integration_points = 20;

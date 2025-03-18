@@ -39,16 +39,16 @@ void ScalarDiquarkPropagator::D(gsl_complex x_4, double absx, double y, double p
 
     gsl_complex p2 = M_nucleon * (gsl_complex_pow_real(x_4, 2) + x2);
 
-    gsl_complex p2_pole_shifted = calc_p2_with_epsilon_shift(x_4, A_imag(X, eta), D_plusminus(x2, absx, y, phi, X, Z, sign_plus), epsilon);
+    gsl_complex p2_shifted = calc_p2_with_epsilon_shift(x_4, A_imag(X, eta), D_plusminus(x2, absx, y, phi, X, Z, sign_plus), epsilon);
 
     gsl_complex xSC = gsl_complex_div_real(p2, m_sc * m_sc);     // xSC = p^2 / M_dq^2
 
     // seperate Poles
     // 1st pole    1 / ( 1D0 + xSC ) = M_dq^2 / (M_dq^2 + p^2)
-    gsl_complex pole1 = p2_pole_shifted + m_sc2;
+    gsl_complex pole1 = p2_shifted + m_sc2;
 
     // 2nd pole    1 / ( 1D0 + xSC/L2 ) = L2 / (L2 + xSC) = M_dq^2 L2 / (L2 * M_dq^2 + p^2)        // TODO check calculation on paper
-    gsl_complex pole2 = p2_pole_shifted + L2 * m_sc2;
+    gsl_complex pole2 = p2_shifted + L2 * m_sc2;
 
 
 
@@ -66,7 +66,7 @@ void ScalarDiquarkPropagator::D(gsl_complex x_4, double absx, double y, double p
 gsl_complex ScalarDiquarkPropagator::calc_p2_with_epsilon_shift(gsl_complex x_4, double A_imag, double D_plusminus, double epsilon)
 {
     gsl_complex A = gsl_complex_rect(0, A_imag);
-    return x_4 * x_4 - 2.0 * (A - epsilon) * x_4 + D_plusminus + gsl_complex_pow_real(A - epsilon, 2);
+    return M_nucleon * M_nucleon * (x_4 * x_4 - 2.0 * (A - epsilon) * x_4 + D_plusminus + gsl_complex_pow_real(A - epsilon, 2));
 }
 
 

@@ -10,6 +10,8 @@
 #include "../../../include/gslhacks/GSLComplexOperators.hpp"
 
 #include "../../../include/qcd/propagators/QuarkPropagator.hpp"
+
+#include "../../../include/Definitions.h"
 #include "../../../include/utils/dirac/DiracStructuresHelper.hpp"
 #include "../../../include/utils/dirac/DiracStructures.hpp"
 
@@ -90,9 +92,9 @@ void QuarkPropagator::S(gsl_vector_complex* p, gsl_matrix_complex* quarkProp, gs
 
     // prefactor Zf/pole
     gsl_complex Zf = Z_f(p2, m2);
-    gsl_complex pole_shifted = calc_p2_with_epsilon_shift(x_4, A_imag(X, eta), D_plusminus(x2, absx, y, phi, X, Z, sign_plus), epsilon);
+    gsl_complex pole_shifted = calc_p2_with_epsilon_shift(x_4, A_imag(X, eta), D_plusminus(x2, absx, y, phi, X, Z, sign_plus), epsilon) + m2;
 
-    gsl_matrix_complex_scale(pSlashCurrent, Zf / pole_shifted);
+    gsl_matrix_complex_scale(quarkProp, Zf / pole_shifted);
 }
 
 QuarkPropagator::~QuarkPropagator()
@@ -109,7 +111,7 @@ gsl_complex QuarkPropagator::calc_p2_with_epsilon_shift(gsl_complex x_4, double 
     double epsilon)
 {
     gsl_complex A = gsl_complex_rect(0, A_imag);
-    return x_4 * x_4 - 2.0 * (A + epsilon) * x_4 + D_plusminus + gsl_complex_pow_real(A + epsilon, 2);
+    return M_nucleon * M_nucleon * (x_4 * x_4 - 2.0 * (A + epsilon) * x_4 + D_plusminus + gsl_complex_pow_real(A + epsilon, 2));
 }
 
 double QuarkPropagator::A_imag(double X, double eta)
