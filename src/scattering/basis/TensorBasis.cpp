@@ -256,6 +256,7 @@ TensorBasis::~TensorBasis()
     for(int i = 0; i < basis_size; i++)
     {
         delete []tauGrid[i];
+        delete []tauPrimeGrid[i];
         delete []TGrid[i];
     }
 
@@ -263,12 +264,15 @@ TensorBasis::~TensorBasis()
     {
         gsl_matrix_complex_free(KMatrixGrid[impulseIdx]);
         gsl_matrix_complex_free(KInverseMatrixGrid[impulseIdx]);
+        gsl_matrix_complex_free(RInverseMatrixGrid[impulseIdx]);
     }
 
     delete []tauGrid;
+    delete []tauPrimeGrid;
     delete []TGrid;
     delete []KMatrixGrid;
     delete []KInverseMatrixGrid;
+    delete []RInverseMatrixGrid;
 }
 
 int TensorBasis::getTensorBasisElementCount() const
@@ -343,6 +347,9 @@ void TensorBasis::calculateKMatrixInverse(int impulseIdx)
 
     //std::cout << "K-Matrix Inverse: " << std::endl << PrintGSLElements::print_gsl_matrix_structure(KInverseMatrixGrid[impulseIdx], 1E-10) << std::endl;
     std::cout << "K-Matrix Inverse: " << std::endl << PrintGSLElements::print_gsl_matrix_complex(KInverseMatrixGrid[impulseIdx]) << std::endl;
+
+    gsl_matrix_complex_free(LUDecomp);
+    gsl_permutation_free(p);
 }
 
 gsl_matrix_complex* TensorBasis::K(int impulseIdx)

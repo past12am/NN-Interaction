@@ -43,6 +43,7 @@ DiracStructures::DiracStructures()
 
 
     gamma5 = gsl_matrix_complex_alloc(4, 4);
+    gsl_matrix_complex_set_zero(const_cast<gsl_matrix_complex*>(gamma5));
     gsl_matrix_complex_set(const_cast<gsl_matrix_complex*>(gamma5), 0, 2, gsl_complex_rect(1, 0));
     gsl_matrix_complex_set(const_cast<gsl_matrix_complex*>(gamma5), 1, 3, gsl_complex_rect(1, 0));
     gsl_matrix_complex_set(const_cast<gsl_matrix_complex*>(gamma5), 2, 0, gsl_complex_rect(1, 0));

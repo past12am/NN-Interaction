@@ -262,6 +262,8 @@ void ScatteringProcess::buildScatteringMatrix()
             }
         }
     }
+
+    gsl_vector_complex_free(f);
 }
 
 void ScatteringProcess::performScatteringCalculation()

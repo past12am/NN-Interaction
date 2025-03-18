@@ -74,9 +74,11 @@ ScatteringProcessHandler::~ScatteringProcessHandler()
     for (int threadIdx = 0; threadIdx < numThreads; threadIdx++)
     {
         delete subgridScatteringProcess[threadIdx];
+        delete subgridIntegrationThread[threadIdx];
     }
 
     delete[] subgridScatteringProcess;
+    delete[]subgridIntegrationThread;
 }
 
 void ScatteringProcessHandler::calculateScattering()
