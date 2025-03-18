@@ -72,7 +72,6 @@ class ScatteringProcess
                                             gsl_vector_complex* k_f, gsl_vector_complex* k_i,
                                             Tensor4<4, 4, 4, 4>* integralKernelTensor) = 0;
 
-        // TODO proceed from here with epsilon implementation
         virtual gsl_complex integrate_process(int basisElemIdx, int contourDefEpsIdx, int externalImpulseIdx) = 0;
 
 };

@@ -323,8 +323,6 @@ void QuarkExchange::deformedIntegralKernel(gsl_vector_complex* k, gsl_complex x_
 
 gsl_complex QuarkExchange::integrate_process(int basisElemIdx, int contourDefEpsIdx, int externalImpulseIdx)
 {
-    // TODO proceed incorporating contourDefEps from here
-
     gsl_complex res = {0, 0};
 
     if (CONTOUR_DEF_ACTIVE)

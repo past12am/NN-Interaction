@@ -52,7 +52,6 @@ gsl_complex DeformedQuarkExchangeMomentumLoop::phiIntegral(gsl_complex x_4, doub
 
 gsl_complex DeformedQuarkExchangeMomentumLoop::contour_parameterization(double t, double X, double epsilon, double eta)
 {
-    // TODO
     if(t <= -2 * epsilon || t >= 2 * epsilon || (-0.5 * epsilon < t && t < 0.5 * epsilon))
     {
         return gsl_complex_rect(t, 0);

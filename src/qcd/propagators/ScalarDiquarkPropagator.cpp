@@ -58,8 +58,6 @@ void ScalarDiquarkPropagator::D(gsl_complex x_4, double absx, double y, double p
     //      = m_sc2 D0 / pole1 * ( 1D0 + D1*xSC + Doo/D0 * xSC**2/L2 ) * m_sc2 L2 / pole2 / m_sc2
     //      = m_sc2 D0 / pole1 * ( 1D0 + D1*xSC + Doo/D0 * xSC**2/L2 ) * L2 / pole2
     gsl_complex D_SC = m_sc2 * D0 / pole1 * (1.0 + D1 * xSC + Doo/D0 * (xSC * xSC)/L2) * L2 / pole2 ;
-
-    // TODO (what is written here is only to suppress Wunused-but-set warning
     *diquarkPropScalar = D_SC;
 }
 

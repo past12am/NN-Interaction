@@ -67,15 +67,36 @@ int main(int argc, char *argv[])
     int numThreads = NUM_THREADS;
     int lenX = 8;
     int lenZ = 11;
-    int lenContourDef = 1;
+    int lenContourDef = 6;
 
 
+    // Good parameter set
     int k2_integration_points = 60;
     int z_integration_points = 60;
     int y_integration_points = 32;
     int phi_integration_points = 20;
 
 
+
+    /* Working parameter sets
+     * Small
+    *    int k2_integration_points = 60;
+    *    int z_integration_points = 60;
+    *    int y_integration_points = 32;
+    *    int phi_integration_points = 20;
+    *
+    *    #define CUTOFF_x_4 30.0
+    *    #define CUTOFF_absx 30.0
+    *
+     * Medium
+    *    int k2_integration_points = 80;
+    *    int z_integration_points = 80;
+    *    int y_integration_points = 32;
+    *    int phi_integration_points = 20;
+    *
+    *    #define CUTOFF_x_4 40.0
+    *    #define CUTOFF_absx 40.0
+    */
     // Sanity Checks for Parameters
     //      we need ANALYTIC --> BASIS = tau, PROJECTION_BASIS = tau_prime
     if(INVERT_STRATEGY == InvertStrategy::ANALYTIC)
