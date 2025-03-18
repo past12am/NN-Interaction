@@ -83,6 +83,8 @@ fabric.properties
 # build directiry
 cmake-build-debug
 cmake-build-release
+cmake-build-release-1
+cmake-build-release-2
 build
 
 __pycache__

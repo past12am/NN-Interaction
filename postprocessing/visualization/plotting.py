@@ -194,7 +194,7 @@ class Plotter:
         fig.subplots_adjust(top=0.88, bottom=0.11, left=0.03, right=0.9, hspace=0.2, wspace=0.2)
 
         if(self.savefig):
-            self.save_active_fig(fig_name, step_idx, base_type, basis_idx)
+            self.save_active_fig(fig_name + ("_imag" if imag_mode else ""), step_idx, base_type, basis_idx)
 
         if(self.show_plots):
             plt.show()
