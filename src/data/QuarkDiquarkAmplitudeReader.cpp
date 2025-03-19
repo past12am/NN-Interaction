@@ -12,6 +12,8 @@
 
 #include "../../include/data/QuarkDiquarkAmplitudeReader.hpp"
 
+#include "../../include/gslhacks/GSLComplexOperators.hpp"
+
 char* QuarkDiquarkAmplitudeReader::src_path = nullptr;
 double QuarkDiquarkAmplitudeReader::c[8][4][3];
 
@@ -65,7 +67,7 @@ QuarkDiquarkAmplitudeReader::QuarkDiquarkAmplitudeReader(char *src_path)
     read_datafile();
 }
 
-gsl_complex QuarkDiquarkAmplitudeReader::f_k(gsl_complex p2, int amplitude_idx, int cheby_idx)
+gsl_complex QuarkDiquarkAmplitudeReader::f_k_cheby(gsl_complex p2, int amplitude_idx, int cheby_idx)
 {
     //f = (c1 + c2*p^2) * e^(-c3*p^2).
     return gsl_complex_mul(gsl_complex_add_real(gsl_complex_mul_real(p2, c[amplitude_idx][cheby_idx][1]), c[amplitude_idx][cheby_idx][0]),
@@ -80,24 +82,26 @@ gsl_complex QuarkDiquarkAmplitudeReader::f_k(gsl_complex p2, double z, int ampli
     {
         case 0:
         {
-            gsl_complex fk_res0 = f_k(p2, amplitude_idx, 0);
-            gsl_complex fk_res1 = f_k(p2, amplitude_idx, 1);
-            gsl_complex fk_res2 = f_k(p2, amplitude_idx, 2);
-            gsl_complex fk_res3 = f_k(p2, amplitude_idx, 3);
+            gsl_complex fk_res0 = f_k_cheby(p2, amplitude_idx, 0);
+            //return fk_res0;   // TODO Note that up to here it works
+
+            gsl_complex fk_res1 = f_k_cheby(p2, amplitude_idx, 1);
+            gsl_complex fk_res2 = f_k_cheby(p2, amplitude_idx, 2);
+            gsl_complex fk_res3 = f_k_cheby(p2, amplitude_idx, 3);
 
             // Ycomp(iAmp) = Y(iAmp,0) + Y(iAmp,1)*I*p*z + Y(iAmp,2)*p2*z**2 + Y(iAmp,3)*I*p*z**3
-            return gsl_complex_add(gsl_complex_add(fk_res0,
-                                                   gsl_complex_mul(fk_res1, gsl_complex_mul_imag(p, z))),
+            gsl_complex res = fk_res0 + fk_res1 * gsl_complex_rect(0, 1) * p * z + fk_res2 * p2 * pow(z, 2) + fk_res3 * gsl_complex_rect(0, 1) * p * pow(z, 3);
 
-                                   gsl_complex_add(gsl_complex_mul(fk_res2, gsl_complex_mul_real(p2, pow(z, 2))),
-                                                   gsl_complex_mul(fk_res3, gsl_complex_mul_imag(p, pow(z, 3)))));
+            return fk_res0; // TODO fix higher orders in Chebys
         }
         case 1:
         {
-            gsl_complex fk_res0 = f_k(p2, amplitude_idx, 0);
-            gsl_complex fk_res1 = f_k(p2, amplitude_idx, 1);
-            gsl_complex fk_res2 = f_k(p2, amplitude_idx, 2);
-            gsl_complex fk_res3 = f_k(p2, amplitude_idx, 3);
+            gsl_complex fk_res0 = f_k_cheby(p2, amplitude_idx, 0);
+            gsl_complex fk_res1 = f_k_cheby(p2, amplitude_idx, 1);
+            gsl_complex fk_res2 = f_k_cheby(p2, amplitude_idx, 2);
+            gsl_complex fk_res3 = f_k_cheby(p2, amplitude_idx, 3);
+
+            return fk_res0; // TODO fix higher orders in Chebys
 
             // Ycomp(iAmp) = Y(iAmp,0) + Y(iAmp,1)*I*p*z + Y(iAmp,2)*z**2 + Y(iAmp,3)*I*p*z**3
             return gsl_complex_add(gsl_complex_add(fk_res0,

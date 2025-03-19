@@ -98,6 +98,7 @@ void ScatteringProcessHandler::calculateScattering()
 void ScatteringProcessHandler::store_scattering_amplitude(std::string data_path,
                                                           int lenX,
                                                           int lenZ,
+                                                          int lenEpsilon,
                                                           double X_lower,
                                                           double X_upper,
                                                           double Z_lower,
@@ -182,6 +183,8 @@ void ScatteringProcessHandler::store_scattering_amplitude(std::string data_path,
         spec_json_root["absx_integration_points"] = std::to_string(z_integration_points);
         spec_json_root["y_integration_points"] = std::to_string(y_integration_points);
         spec_json_root["phi_integration_points"] = std::to_string(phi_integration_points);
+
+        spec_json_root["epsilon_points"] = std::to_string(lenEpsilon);
     }
     else
     {

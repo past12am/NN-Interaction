@@ -37,7 +37,7 @@ NN Interaction - To do:
 
 int main(int argc, char *argv[])
 {
-    double m_q = 0.55; // GeV
+    double m_q = 0.55; // GeV   // TODO 0.5 GeV?
     double m_d = 0.8;  // GeV (scalar diquark)
 
     double eta = m_q/(m_q + m_d);
@@ -70,15 +70,21 @@ int main(int argc, char *argv[])
     int lenContourDef = 6;
 
 
-    // Good parameter set
     int k2_integration_points = 60;
     int z_integration_points = 60;
     int y_integration_points = 32;
     int phi_integration_points = 20;
 
 
-
     /* Working parameter sets
+     * Mini (only kinematically safe contour)
+    *    int k2_integration_points = 20;
+    *    int z_integration_points = 20;
+    *    int y_integration_points = 20;
+    *    int phi_integration_points = 20;
+    *
+    *    #define CUTOFF_k2 1E4
+    *
      * Small
     *    int k2_integration_points = 60;
     *    int z_integration_points = 60;
@@ -133,6 +139,7 @@ int main(int argc, char *argv[])
     scatteringProcessHandler.store_scattering_amplitude(argv[1],
                                                         lenX,
                                                         lenZ,
+                                                        lenContourDef,
                                                         X_lower,
                                                         X_upper,
                                                         Z_lower,

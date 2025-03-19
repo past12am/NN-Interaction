@@ -32,7 +32,7 @@ class QuarkDiquarkAmplitudeReader
          * @return
          */
         gsl_complex f_k(gsl_complex p2, double z, int amplitude_idx);
-        gsl_complex f_k(gsl_complex p2, int amplitude_idx, int cheby_idx);
+        gsl_complex f_k_cheby(gsl_complex p2, int amplitude_idx, int cheby_idx);
 
         static void setPath(char* src_path);
 

@@ -46,6 +46,7 @@ class ScatteringProcessHandler
         void store_scattering_amplitude(std::string data_path,
                                         int lenX,
                                         int lenZ,
+                                        int lenEpsilon,
                                         double X_lower,
                                         double X_upper,
                                         double Z_lower,

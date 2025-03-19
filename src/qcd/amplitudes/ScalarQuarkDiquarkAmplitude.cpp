@@ -100,12 +100,12 @@ void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_comple
     // quarkDiquarkAmp = f(p2, z, 0) * posEnergyProj(P)
     gsl_matrix_complex_memcpy(quarkDiquarkAmp, posEnergyProj);
 
-    gsl_complex f_k_0 = fit_reader->f_k(p2, z, 0);
+    gsl_complex f_k_0 = fit_reader->f_k(p2, z, 0);    // TODO uttermost importance: The fit reader (or fit) is wrong!!!!!!
     gsl_matrix_complex_scale(quarkDiquarkAmp, f_k_0);
 
 
     /*
-    //  TODO higher order tensor has incorrect symmetry in result --> probably more integration points?
+    //  TODO higher order tensor is more sensible to correct chebys, fix that, then it will work (see uttermost importance above)
     // 1: Higher order Tensor ( = slash(i * normalized(TransverseProj_P @ p)))
     // build slash(q)   q = normalized(TransverseProj_P(p))
     // tmpTensor = TransverseProj_P
