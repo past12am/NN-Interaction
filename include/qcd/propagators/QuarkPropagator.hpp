@@ -14,6 +14,8 @@ class QuarkPropagator
         gsl_matrix_complex* pSlashCurrent;
 
         gsl_complex sigma_v(gsl_complex p2);
+        gsl_complex sigma_v(gsl_complex p2, gsl_complex x_4, double absx, double y, double phi, double X, double Z, bool sign_plus, double eta, double epsilon);
+
         gsl_complex sigma_s(gsl_complex M, gsl_complex sigma_v);
         gsl_complex M(gsl_complex p2);
 

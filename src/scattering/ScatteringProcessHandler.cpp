@@ -222,7 +222,10 @@ void ScatteringProcessHandler::store_scattering_amplitude(std::string data_path,
             exit(-1);
         }
 
-        fnamestrstream << basisElemIdx << ".txt";
+        fnamestrstream << basisElemIdx;
+        if(CONTOUR_DEF_ACTIVE)
+            fnamestrstream << "_eps";
+        fnamestrstream << ".txt";
 
 
         std::ofstream data_file;

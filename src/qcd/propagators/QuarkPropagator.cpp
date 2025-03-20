@@ -41,6 +41,15 @@ gsl_complex QuarkPropagator::sigma_v(gsl_complex p2)
                            gsl_complex_mul_real(gsl_complex_exp(gsl_complex_mul_real(p2, -5.09)), 1.11));
 }
 
+gsl_complex QuarkPropagator::sigma_v(gsl_complex p2, gsl_complex x_4, double absx, double y, double phi, double X, double Z, bool sign_plus, double eta, double epsilon)
+{
+    //1.004D0*( p2 + 0.25D0 )/( ( p2 + 0.25D0 )**2 + 0.40D0**2 )   + 1.11D0*EXP(-5.09D0*p2)
+    double x2 = absx * absx;
+
+    gsl_complex p2_eps_shifted = calc_p2_with_epsilon_shift(x_4, A_imag(X, eta), D_plusminus(x2, absx, y, phi, X, Z, sign_plus), epsilon);
+    return 1.004 * (p2 + 0.25) / (gsl_complex_pow_real(p2_eps_shifted + 0.25, 2) + pow(0.4, 2) + 1.11 * gsl_complex_exp(-5.09 * p2));
+}
+
 void QuarkPropagator::S(gsl_vector_complex* p, gsl_matrix_complex* quarkProp)
 {
     gsl_complex p2;
@@ -72,29 +81,24 @@ void QuarkPropagator::S(gsl_vector_complex* p, gsl_matrix_complex* quarkProp, gs
     gsl_complex p2;
     gsl_blas_zdotu(p, p, &p2);
 
-    gsl_complex m = M(p2);
-    gsl_complex m2 = m  * m;
-
-    double x2 = absx * absx;
+    gsl_complex sigma_v_val = sigma_v(p2, x_4, absx, y, phi, X, Z, sign_plus, eta, epsilon);
+    gsl_complex sigma_s_val = sigma_s(M(p2), sigma_v_val);
 
 
     // Identity part
     gsl_matrix_complex_set_identity(quarkProp);
-    gsl_matrix_complex_scale(quarkProp, m);
+    gsl_matrix_complex_scale(quarkProp, sigma_s_val);
+
 
     // pSlash = -i pSlash
     DiracStructuresHelper::diracStructures.slash(p, pSlashCurrent);
     gsl_matrix_complex_scale(pSlashCurrent, gsl_complex_rect(0, -1.0));
 
+    gsl_matrix_complex_scale(pSlashCurrent, sigma_v_val);
+
+
     // Combine both tensors
     gsl_matrix_complex_add(quarkProp, pSlashCurrent);
-
-
-    // prefactor Zf/pole
-    gsl_complex Zf = Z_f(p2, m2);
-    gsl_complex pole_shifted = calc_p2_with_epsilon_shift(x_4, A_imag(X, eta), D_plusminus(x2, absx, y, phi, X, Z, sign_plus), epsilon) + m2;
-
-    gsl_matrix_complex_scale(quarkProp, Zf / pole_shifted);
 }
 
 QuarkPropagator::~QuarkPropagator()
