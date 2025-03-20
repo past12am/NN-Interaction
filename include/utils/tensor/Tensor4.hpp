@@ -14,10 +14,9 @@
 
 template<int d1, int d2, int d3, int d4> class Tensor4
 {
-    private:
+    public:
         gsl_complex tensor[d1][d2][d3][d4];
 
-    public:
         /*!
          * Creates a Tensor from an outer product between A and B
          * @param A

@@ -80,7 +80,7 @@ gsl_complex ScatteringProcess::integralKernelWrapper(int externalImpulseIdx, int
 
     k_mutex.unlock();
 
-    gsl_complex kernel_res = integralKernelTensor.leftContractWith(currentBasisProjectionElement);
+    gsl_complex kernel_res = integralKernelTensor.leftContractWith(currentBasisProjectionElement);        // TODO missing a factor 1/4? --> I think not
     return kernel_res;
 }
 
@@ -112,7 +112,7 @@ gsl_complex ScatteringProcess::deformedIntegralKernelWrapper(int externalImpulse
 
     k_mutex.unlock();
 
-    gsl_complex kernel_res = integralKernelTensor.leftContractWith(currentBasisProjectionElement);
+    gsl_complex kernel_res = integralKernelTensor.leftContractWith(currentBasisProjectionElement);  // TODO missing a factor 1/4? --> I think not
     return kernel_res;
 }
 

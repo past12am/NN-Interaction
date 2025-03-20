@@ -24,7 +24,7 @@ gsl_complex DeformedQuarkExchangeMomentumLoop::absxIntegral(gsl_complex x_4,
     const std::function<gsl_complex(gsl_complex, double, double, double)>& f)
 {
     std::function<gsl_complex(double)> absxIntegrand = [=, this](double absx) -> gsl_complex {
-        return gsl_complex_mul_real(yIntegral(x_4, absx, f), M_nucleon * M_nucleon * absx * absx);      // TODO check k2 = M2 * absx2
+        return gsl_complex_mul_real(yIntegral(x_4, absx, f), M_nucleon * M_nucleon * M_nucleon * absx * absx);      // TODO check k2 = M2 * absx2 and d_absk = M * d_absx
     };
 
     return gaussLegendreIntegrator_absx.integrateComplex(absxIntegrand, 0, CUTOFF_absx);
