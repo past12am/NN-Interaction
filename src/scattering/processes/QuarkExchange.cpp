@@ -167,13 +167,13 @@ void QuarkExchange::integralKernel(gsl_vector_complex* k, gsl_vector_complex* l,
 
 
     // matrix_Conj_Gamma_kf = ChargeConj(Gamma(k_r', k_f))
-    Gamma_pf->Gamma(k_rp, k_f, true, threadIdx, matrix_Conj_Gamma_kf);
+    Gamma_kf->Gamma(k_rp, k_f, true, threadIdx, matrix_Conj_Gamma_kf);
 
     // matrix_S_p = S(p_q)
-    S_k->S(p_q,  matrix_S_p);
+    S_p->S(p_q,  matrix_S_p);
 
     // matrix_Gamma_pi = Gamma(p_r, p_i)
-    Gamma_ki->Gamma(p_r, p_i, false, threadIdx, matrix_Gamma_pi);
+    Gamma_pi->Gamma(p_r, p_i, false, threadIdx, matrix_Gamma_pi);
 
 
     // S_Gamma__gamma_beta = S(p_q) Gamma(p_r, p_i)
@@ -192,7 +192,7 @@ void QuarkExchange::integralKernel(gsl_vector_complex* k, gsl_vector_complex* l,
 
     // scalar_D_k = D(k_d)
     gsl_complex scalar_D_k;
-    D_p->D(k_d, &scalar_D_k);
+    D_k->D(k_d, &scalar_D_k);
 
 
 
@@ -272,13 +272,13 @@ void QuarkExchange::deformedIntegralKernel(gsl_vector_complex* k, gsl_complex x_
 
 
     // matrix_Conj_Gamma_kf = ChargeConj(Gamma(k_r', k_f))
-    Gamma_pf->Gamma(k_rp, k_f, true, threadIdx, matrix_Conj_Gamma_kf);
+    Gamma_kf->Gamma(k_rp, k_f, true, threadIdx, matrix_Conj_Gamma_kf);
 
     // matrix_S_p = S(p_q)
-    S_k->S(p_q,  matrix_S_p, x_4, absx, y, phi, false, X, Z, eta, epsilon);
+    S_p->S(p_q,  matrix_S_p, x_4, absx, y, phi, false, X, Z, eta, epsilon);
 
     // matrix_Gamma_pi = Gamma(p_r, p_i)
-    Gamma_ki->Gamma(p_r, p_i, false, threadIdx, matrix_Gamma_pi);
+    Gamma_pi->Gamma(p_r, p_i, false, threadIdx, matrix_Gamma_pi);
 
 
     // S_Gamma__gamma_beta = S(p_q) Gamma(p_r, p_i)
@@ -297,7 +297,7 @@ void QuarkExchange::deformedIntegralKernel(gsl_vector_complex* k, gsl_complex x_
 
     // scalar_D_k = D(k_d)
     gsl_complex scalar_D_k;
-    D_p->D(x_4, absx, y, phi, true, X, Z, eta, &scalar_D_k, epsilon);
+    D_k->D(x_4, absx, y, phi, true, X, Z, eta, &scalar_D_k, epsilon);
 
 
 
