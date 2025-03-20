@@ -36,6 +36,11 @@ std::tuple<double*, double*> GaussLegendre::generageWeights(int n)
     return std::tuple<double*, double*>{w_arr, x_arr};
 }
 
+double GaussLegendre::calc_z_log_spacing(double x, double A, double B)
+{
+    return exp((x - A) / B);
+}
+
 double GaussLegendre::integrate(std::function<double(double)>& f, double a, double b)
 {
     /*
@@ -84,6 +89,23 @@ gsl_complex GaussLegendre::integrateComplex(std::function<gsl_complex(double)> &
     for (int i = 0; i < n; i++)
     {
         gsl_complex cur_val = gsl_complex_mul_real(f((b - a)/2.0 * x_arr[i] + (b + a)/2.0), w_arr[i] * (b - a)/2.0);
+        val = gsl_complex_add(val, cur_val);
+    }
+
+    return val;
+}
+
+gsl_complex GaussLegendre::integrateComplexLogSpacing(std::function<gsl_complex(double)>& f, double a, double b)
+{
+    double A = -log(a * b) / log(b/a);
+    double B = 2.0 / log(b/a);
+
+    gsl_complex val = gsl_complex_rect(0, 0);
+    for (int i = 0; i < n; i++)
+    {
+        double eval_val = calc_z_log_spacing(x_arr[i], A, B);
+
+        gsl_complex cur_val = gsl_complex_mul_real(f(eval_val), eval_val / B * w_arr[i]);
         val = gsl_complex_add(val, cur_val);
     }
 
