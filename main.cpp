@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     int numThreads = NUM_THREADS;
     int lenX = 8;
     int lenZ = 11;
-    int lenContourDef = 6;
+    int lenContourDef = 1;
 
 
     int k2_integration_points = 60;
