@@ -424,12 +424,12 @@ void QuarkExchange::calc_p_r(gsl_vector_complex* k, gsl_vector_complex* l, gsl_v
 {
     //tmp1_mutex.lock();
 
-    // p_r = -(eta * l)
-    gsl_vector_complex_memcpy(p_r, l);
+    // p_r = -(eta * r)
+    gsl_vector_complex_memcpy(p_r, r);
     gsl_vector_complex_scale(p_r, gsl_complex_rect(-eta, 0));
 
-    // p_r = k + (l-r)/2 - eta * l
-    gsl_vector_complex_add(p_r, lmr_half);
+    // p_r = k - (l-r)/2 - eta * r
+    gsl_vector_complex_sub(p_r, lmr_half);
     gsl_vector_complex_add(p_r, k);
 
     //tmp1_mutex.unlock();
@@ -439,12 +439,12 @@ void QuarkExchange::calc_p_rp(gsl_vector_complex* k, gsl_vector_complex* l, gsl_
 {
     //tmp1_mutex.lock();
 
-    // p_rp = -(eta * r)
-    gsl_vector_complex_memcpy(p_rp, r);
+    // p_rp = -(eta * l)
+    gsl_vector_complex_memcpy(p_rp, l);
     gsl_vector_complex_scale(p_rp, gsl_complex_rect(-eta, 0));
 
-    // p_rp = k - (l-r)/2 - eta * r
-    gsl_vector_complex_sub(p_rp, lmr_half);
+    // p_rp = k + (l-r)/2 - eta * l
+    gsl_vector_complex_add(p_rp, lmr_half);
     gsl_vector_complex_add(p_rp, k);
 
     //tmp1_mutex.unlock();
