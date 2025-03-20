@@ -15,6 +15,8 @@
 #include "../../../include/operators/ChargeConjugation.hpp"
 #include "../../../include/utils/print/PrintGSLElements.hpp"
 
+#include "../../../include/gslhacks/GSLComplexOperators.hpp"
+
 
 QuarkDiquarkAmplitudeReader* ScalarQuarkDiquarkAmplitude::fit_reader = nullptr;
 
@@ -66,25 +68,25 @@ void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_comple
     gsl_complex P2;
     gsl_blas_zdotu(P_copy, P_copy, &P2);
 
+    // Calculate angle z
+    gsl_complex valP = gsl_complex_sqrt(P2);
+    gsl_complex valp = gsl_complex_sqrt(p2);
 
     gsl_complex compl_z;
     gsl_blas_zdotc(p_copy, P_copy, &compl_z);
 
-    // TODO remove next 3 lines
-    // gsl_complex compl_z_validate;
-    // gsl_blas_zdotu(p_copy, P_copy, &compl_z_validate);
-    // assert(compl_z.dat[0] == compl_z_validate.dat[0] && compl_z.dat[1] == compl_z_validate.dat[1]);
+    gsl_complex normalization = valP * valp;
+    compl_z = compl_z / gsl_complex_abs(normalization);
 
 
-    //if(abs(GSL_IMAG(compl_z)) > 1E-15)
+    //if(abs(GSL_IMAG(normalization)) > 1E-15 && abs(GSL_REAL(normalization)) > 1E-15)
     //{
     //    std::cout << "p: " << PrintGSLElements::print_gsl_vector_complex(p_copy) << std::endl;
     //    std::cout << "P: " << PrintGSLElements::print_gsl_vector_complex(P_copy) << std::endl;
     //    throw std::out_of_range("Encountered complex angle for quark-diquark amplitude momenta");
     //}
 
-    double norm = sqrt(gsl_complex_abs(p2) * gsl_complex_abs(P2));
-    double z = GSL_REAL(compl_z) / norm;
+    double z = GSL_REAL(compl_z);
     if(z > 1 || z < -1)
     {
         throw std::out_of_range("Encountered |cos angle| > 1 for quark-diquark amplitude momenta");

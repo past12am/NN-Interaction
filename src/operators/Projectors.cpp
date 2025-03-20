@@ -60,7 +60,7 @@ void Projectors::posEnergyProjector(gsl_vector_complex* P, gsl_matrix_complex* p
     assert(GSL_IMAG(valPSquared) < 1E-15);
     assert(GSL_REAL(valPSquared) < 0);
 
-    gsl_complex valP = gsl_complex_sqrt(valPSquared);    // - sign is because valPSquared < 0
+    gsl_complex valP = gsl_complex_sqrt(valPSquared);
 
 
     // posEnergyProj = slash(P)

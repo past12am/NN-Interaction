@@ -83,8 +83,6 @@ gsl_complex QuarkDiquarkAmplitudeReader::f_k(gsl_complex p2, double z, int ampli
         case 0:
         {
             gsl_complex fk_res0 = f_k_cheby(p2, amplitude_idx, 0);
-            //return fk_res0;   // TODO Note that up to here it works
-
             gsl_complex fk_res1 = f_k_cheby(p2, amplitude_idx, 1);
             gsl_complex fk_res2 = f_k_cheby(p2, amplitude_idx, 2);
             gsl_complex fk_res3 = f_k_cheby(p2, amplitude_idx, 3);
@@ -92,7 +90,7 @@ gsl_complex QuarkDiquarkAmplitudeReader::f_k(gsl_complex p2, double z, int ampli
             // Ycomp(iAmp) = Y(iAmp,0) + Y(iAmp,1)*I*p*z + Y(iAmp,2)*p2*z**2 + Y(iAmp,3)*I*p*z**3
             gsl_complex res = fk_res0 + fk_res1 * gsl_complex_rect(0, 1) * p * z + fk_res2 * p2 * pow(z, 2) + fk_res3 * gsl_complex_rect(0, 1) * p * pow(z, 3);
 
-            return fk_res0; // TODO fix higher orders in Chebys
+            return fk_res0; // TODO fix higher orders in Chebys (fk_res0 term works)
         }
         case 1:
         {
