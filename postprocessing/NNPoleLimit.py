@@ -10,6 +10,8 @@ import pandas as pd
 
 from scipy.optimize import curve_fit
 
+from extrapolation.SchlessingerPointMethod import SchlessingerPointMethod
+
 import matplotlib.pyplot as plt
 
 
@@ -17,6 +19,38 @@ import matplotlib.pyplot as plt
 
 def parabola(x, a, b, c):
     return a + b * x + c * x * x
+
+
+def calc_schlessinger_at(sp, xarray):
+    res = np.zeros_like(xarray)
+    for i, x in enumerate(xarray):
+        res[i] = sp.calc_value_at(x)
+    return res
+
+def schlessinger_extrapolate(eps, h, f, X, Z, plot_title: str=None, plot_fit: bool=False):
+    sp_h = SchlessingerPointMethod(eps, h)
+    sp_f = SchlessingerPointMethod(eps, f)
+    
+    eps_space = np.linspace(0, np.max(eps), 20)
+
+    if(plot_fit):
+        plt.figure()
+        plt.plot(eps_space, calc_schlessinger_at(sp_f, eps_space), label="fit", c="orange")
+        plt.scatter(eps, f, label=f"Data: X={X}, Z={Z}")
+
+        if(plot_title is not None):
+            plt.title(plot_title)
+        
+        plt.legend()
+        plt.show()
+
+
+    # Extrapolate via fit
+    h_extrapolated = sp_h.calc_value_at(0)
+    f_extrapolated = sp_f.calc_value_at(0)
+
+    return h_extrapolated, f_extrapolated
+
 
 
 def fit_and_extrapolate(eps, h, f, X, Z, plot_title: str=None, plot_fit: bool=False):
@@ -59,7 +93,7 @@ def main():
     Z_range = 0.9
     X_range_lower = 0
 
-    latest_run_dir = None #"run_53"
+    latest_run_dir = "run_63" #"run_53"
 
 
 
@@ -99,12 +133,12 @@ def main():
                 
                 pd_cur = pd_data[(pd_data["Z"] == Z) & (pd_data["X"] == X)]
 
-                eps = pd_cur["eps"]
-                h = pd_cur["h"]
-                f = pd_cur["f"]
+                eps = pd_cur["eps"].to_numpy()
+                h = pd_cur["h"].to_numpy()
+                f = pd_cur["f"].to_numpy()
 
-                h_extrapolated, f_extrapolated = fit_and_extrapolate(eps, np.real(h), np.real(f), X, Z, "Real")
-                h_extrapolated_imag, f_extrapolated_imag = fit_and_extrapolate(eps, np.imag(h), np.imag(f), X, Z, "Imag")
+                h_extrapolated, f_extrapolated = fit_and_extrapolate(eps, np.real(h), np.real(f), X, Z, "Real", True)
+                h_extrapolated_imag, f_extrapolated_imag = fit_and_extrapolate(eps, np.imag(h), np.imag(f), X, Z, "Imag", True)
 
                 print(f"Extrapolation: Imag f = {f_extrapolated_imag}      Imag h = {h_extrapolated_imag}      Real f = {f_extrapolated}")
                 
