@@ -176,11 +176,11 @@ class Dataloader:
     
 
     @staticmethod
-    def load_dirac_space_form_factors(data_path: str, tensorbase_type: str, Z_range, X_range_lower):
+    def load_dirac_space_form_factors(data_path: str, tensorbase_type: str, Z_range, X_range_lower, contour_def_run: bool=False):
 
         pd_dirac_form_factors = list()
         for baseElemIdx in range(5):
-            pd_ff = pd.read_csv(data_path + f"/{tensorbase_type}_{baseElemIdx}.txt")
+            pd_ff = pd.read_csv(data_path + f"/{tensorbase_type}_{baseElemIdx}{"_eps" if contour_def_run else ""}.txt")
             pd_ff = pd_ff.map(lambda s: complex(s.replace('i', 'j')) if(isinstance(s, str)) else s)
 
             idx_selector = np.where(np.logical_and(np.abs(np.array(pd_ff["Z"])) <= Z_range, np.array(pd_ff["X"]) >= X_range_lower))[0]
