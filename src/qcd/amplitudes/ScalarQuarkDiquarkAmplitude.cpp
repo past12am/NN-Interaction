@@ -76,38 +76,22 @@ void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_comple
     gsl_blas_zdotc(p_copy, P_copy, &compl_z);
 
     gsl_complex normalization = valP * valp;
-    compl_z = compl_z / gsl_complex_abs(normalization);
+    compl_z = compl_z / normalization;
 
 
-    //if(abs(GSL_IMAG(normalization)) > 1E-15 && abs(GSL_REAL(normalization)) > 1E-15)
-    //{
-    //    std::cout << "p: " << PrintGSLElements::print_gsl_vector_complex(p_copy) << std::endl;
-    //    std::cout << "P: " << PrintGSLElements::print_gsl_vector_complex(P_copy) << std::endl;
-    //    throw std::out_of_range("Encountered complex angle for quark-diquark amplitude momenta");
-    //}
-
-    double z = GSL_REAL(compl_z);
-    if(z > 1 || z < -1)
-    {
-        throw std::out_of_range("Encountered |cos angle| > 1 for quark-diquark amplitude momenta");
-    }
-
-
+    // Projector
     Projectors::posEnergyProjector(P_copy, posEnergyProj);
-
-    //gsl_matrix_complex_set_zero(quarkDiquarkAmp);   // TODO remove when adding back LO tensor
 
 
     // 0: Leading Tensor    ( = unity)
     // quarkDiquarkAmp = f(p2, z, 0) * posEnergyProj(P)
     gsl_matrix_complex_memcpy(quarkDiquarkAmp, posEnergyProj);
 
-    gsl_complex f_k_0 = fit_reader->f_k(p2, z, 0);    // TODO uttermost importance: The fit reader (or fit) is wrong!!!!!!
+    gsl_complex f_k_0 = fit_reader->f_k(p2, compl_z, 0);
     gsl_matrix_complex_scale(quarkDiquarkAmp, f_k_0);
 
 
-    /*
-    //  TODO higher order tensor is more sensible to correct chebys, fix that, then it will work (see uttermost importance above)
+
     // 1: Higher order Tensor ( = slash(i * normalized(TransverseProj_P @ p)))
     // build slash(q)   q = normalized(TransverseProj_P(p))
     // tmpTensor = TransverseProj_P
@@ -134,13 +118,12 @@ void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_comple
     // scale by f() and multiply with pos energy projector
     // NLOTensor = tmpTensor @ posEnergyProj
     gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, GSL_COMPLEX_ONE, tmpTensor, posEnergyProj, GSL_COMPLEX_ZERO, NLOTensor);
-    gsl_matrix_complex_scale(NLOTensor, fit_reader->f_k(p2, z, 1));
+    gsl_matrix_complex_scale(NLOTensor, fit_reader->f_k(p2, compl_z, 1));
 
 
 
     // Add tensor contibutions together
     gsl_matrix_complex_add(quarkDiquarkAmp, NLOTensor);
-    */
 
 
     // Also, in the end the amplitude should be multiplied by the normalization factor 22.805, which comes from the canonical normalization condition. // TODO check
@@ -150,14 +133,4 @@ void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_comple
     {
         ChargeConjugation::chargeConj(quarkDiquarkAmp, threadIdx);
     }
-}
-
-gsl_complex ScalarQuarkDiquarkAmplitude::f(gsl_complex p2)
-{
-    // f = (c1 + c2*p^2) * e^(-c3*p^2)
-    gsl_complex term1 = gsl_complex_add(c1, gsl_complex_mul(c2, p2));
-    gsl_complex exponential_param = gsl_complex_mul(gsl_complex_negative(c3), p2);
-    gsl_complex term2 = gsl_complex_exp(exponential_param);
-
-    return gsl_complex_mul(term1, term2);
 }

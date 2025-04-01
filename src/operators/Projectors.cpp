@@ -57,7 +57,7 @@ void Projectors::posEnergyProjector(gsl_vector_complex* P, gsl_matrix_complex* p
     // Find norm of P (for nomalization)
     gsl_complex valPSquared;
     gsl_blas_zdotu(P, P, &valPSquared);
-    assert(GSL_IMAG(valPSquared) < 1E-15);
+    assert(abs(GSL_IMAG(valPSquared)) < 1E-15);
     assert(GSL_REAL(valPSquared) < 0);
 
     gsl_complex valP = gsl_complex_sqrt(valPSquared);

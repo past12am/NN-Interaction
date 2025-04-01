@@ -29,8 +29,6 @@ class ScalarQuarkDiquarkAmplitude
         gsl_vector_complex* q;
         gsl_matrix_complex* tmpTensor;
 
-        gsl_complex f(gsl_complex p2);
-
         static QuarkDiquarkAmplitudeReader* fit_reader;
 
     public:
