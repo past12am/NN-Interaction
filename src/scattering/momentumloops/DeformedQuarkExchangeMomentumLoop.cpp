@@ -52,30 +52,84 @@ gsl_complex DeformedQuarkExchangeMomentumLoop::phiIntegral(gsl_complex x_4, doub
 
 gsl_complex DeformedQuarkExchangeMomentumLoop::contour_parameterization(double t, double X, double epsilon, double eta)
 {
-    if(t <= -2 * epsilon || t >= 2 * epsilon || (-0.5 * epsilon < t && t < 0.5 * epsilon))
+    double f = 0.0;
+    if(t <= -2 * epsilon || t >= 2 * epsilon)
     {
-        return gsl_complex_rect(t, 0);
+        f = 0.0;
     }
-    else if(t < 0)  // diquark pole     // TODO better contour, now we just do the rectangle
+    else if(t <= 0)
     {
         double A_diquark = (1.0 - eta) * sqrt(1.0 + X);
-        return gsl_complex_rect(t, A_diquark);
+
+        if(t <= -epsilon)  // diquark cut (f1+)
+        {
+            f = 2.0 * A_diquark + A_diquark / epsilon * t;
+        }
+        else  // diquark cut (f1-)
+        {
+            f = -A_diquark / epsilon * t;
+        }
     }
-    else if(t > 0)  // quark pole
+    else if(t > 0)
     {
         double A_quark = -eta * sqrt(1.0 + X);
-        return gsl_complex_rect(t, A_quark);
+
+        if(t <= epsilon) // quark cut   (f2-)
+        {
+            f = -A_quark/epsilon * t;
+        }
+        else // quark cut   (f2+)
+        {
+            f = -2.0 * A_quark + A_quark/epsilon * t;
+        }
     }
     else
     {
         throw std::invalid_argument("What does that t mean? --> Its likely invalid");
     }
+
+    return gsl_complex_rect(t, f);
 }
 
 gsl_complex DeformedQuarkExchangeMomentumLoop::deriv_contour_parameterization(double t, double X, double epsilon, double eta)
 {
-    // TODO (actually fine for the rectangle contour, but we should not do the rectangle contour (undefined derivative at certain points)
-    return GSL_COMPLEX_ONE;
+    double df = 0.0;
+    if(t <= -2 * epsilon || t >= 2 * epsilon)
+    {
+        df = 0.0;
+    }
+    else if(t <= 0)
+    {
+        double A_diquark = (1.0 - eta) * sqrt(1.0 + X);
+
+        if(t <= -epsilon)
+        {
+            df = A_diquark / epsilon;
+        }
+        else
+        {
+            df = -A_diquark / epsilon;
+        }
+    }
+    else if(t > 0)
+    {
+        double A_quark = -eta * sqrt(1.0 + X);
+
+        if(t <= epsilon)
+        {
+            df = -A_quark/epsilon;
+        }
+        else
+        {
+            df = A_quark/epsilon;
+        }
+    }
+    else
+    {
+        throw std::invalid_argument("What does that t mean? --> Its likely invalid");
+    }
+
+    return gsl_complex_rect(1.0, df);
 }
 
 gsl_complex DeformedQuarkExchangeMomentumLoop::integrate_4d_deformed(
