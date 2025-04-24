@@ -21,7 +21,7 @@
 
 #define INVERT_STRATEGY InvertStrategy::ANALYTIC
 
-#define CONTOUR_DEF_ACTIVE false
+#define CONTOUR_DEF_ACTIVE true
 
 #define M_nucleon 0.94
 

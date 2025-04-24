@@ -8,6 +8,8 @@
 
 #include "../../../include/Definitions.h"
 
+#include "../../../include/gslhacks/GSLComplexOperators.hpp"
+
 gsl_complex DeformedQuarkExchangeMomentumLoop::x_4Integral(
     const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double X, double epsilon, double eta)
 {
@@ -16,8 +18,12 @@ gsl_complex DeformedQuarkExchangeMomentumLoop::x_4Integral(
         return gsl_complex_mul_real(absxIntegral(x_4, f), M_nucleon);
     };
 
-    return gaussLegendreIntegrator_x_4.integrateComplexDeformed(x_4Integrand, contour_parameterization, deriv_contour_parameterization,
-        -CUTOFF_x_4, CUTOFF_x_4, X, epsilon, eta);
+    gsl_complex positive_halfspace = gaussLegendreIntegrator_x_4.integrateComplexDeformed(x_4Integrand, contour_parameterization, deriv_contour_parameterization,
+        0, CUTOFF_x_4, X, epsilon, eta);
+    gsl_complex negative_halfspace = gaussLegendreIntegrator_x_4.integrateComplexDeformed(x_4Integrand, contour_parameterization, deriv_contour_parameterization,
+        -CUTOFF_x_4, 0, X, epsilon, eta);
+
+    return positive_halfspace + negative_halfspace;
 }
 
 gsl_complex DeformedQuarkExchangeMomentumLoop::absxIntegral(gsl_complex x_4,

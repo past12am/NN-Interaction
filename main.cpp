@@ -67,10 +67,10 @@ int main(int argc, char *argv[])
     int numThreads = NUM_THREADS;
     int lenX = 8;
     int lenZ = 11;
-    int lenContourDef = 1;
+    int lenContourDef = 6;
 
 
-    int k2_integration_points = 60;
+    int k2_integration_points = 100; // *2 for positive and neg. halfspace
     int z_integration_points = 60;
     int y_integration_points = 32;
     int phi_integration_points = 20;

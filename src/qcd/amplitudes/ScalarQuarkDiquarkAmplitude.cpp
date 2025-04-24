@@ -91,7 +91,7 @@ void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_comple
     gsl_matrix_complex_scale(quarkDiquarkAmp, f_k_0);
 
 
-
+    /*  // TODO Add back once contour defs work
     // 1: Higher order Tensor ( = slash(i * normalized(TransverseProj_P @ p)))
     // build slash(q)   q = normalized(TransverseProj_P(p))
     // tmpTensor = TransverseProj_P
@@ -124,7 +124,7 @@ void ScalarQuarkDiquarkAmplitude::Gamma(gsl_vector_complex* p, gsl_vector_comple
 
     // Add tensor contibutions together
     gsl_matrix_complex_add(quarkDiquarkAmp, NLOTensor);
-
+    */
 
     // Also, in the end the amplitude should be multiplied by the normalization factor 22.805, which comes from the canonical normalization condition. // TODO check
     gsl_matrix_complex_scale(quarkDiquarkAmp, gsl_complex_rect(22.805, 0));

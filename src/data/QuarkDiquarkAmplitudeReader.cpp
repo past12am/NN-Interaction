@@ -78,8 +78,8 @@ gsl_complex QuarkDiquarkAmplitudeReader::f_k_cheby(gsl_complex p2, int amplitude
 gsl_complex QuarkDiquarkAmplitudeReader::f_k(gsl_complex p2, gsl_complex z, int amplitude_idx)
 {
     gsl_complex p = gsl_complex_sqrt(p2);
-    assert(abs(GSL_REAL(p)) > 0);
-    assert(abs(GSL_IMAG(p)) < 1E-15);
+    //assert(abs(GSL_REAL(p)) > 0);
+    //assert(abs(GSL_IMAG(p)) < 1E-15); TODO theres actually no reason for that constraint when contour deforming
 
     switch (amplitude_idx)
     {
