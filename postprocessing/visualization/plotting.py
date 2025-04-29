@@ -6,6 +6,8 @@ import numpy as np
 
 from matplotlib import cm
 import matplotlib.pyplot as plt
+from matplotlib.transforms import Bbox
+
 
 from data.AmplitudeHandler import AmplitudeHandler
 
@@ -50,11 +52,13 @@ class PlotterFullAmplitude:
         # Plot Full (Anti-) Symmetric Amplitude
         F_complete_I0 = 1/2 * (self.dataloader_dqx.F - self.dataloader_qx.F)
         self.plot_full_amplitude_np(self.dataloader_qx.X, self.dataloader_qx.Z, F_complete_I0, tensor_basis_names, isospin=0, fig_name=fig_name)
+        self.plot_full_amplitude_store_sep(self.dataloader_qx.X, self.dataloader_qx.Z, F_complete_I0, tensor_basis_names, isospin=0, fig_name=fig_name)
 
     def plotFullSymAmplitudeIsospin1(self, tensor_basis_names, fig_name):
         # Plot Full (Anti-) Symmetric Amplitude
         F_complete_I1 = 1/2 * (self.dataloader_dqx.F + self.dataloader_qx.F)
         self.plot_full_amplitude_np(self.dataloader_qx.X, self.dataloader_qx.Z, F_complete_I1, tensor_basis_names, isospin=1, fig_name=fig_name)
+        self.plot_full_amplitude_store_sep(self.dataloader_qx.X, self.dataloader_qx.Z, F_complete_I1, tensor_basis_names, isospin=1, fig_name=fig_name)
 
 
     def plot_full_amplitude_np(self, X: np.ndarray, Z: np.ndarray, F: np.ndarray, tensor_basis_names, isospin: int, fig_name: str):
@@ -95,6 +99,33 @@ class PlotterFullAmplitude:
             plt.show()
 
         plt.close()
+
+
+    def plot_full_amplitude_store_sep(self, X: np.ndarray, Z: np.ndarray, F: np.ndarray, tensor_basis_names, isospin: int, fig_name: str):
+        for basis_idx in range(F.shape[0]):
+            fig = plt.figure(figsize=(6, 6))
+            fig.tight_layout()
+            
+            ax = fig.add_subplot(111, projection='3d')
+            
+            ax.ticklabel_format(style='plain')
+            ax.plot_trisurf(X, Z, F[basis_idx, :, :].flatten(), cmap=cm.coolwarm)
+            ax.set_xlabel("$X$")
+            ax.set_ylabel("$Z$")
+
+            if(basis_idx < 2):
+                ax.set_title(tensor_basis_names[basis_idx] + f": $f^{{({isospin})}}_{basis_idx + 1}(X, Z)$")
+                ax.set_zlabel(f"$f^{{({isospin})}}_{basis_idx + 1}$", labelpad=10)
+            else:
+                ax.set_title(tensor_basis_names[basis_idx] + f": $g^{{({isospin})}}_{basis_idx + 1 - 2}(X, Z)$")
+                ax.set_zlabel(f"$g^{{({isospin})}}_{basis_idx + 1 - 2}$", labelpad=10)
+            ax.set_ylim([-1, 1])
+            ax.zaxis.set_rotate_label(False)
+
+            if(self.savefig):
+                self.save_active_fig(fig_name + f"_{basis_idx}")
+
+            plt.close()
 
 
     def plot_final_res(self, f_l, x, xlabel, x_label_unit, ylabels, tensorBasisNamesDict, exchange_channel, xmax):

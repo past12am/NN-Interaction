@@ -78,6 +78,8 @@ class SpectroscopicConversion:
 
         r_grid = np.linspace(0, 3, 100)
 
+        TLab_grid = np.linspace(0.00001, 2)
+
         degree_pwave_expansion = 4
 
 
@@ -104,11 +106,53 @@ class SpectroscopicConversion:
                                                   (self.triplet_l_is_j_Plus_1__pwaveEqual__SO, None,                                                   self.triplet_l_is_j_Plus_1__pwavePlus__SO,       None),
                                                   (None,                                       self.triplet_l_is_j_Plus_1__pwaveEqual__Q_Jdep_noncorr, self.triplet_l_is_j_Plus_1__pwavePlus__Q_Jindep, self.triplet_l_is_j_Plus_1__pwavePlus__Q_Jdep_noncorr)]
 
+
+        #   also for the Lab Energy
+        singlet__TLab_callables = [lambda TLab, Z, I_tchannel: self.singlet_C(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel), lambda TLab, Z, I_tchannel: self.singlet_SS(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel), lambda TLab, Z, I_tchannel: self.singlet_T(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel), lambda TLab, Z, I_tchannel: self.singlet_SO(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel), lambda TLab, Z, I_tchannel: self.singlet_Q(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel)]
+
+        triplet_l_is_j_Minus_1__TLab_callable_tuples = [(lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Minus_1__pwaveEqual__C(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel),  None,                                                                                                                                             lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Minus_1__pwaveMinus__C(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel),        None), 
+                                                        (lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Minus_1__pwaveEqual__SS(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel), None,                                                                                                                                             lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Minus_1__pwaveMinus__SS(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel),       None),
+                                                        (None,                                                                                                                                 lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Minus_1__pwaveEqual__T_Jdep_noncorr(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel), None,                                                                                                                                       lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Minus_1__pwaveMinus__T_Jdep_noncorr(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel)),
+                                                        (lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Minus_1__pwaveEqual__SO(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel), None,                                                                                                                                             lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Minus_1__pwaveMinus__SO(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel),       None),
+                                                        (None,                                                                                                                                 lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Minus_1__pwaveEqual__Q_Jdep_noncorr(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel), lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Minus_1__pwaveMinus__Q_Jindep(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel), lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Minus_1__pwaveMinus__Q_Jdep_noncorr(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel))]
+        
+        triplet_l_is_j__TLab_callable_tuples = [(lambda TLab, Z, I_tchannel: self.triplet_l_is_j__pwaveEqual__C(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel),   None, lambda TLab, Z, I_tchannel: self.triplet_l_is_j__pwavePlusMinus__C(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel),  None), 
+                                                (lambda TLab, Z, I_tchannel: self.triplet_l_is_j__pwaveEqual__SS(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel),  None, lambda TLab, Z, I_tchannel: self.triplet_l_is_j__pwavePlusMinus__SS(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel), None),
+                                                (lambda TLab, Z, I_tchannel: self.triplet_l_is_j__pwaveEqual__T(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel),   None, lambda TLab, Z, I_tchannel: self.triplet_l_is_j__pwavePlusMinus__T(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel),  None),
+                                                (lambda TLab, Z, I_tchannel: self.triplet_l_is_j__pwaveEqual__SO(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel),  None, lambda TLab, Z, I_tchannel: self.triplet_l_is_j__pwavePlusMinus__SO(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel), None),
+                                                (lambda TLab, Z, I_tchannel: self.triplet_l_is_j__pwaveEqual__Q(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel),   None, lambda TLab, Z, I_tchannel: self.triplet_l_is_j__pwavePlusMinus__Q(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel),  None)]
+        
+        triplet_l_is_j_Plus_1__TLab_callable_tuples = [(lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Plus_1__pwaveEqual__C(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel),  None,                                                                                                                                            lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Plus_1__pwavePlus__C(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel),        None), 
+                                                       (lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Plus_1__pwaveEqual__SS(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel), None,                                                                                                                                            lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Plus_1__pwavePlus__SS(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel),       None),
+                                                       (None,                                                                                                                                lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Plus_1__pwaveEqual__T_Jdep_noncorr(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel), None,                                                                                                                                     lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Plus_1__pwavePlus__T_Jdep_noncorr(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel)),
+                                                       (lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Plus_1__pwaveEqual__SO(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel), None,                                                                                                                                            lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Plus_1__pwavePlus__SO(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel),       None),
+                                                       (None,                                                                                                                                lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Plus_1__pwaveEqual__Q_Jdep_noncorr(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel), lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Plus_1__pwavePlus__Q_Jindep(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel), lambda TLab, Z, I_tchannel: self.triplet_l_is_j_Plus_1__pwavePlus__Q_Jdep_noncorr(SpectroscopicConversion.q_of_TLab_Z(TLab, Z), Z, I_tchannel))]
+
+    
         I_tchannel_list = list()
         for I_tchannel in [0, 1]:
             # Calculate
-            (singlet_contrib_grid_list, triplet_l_is_j_Minus_1__contrib_grid_list, triplet_l_is_j__contrib_grid_list, triplet_l_is_j_Plus_1__contrib_grid_list, singlet_contrib_r_list, triplet_l_is_j_Minus_1__contrib_r_list, triplet_l_is_j__contrib_r_list, triplet_l_is_j_Plus_1__contrib_r_list)\
-                = self.calculate_LSJ_result_in_basis(I_tchannel, q_grid, Z_grid, degree_pwave_expansion, r_grid, singlet__callables, triplet_l_is_j_Minus_1__callable_tuples, triplet_l_is_j__callable_tuples, triplet_l_is_j_Plus_1__callable_tuples)
+            (singlet_contrib_grid_list,\
+             triplet_l_is_j_Minus_1__contrib_grid_list,\
+             triplet_l_is_j__contrib_grid_list,\
+             triplet_l_is_j_Plus_1__contrib_grid_list,\
+             singlet_contrib_r_list,\
+             triplet_l_is_j_Minus_1__contrib_r_list,\
+             triplet_l_is_j__contrib_r_list,\
+             triplet_l_is_j_Plus_1__contrib_r_list,\
+             singlet_amplitude_TLab_list,\
+             triplet_l_is_j_Minus_1__amplitude_TLab_list,\
+             triplet_l_is_j__amplitude_TLab_list,\
+             triplet_l_is_j_Plus_1__amplitude_TLab_list)\
+                = self.calculate_LSJ_result_in_basis(I_tchannel, q_grid, Z_grid, TLab_grid, degree_pwave_expansion, r_grid, 
+                                                    singlet__callables, 
+                                                    triplet_l_is_j_Minus_1__callable_tuples,
+                                                    triplet_l_is_j__callable_tuples,
+                                                    triplet_l_is_j_Plus_1__callable_tuples,
+                                                    singlet__TLab_callables,
+                                                    triplet_l_is_j_Minus_1__TLab_callable_tuples,
+                                                    triplet_l_is_j__TLab_callable_tuples,
+                                                    triplet_l_is_j_Plus_1__TLab_callable_tuples)
             
             I_tchannel_list.append((singlet_contrib_grid_list, 
                                     triplet_l_is_j_Minus_1__contrib_grid_list, 
@@ -117,7 +161,11 @@ class SpectroscopicConversion:
                                     singlet_contrib_r_list,
                                     triplet_l_is_j_Minus_1__contrib_r_list,
                                     triplet_l_is_j__contrib_r_list, 
-                                    triplet_l_is_j_Plus_1__contrib_r_list))
+                                    triplet_l_is_j_Plus_1__contrib_r_list,
+                                    singlet_amplitude_TLab_list,
+                                    triplet_l_is_j_Minus_1__amplitude_TLab_list,
+                                    triplet_l_is_j__amplitude_TLab_list,
+                                    triplet_l_is_j_Plus_1__amplitude_TLab_list))
 
 
         I0_tchannel_singlet_contrib_grid_list = I_tchannel_list[0][0]
@@ -128,6 +176,10 @@ class SpectroscopicConversion:
         I0_tchannel_triplet_l_is_j_Minus_1__contrib_r_list = I_tchannel_list[0][5]
         I0_tchannel_triplet_l_is_j__contrib_r_list = I_tchannel_list[0][6]
         I0_tchannel_triplet_l_is_j_Plus_1__contrib_r_list = I_tchannel_list[0][7]
+        I0_tchannel_singlet_contrib_TLab_list = I_tchannel_list[0][8]
+        I0_tchannel_triplet_l_is_j_Minus_1__contrib_TLab_list = I_tchannel_list[0][9]
+        I0_tchannel_triplet_l_is_j__contrib_TLab_list = I_tchannel_list[0][10]
+        I0_tchannel_triplet_l_is_j_Plus_1__contrib_TLab_list = I_tchannel_list[0][11]
 
         I1_tchannel_singlet_contrib_grid_list = I_tchannel_list[1][0]
         I1_tchannel_triplet_l_is_j_Minus_1__contrib_grid_list = I_tchannel_list[1][1]
@@ -137,24 +189,43 @@ class SpectroscopicConversion:
         I1_tchannel_triplet_l_is_j_Minus_1__contrib_r_list = I_tchannel_list[1][5]
         I1_tchannel_triplet_l_is_j__contrib_r_list = I_tchannel_list[1][6]
         I1_tchannel_triplet_l_is_j_Plus_1__contrib_r_list = I_tchannel_list[1][7]
+        I1_tchannel_singlet_contrib_TLab_list = I_tchannel_list[1][8]
+        I1_tchannel_triplet_l_is_j_Minus_1__contrib_TLab_list = I_tchannel_list[1][9]
+        I1_tchannel_triplet_l_is_j__contrib_TLab_list = I_tchannel_list[1][10]
+        I1_tchannel_triplet_l_is_j_Plus_1__contrib_TLab_list = I_tchannel_list[1][11]
 
 
         # Switch from t-channel isospin to NN, NP, PP reactions (--> back to the curly F)
-        isospin_results = list()
+        isospin_r_results = list()
+        isospin_q_results = list()
+        isospin_TLab_results = list()
         for I in [0, 1]:
-            # Singlet I = 0: (PN - NP)
-            process_singlet_contrib_grid_list = [self.R(I, I0_tchannel_singlet_contrib_grid, I1_tchannel_singlet_contrib_grid) for (I0_tchannel_singlet_contrib_grid, I1_tchannel_singlet_contrib_grid) in zip(I0_tchannel_singlet_contrib_grid_list, I1_tchannel_singlet_contrib_grid_list)]
-            process_singlet_contrib_r_list = [self.R(I, I0_tchannel_singlet_contrib_r, I1_tchannel_singlet_contrib_r) for (I0_tchannel_singlet_contrib_r, I1_tchannel_singlet_contrib_r) in zip(I0_tchannel_singlet_contrib_r_list, I1_tchannel_singlet_contrib_r_list)]
-
-
-            # Triplet I = 1: (PP = NN = PN + NP)
-            process_triplet_l_is_j_Minus_1__contrib_grid_list = [self.R(I, I0_tchannel_triplet_l_is_j_Minus_1__contrib_grid, I1_tchannel_triplet_l_is_j_Minus_1__contrib_grid) for (I0_tchannel_triplet_l_is_j_Minus_1__contrib_grid, I1_tchannel_triplet_l_is_j_Minus_1__contrib_grid) in zip(I0_tchannel_triplet_l_is_j_Minus_1__contrib_grid_list, I1_tchannel_triplet_l_is_j_Minus_1__contrib_grid_list)]
-            process_triplet_l_is_j__contrib_grid_list = [self.R(I, I0_tchannel_triplet_l_is_j__contrib_grid, I1_tchannel_triplet_l_is_j__contrib_grid) for (I0_tchannel_triplet_l_is_j__contrib_grid, I1_tchannel_triplet_l_is_j__contrib_grid) in zip(I0_tchannel_triplet_l_is_j__contrib_grid_list, I1_tchannel_triplet_l_is_j__contrib_grid_list)]
-            process_triplet_l_is_j_Plus_1__contrib_grid_list = [self.R(I, I0_tchannel_triplet_l_is_j_Plus_1__contrib_grid, I1_tchannel_triplet_l_is_j_Plus_1__contrib_grid) for (I0_tchannel_triplet_l_is_j_Plus_1__contrib_grid, I1_tchannel_triplet_l_is_j_Plus_1__contrib_grid) in zip(I0_tchannel_triplet_l_is_j_Plus_1__contrib_grid_list, I1_tchannel_triplet_l_is_j_Plus_1__contrib_grid_list)]
+            process_singlet_contrib_grid_list,\
+            process_triplet_l_is_j_Minus_1__contrib_grid_list,\
+            process_triplet_l_is_j__contrib_grid_list,\
+            process_triplet_l_is_j_Plus_1__contrib_grid_list = \
+                self.switch_Itchannel_to_Iprocess(I, I0_tchannel_singlet_contrib_grid_list, I1_tchannel_singlet_contrib_grid_list,
+                                                     I0_tchannel_triplet_l_is_j_Minus_1__contrib_grid_list, I1_tchannel_triplet_l_is_j_Minus_1__contrib_grid_list,
+                                                     I0_tchannel_triplet_l_is_j__contrib_grid_list, I1_tchannel_triplet_l_is_j__contrib_grid_list,
+                                                     I0_tchannel_triplet_l_is_j_Plus_1__contrib_grid_list, I1_tchannel_triplet_l_is_j_Plus_1__contrib_grid_list)
             
-            process_triplet_l_is_j_Minus_1__contrib_r_list = [self.R(I, I0_tchannel_triplet_l_is_j_Minus_1__contrib_r, I1_tchannel_triplet_l_is_j_Minus_1__contrib_r) for (I0_tchannel_triplet_l_is_j_Minus_1__contrib_r, I1_tchannel_triplet_l_is_j_Minus_1__contrib_r) in zip(I0_tchannel_triplet_l_is_j_Minus_1__contrib_r_list, I1_tchannel_triplet_l_is_j_Minus_1__contrib_r_list)]
-            process_triplet_l_is_j__contrib_r_list = [self.R(I, I0_tchannel_triplet_l_is_j__contrib_r, I1_tchannel_triplet_l_is_j__contrib_r) for (I0_tchannel_triplet_l_is_j__contrib_r, I1_tchannel_triplet_l_is_j__contrib_r) in zip(I0_tchannel_triplet_l_is_j__contrib_r_list, I1_tchannel_triplet_l_is_j__contrib_r_list)]
-            process_triplet_l_is_j_Plus_1__contrib_r_list = [self.R(I, I0_tchannel_triplet_l_is_j_Plus_1__contrib_r, I1_tchannel_triplet_l_is_j_Plus_1__contrib_r) for (I0_tchannel_triplet_l_is_j_Plus_1__contrib_r, I1_tchannel_triplet_l_is_j_Plus_1__contrib_r) in zip(I0_tchannel_triplet_l_is_j_Plus_1__contrib_r_list, I1_tchannel_triplet_l_is_j_Plus_1__contrib_r_list)]
+            process_singlet_contrib_r_list,\
+            process_triplet_l_is_j_Minus_1__contrib_r_list,\
+            process_triplet_l_is_j__contrib_r_list,\
+            process_triplet_l_is_j_Plus_1__contrib_r_list = \
+                self.switch_Itchannel_to_Iprocess(I, I0_tchannel_singlet_contrib_r_list, I1_tchannel_singlet_contrib_r_list,
+                                                     I0_tchannel_triplet_l_is_j_Minus_1__contrib_r_list, I1_tchannel_triplet_l_is_j_Minus_1__contrib_r_list,
+                                                     I0_tchannel_triplet_l_is_j__contrib_r_list, I1_tchannel_triplet_l_is_j__contrib_r_list,
+                                                     I0_tchannel_triplet_l_is_j_Plus_1__contrib_r_list, I1_tchannel_triplet_l_is_j_Plus_1__contrib_r_list)
+            
+            process_singlet_contrib_TLab_list,\
+            process_triplet_l_is_j_Minus_1__contrib_TLab_list,\
+            process_triplet_l_is_j__contrib_TLab_list,\
+            process_triplet_l_is_j_Plus_1__contrib_TLab_list = \
+                self.switch_Itchannel_to_Iprocess(I, I0_tchannel_singlet_contrib_TLab_list, I1_tchannel_singlet_contrib_TLab_list,
+                                                     I0_tchannel_triplet_l_is_j_Minus_1__contrib_TLab_list, I1_tchannel_triplet_l_is_j_Minus_1__contrib_TLab_list,
+                                                     I0_tchannel_triplet_l_is_j__contrib_TLab_list, I1_tchannel_triplet_l_is_j__contrib_TLab_list,
+                                                     I0_tchannel_triplet_l_is_j_Plus_1__contrib_TLab_list, I1_tchannel_triplet_l_is_j_Plus_1__contrib_TLab_list)
 
 
             
@@ -166,46 +237,89 @@ class SpectroscopicConversion:
             for c_idx, singlet_contrib_r in enumerate(process_singlet_contrib_r_list):
                 plotter.plot_pwave_LSJ(singlet_contrib_r, SpectroscopicConversion.LSJ_singlet, r_grid, "r", "1/GeV", contribs[c_idx], I, f"Singlet {contribs[c_idx]} for I = {I}", f"LSJ_Singlet_{contribs[c_idx]}_I={I}")
 
+            for c_idx, singlet_contrib_TLab in enumerate(process_singlet_contrib_TLab_list):
+                plotter.plot_pwave_LSJ(singlet_contrib_TLab, SpectroscopicConversion.LSJ_singlet, TLab_grid, "T", "GeV", contribs[c_idx], I, f"Singlet {contribs[c_idx]} for I = {I}", f"LSJ_Singlet_{contribs[c_idx]}_I={I}")
+
 
             #   Process Triplet
             for c_idx, triplet_l_is_j_Minus_1__contrib_grid in enumerate(process_triplet_l_is_j_Minus_1__contrib_grid_list):
                 plotter.plot_pwave_LSJ(triplet_l_is_j_Minus_1__contrib_grid, SpectroscopicConversion.LSJ_triplet__L_eq_J_minus_1, q_grid, "q", "GeV", contribs[c_idx], I, f"Triplet L=J-1 {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J-1_{contribs[c_idx]}_I={I}_q")
             
             for c_idx, triplet_l_is_j_Minus_1__contrib_r in enumerate(process_triplet_l_is_j_Minus_1__contrib_r_list):
-                plotter.plot_pwave_LSJ(triplet_l_is_j_Minus_1__contrib_r, SpectroscopicConversion.LSJ_triplet__L_eq_J_minus_1, r_grid, "r", "1/GeV", contribs[c_idx], I, f"Triplet L=J-1 {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J-1_{contribs[c_idx]}_I={I}")
+                plotter.plot_pwave_LSJ(triplet_l_is_j_Minus_1__contrib_r, SpectroscopicConversion.LSJ_triplet__L_eq_J_minus_1, r_grid, "r", "1/GeV", contribs[c_idx], I, f"Triplet L=J-1 {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J-1_{contribs[c_idx]}_I={I}_r")
+
+            for c_idx, triplet_l_is_j_Minus_1__contrib_TLab in enumerate(process_triplet_l_is_j_Minus_1__contrib_TLab_list):
+                plotter.plot_pwave_LSJ(triplet_l_is_j_Minus_1__contrib_TLab, SpectroscopicConversion.LSJ_triplet__L_eq_J_minus_1, TLab_grid, "T", "GeV", contribs[c_idx], I, f"Triplet L=J-1 {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J-1_{contribs[c_idx]}_I={I}_T")
 
 
             for c_idx, triplet_l_is_j__contrib_grid in enumerate(process_triplet_l_is_j__contrib_grid_list):
                 plotter.plot_pwave_LSJ(triplet_l_is_j__contrib_grid, SpectroscopicConversion.LSJ_triplet__L_eq_J, q_grid, "q", "GeV", contribs[c_idx], I, f"Triplet L=J {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J_{contribs[c_idx]}_I={I}_q")
 
             for c_idx, triplet_l_is_j__contrib_r in enumerate(process_triplet_l_is_j__contrib_r_list):
-                plotter.plot_pwave_LSJ(triplet_l_is_j__contrib_r, SpectroscopicConversion.LSJ_triplet__L_eq_J, r_grid, "r", "1/GeV", contribs[c_idx], I, f"Triplet L=J {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J_{contribs[c_idx]}_I={I}")
+                plotter.plot_pwave_LSJ(triplet_l_is_j__contrib_r, SpectroscopicConversion.LSJ_triplet__L_eq_J, r_grid, "r", "1/GeV", contribs[c_idx], I, f"Triplet L=J {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J_{contribs[c_idx]}_I={I}_r")
+
+            for c_idx, triplet_l_is_j__contrib_TLab in enumerate(process_triplet_l_is_j__contrib_TLab_list):
+                plotter.plot_pwave_LSJ(triplet_l_is_j__contrib_TLab, SpectroscopicConversion.LSJ_triplet__L_eq_J, TLab_grid, "T", "GeV", contribs[c_idx], I, f"Triplet L=J {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J_{contribs[c_idx]}_I={I}_T")
 
 
             for c_idx, triplet_l_is_j_Plus_1__contrib_grid in enumerate(process_triplet_l_is_j_Plus_1__contrib_grid_list):
                 plotter.plot_pwave_LSJ(triplet_l_is_j_Plus_1__contrib_grid, SpectroscopicConversion.LSJ_triplet__L_eq_J_plus_1, q_grid, "q", "GeV", contribs[c_idx], I, f"Triplet L=J+1 {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J+1_{contribs[c_idx]}_I={I}_q")
 
             for c_idx, triplet_l_is_j_Plus_1__contrib_r in enumerate(process_triplet_l_is_j_Plus_1__contrib_r_list):
-                plotter.plot_pwave_LSJ(triplet_l_is_j_Plus_1__contrib_r, SpectroscopicConversion.LSJ_triplet__L_eq_J_plus_1, r_grid, "r", "1/GeV", contribs[c_idx], I, f"Triplet L=J+1 {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J+1_{contribs[c_idx]}_I={I}")
+                plotter.plot_pwave_LSJ(triplet_l_is_j_Plus_1__contrib_r, SpectroscopicConversion.LSJ_triplet__L_eq_J_plus_1, r_grid, "r", "1/GeV", contribs[c_idx], I, f"Triplet L=J+1 {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J+1_{contribs[c_idx]}_I={I}_r")
 
-            isospin_results.append((process_singlet_contrib_r_list, 
-                                    process_triplet_l_is_j_Minus_1__contrib_r_list, 
-                                    process_triplet_l_is_j__contrib_r_list, 
-                                    process_triplet_l_is_j_Plus_1__contrib_r_list))
+            for c_idx, triplet_l_is_j_Plus_1__contrib_TLab in enumerate(process_triplet_l_is_j_Plus_1__contrib_TLab_list):
+                plotter.plot_pwave_LSJ(triplet_l_is_j_Plus_1__contrib_TLab, SpectroscopicConversion.LSJ_triplet__L_eq_J_plus_1, TLab_grid, "T", "GeV", contribs[c_idx], I, f"Triplet L=J+1 {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J+1_{contribs[c_idx]}_I={I}_T")
+
+            isospin_r_results.append((process_singlet_contrib_r_list, 
+                                      process_triplet_l_is_j_Minus_1__contrib_r_list, 
+                                      process_triplet_l_is_j__contrib_r_list, 
+                                      process_triplet_l_is_j_Plus_1__contrib_r_list))
+            isospin_q_results.append((process_singlet_contrib_grid_list, 
+                                      process_triplet_l_is_j_Minus_1__contrib_grid_list, 
+                                      process_triplet_l_is_j__contrib_grid_list, 
+                                      process_triplet_l_is_j_Plus_1__contrib_grid_list))
+            isospin_TLab_results.append((process_singlet_contrib_TLab_list,
+                                         process_triplet_l_is_j_Minus_1__contrib_TLab_list,
+                                         process_triplet_l_is_j__contrib_TLab_list,
+                                         process_triplet_l_is_j_Plus_1__contrib_TLab_list))
             
-        return isospin_results, contribs, r_grid
+        return (isospin_r_results, contribs, r_grid), (isospin_q_results, contribs, q_grid), (isospin_TLab_results, contribs, TLab_grid)
             
 
-    def calculate_LSJ_result_in_basis(self, I_tchannel: int, q_grid: np.array, Z_grid: np.array, degree_pwave_expansion: int, r_grid: np.array,
-                                      singlet__callables: typing.List[typing.Callable], 
-                                      triplet_l_is_j_Minus_1__callable_tuples: typing.List[typing.Tuple[typing.Callable, typing.Callable]],
-                                      triplet_l_is_j__callable_tuples: typing.List[typing.Tuple[typing.Callable, typing.Callable]],
-                                      triplet_l_is_j_Plus_1__callable_tuples: typing.List[typing.Tuple[typing.Callable, typing.Callable]]):
+    def switch_Itchannel_to_Iprocess(self, I,
+                                           I0_tchannel_singlet_contrib_grid_list, I1_tchannel_singlet_contrib_grid_list,
+                                           I0_tchannel_triplet_l_is_j_Minus_1__contrib_grid_list, I1_tchannel_triplet_l_is_j_Minus_1__contrib_grid_list,
+                                           I0_tchannel_triplet_l_is_j__contrib_grid_list, I1_tchannel_triplet_l_is_j__contrib_grid_list,
+                                           I0_tchannel_triplet_l_is_j_Plus_1__contrib_grid_list, I1_tchannel_triplet_l_is_j_Plus_1__contrib_grid_list):
+        
+        # Singlet I = 0: (PN - NP)
+        process_singlet_contrib_grid_list = [self.R(I, I0_tchannel_singlet_contrib_grid, I1_tchannel_singlet_contrib_grid) for (I0_tchannel_singlet_contrib_grid, I1_tchannel_singlet_contrib_grid) in zip(I0_tchannel_singlet_contrib_grid_list, I1_tchannel_singlet_contrib_grid_list)]
+
+
+        # Triplet I = 1: (PP = NN = PN + NP)
+        process_triplet_l_is_j_Minus_1__contrib_grid_list = [self.R(I, I0_tchannel_triplet_l_is_j_Minus_1__contrib_grid, I1_tchannel_triplet_l_is_j_Minus_1__contrib_grid) for (I0_tchannel_triplet_l_is_j_Minus_1__contrib_grid, I1_tchannel_triplet_l_is_j_Minus_1__contrib_grid) in zip(I0_tchannel_triplet_l_is_j_Minus_1__contrib_grid_list, I1_tchannel_triplet_l_is_j_Minus_1__contrib_grid_list)]
+        process_triplet_l_is_j__contrib_grid_list = [self.R(I, I0_tchannel_triplet_l_is_j__contrib_grid, I1_tchannel_triplet_l_is_j__contrib_grid) for (I0_tchannel_triplet_l_is_j__contrib_grid, I1_tchannel_triplet_l_is_j__contrib_grid) in zip(I0_tchannel_triplet_l_is_j__contrib_grid_list, I1_tchannel_triplet_l_is_j__contrib_grid_list)]
+        process_triplet_l_is_j_Plus_1__contrib_grid_list = [self.R(I, I0_tchannel_triplet_l_is_j_Plus_1__contrib_grid, I1_tchannel_triplet_l_is_j_Plus_1__contrib_grid) for (I0_tchannel_triplet_l_is_j_Plus_1__contrib_grid, I1_tchannel_triplet_l_is_j_Plus_1__contrib_grid) in zip(I0_tchannel_triplet_l_is_j_Plus_1__contrib_grid_list, I1_tchannel_triplet_l_is_j_Plus_1__contrib_grid_list)]
+            
+        return process_singlet_contrib_grid_list,\
+               process_triplet_l_is_j_Minus_1__contrib_grid_list,\
+               process_triplet_l_is_j__contrib_grid_list,\
+               process_triplet_l_is_j_Plus_1__contrib_grid_list
+
+        
+
+    def calculate_LSJ_momentum_results_for(self, degree_pwave_expansion, singlet__callables, 
+                                           triplet_l_is_j_Minus_1__callable_tuples, 
+                                           triplet_l_is_j__callable_tuples, 
+                                           triplet_l_is_j_Plus_1__callable_tuples, 
+                                           mom_grid, Z_grid, I_tchannel):
         # Central
         #   Singlets
+        #       Transfer Momentum (q)
         singlet_amplitude_grid_list = list()
         for singlet__callable in singlet__callables:
-            singlet_amplitude_grid = SpectroscopicConversion.partial_wave_expand(degree_pwave_expansion, q_grid, Z_grid, singlet__callable, I_tchannel=I_tchannel)
+            singlet_amplitude_grid = SpectroscopicConversion.partial_wave_expand(degree_pwave_expansion, mom_grid, Z_grid, singlet__callable, I_tchannel=I_tchannel)
             singlet_amplitude_grid_list.append(singlet_amplitude_grid)
 
 
@@ -218,10 +332,10 @@ class SpectroscopicConversion:
         triplet_l_is_j_Minus_1__pwaveMinus__amplitude_grid_list__Jnoncorr = list()
 
         for (triplet_l_is_j_Minus_1__pwaveEqual__callable, triplet_l_is_j_Minus_1__pwaveEqual__callable__Jnoncorr, triplet_l_is_j_Minus_1__pwaveMinus__callable, triplet_l_is_j_Minus_1__pwaveMinus__callable__Jnoncorr) in triplet_l_is_j_Minus_1__callable_tuples:
-            triplet_l_is_j_Minus_1__pwaveEqual__amplitude_grid =           self.pwave_expand_if_not_None(degree_pwave_expansion, q_grid, Z_grid, triplet_l_is_j_Minus_1__pwaveEqual__callable, I_tchannel=I_tchannel)
-            triplet_l_is_j_Minus_1__pwaveMinus__amplitude_grid =           self.pwave_expand_if_not_None(degree_pwave_expansion, q_grid, Z_grid, triplet_l_is_j_Minus_1__pwaveMinus__callable, I_tchannel=I_tchannel)
-            triplet_l_is_j_Minus_1__pwaveEqual__amplitude_grid__Jnoncorr = self.pwave_expand_if_not_None(degree_pwave_expansion, q_grid, Z_grid, triplet_l_is_j_Minus_1__pwaveEqual__callable__Jnoncorr, I_tchannel=I_tchannel)
-            triplet_l_is_j_Minus_1__pwaveMinus__amplitude_grid__Jnoncorr = self.pwave_expand_if_not_None(degree_pwave_expansion, q_grid, Z_grid, triplet_l_is_j_Minus_1__pwaveMinus__callable__Jnoncorr, I_tchannel=I_tchannel)
+            triplet_l_is_j_Minus_1__pwaveEqual__amplitude_grid =           self.pwave_expand_if_not_None(degree_pwave_expansion, mom_grid, Z_grid, triplet_l_is_j_Minus_1__pwaveEqual__callable, I_tchannel=I_tchannel)
+            triplet_l_is_j_Minus_1__pwaveMinus__amplitude_grid =           self.pwave_expand_if_not_None(degree_pwave_expansion, mom_grid, Z_grid, triplet_l_is_j_Minus_1__pwaveMinus__callable, I_tchannel=I_tchannel)
+            triplet_l_is_j_Minus_1__pwaveEqual__amplitude_grid__Jnoncorr = self.pwave_expand_if_not_None(degree_pwave_expansion, mom_grid, Z_grid, triplet_l_is_j_Minus_1__pwaveEqual__callable__Jnoncorr, I_tchannel=I_tchannel)
+            triplet_l_is_j_Minus_1__pwaveMinus__amplitude_grid__Jnoncorr = self.pwave_expand_if_not_None(degree_pwave_expansion, mom_grid, Z_grid, triplet_l_is_j_Minus_1__pwaveMinus__callable__Jnoncorr, I_tchannel=I_tchannel)
 
             triplet_l_is_j_Minus_1__pwaveEqual__amplitude_grid_list.append(triplet_l_is_j_Minus_1__pwaveEqual__amplitude_grid)
             triplet_l_is_j_Minus_1__pwaveMinus__amplitude_grid_list.append(triplet_l_is_j_Minus_1__pwaveMinus__amplitude_grid)
@@ -236,10 +350,10 @@ class SpectroscopicConversion:
         triplet_l_is_j__pwavePlusMinus__amplitude_grid_list__Jnoncorr = list()
 
         for (triplet_l_is_j__pwaveEqual__callable, triplet_l_is_j__pwaveEqual__callable__Jnoncorr, triplet_l_is_j__pwavePlusMinus__callable, triplet_l_is_j__pwavePlusMinus__callable__Jnoncorr) in triplet_l_is_j__callable_tuples:
-            triplet_l_is_j__pwaveEqual__amplitude_grid =               self.pwave_expand_if_not_None(degree_pwave_expansion, q_grid, Z_grid, triplet_l_is_j__pwaveEqual__callable, I_tchannel=I_tchannel)
-            triplet_l_is_j__pwavePlusMinus__amplitude_grid =           self.pwave_expand_if_not_None(degree_pwave_expansion, q_grid, Z_grid, triplet_l_is_j__pwavePlusMinus__callable, I_tchannel=I_tchannel)
-            triplet_l_is_j__pwaveEqual__amplitude_grid__Jnoncorr =     self.pwave_expand_if_not_None(degree_pwave_expansion, q_grid, Z_grid, triplet_l_is_j__pwaveEqual__callable__Jnoncorr, I_tchannel=I_tchannel)
-            triplet_l_is_j__pwavePlusMinus__amplitude_grid__Jnoncorr = self.pwave_expand_if_not_None(degree_pwave_expansion, q_grid, Z_grid, triplet_l_is_j__pwavePlusMinus__callable__Jnoncorr, I_tchannel=I_tchannel)
+            triplet_l_is_j__pwaveEqual__amplitude_grid =               self.pwave_expand_if_not_None(degree_pwave_expansion, mom_grid, Z_grid, triplet_l_is_j__pwaveEqual__callable, I_tchannel=I_tchannel)
+            triplet_l_is_j__pwavePlusMinus__amplitude_grid =           self.pwave_expand_if_not_None(degree_pwave_expansion, mom_grid, Z_grid, triplet_l_is_j__pwavePlusMinus__callable, I_tchannel=I_tchannel)
+            triplet_l_is_j__pwaveEqual__amplitude_grid__Jnoncorr =     self.pwave_expand_if_not_None(degree_pwave_expansion, mom_grid, Z_grid, triplet_l_is_j__pwaveEqual__callable__Jnoncorr, I_tchannel=I_tchannel)
+            triplet_l_is_j__pwavePlusMinus__amplitude_grid__Jnoncorr = self.pwave_expand_if_not_None(degree_pwave_expansion, mom_grid, Z_grid, triplet_l_is_j__pwavePlusMinus__callable__Jnoncorr, I_tchannel=I_tchannel)
 
             triplet_l_is_j__pwaveEqual__amplitude_grid_list.append(triplet_l_is_j__pwaveEqual__amplitude_grid)
             triplet_l_is_j__pwavePlusMinus__amplitude_grid_list.append(triplet_l_is_j__pwavePlusMinus__amplitude_grid)
@@ -254,10 +368,10 @@ class SpectroscopicConversion:
         triplet_l_is_j_Plus_1__pwavePlus__amplitude_grid_list__Jnoncorr = list()
 
         for (triplet_l_is_j_Plus_1__pwaveEqual__callable, triplet_l_is_j_Plus_1__pwaveEqual__callable__Jnoncorr, triplet_l_is_j_Plus_1__pwavePlus__callable, triplet_l_is_j_Plus_1__pwavePlus__callable__Jnoncorr) in triplet_l_is_j_Plus_1__callable_tuples:
-            triplet_l_is_j_Plus_1__pwaveEqual__amplitude_grid =           self.pwave_expand_if_not_None(degree_pwave_expansion, q_grid, Z_grid, triplet_l_is_j_Plus_1__pwaveEqual__callable, I_tchannel=I_tchannel)
-            triplet_l_is_j_Plus_1__pwavePlus__amplitude_grid =            self.pwave_expand_if_not_None(degree_pwave_expansion, q_grid, Z_grid, triplet_l_is_j_Plus_1__pwavePlus__callable, I_tchannel=I_tchannel)
-            triplet_l_is_j_Plus_1__pwaveEqual__amplitude_grid__Jnoncorr = self.pwave_expand_if_not_None(degree_pwave_expansion, q_grid, Z_grid, triplet_l_is_j_Plus_1__pwaveEqual__callable__Jnoncorr, I_tchannel=I_tchannel)
-            triplet_l_is_j_Plus_1__pwavePlus__amplitude_grid__Jnoncorr =  self.pwave_expand_if_not_None(degree_pwave_expansion, q_grid, Z_grid, triplet_l_is_j_Plus_1__pwavePlus__callable__Jnoncorr, I_tchannel=I_tchannel)
+            triplet_l_is_j_Plus_1__pwaveEqual__amplitude_grid =           self.pwave_expand_if_not_None(degree_pwave_expansion, mom_grid, Z_grid, triplet_l_is_j_Plus_1__pwaveEqual__callable, I_tchannel=I_tchannel)
+            triplet_l_is_j_Plus_1__pwavePlus__amplitude_grid =            self.pwave_expand_if_not_None(degree_pwave_expansion, mom_grid, Z_grid, triplet_l_is_j_Plus_1__pwavePlus__callable, I_tchannel=I_tchannel)
+            triplet_l_is_j_Plus_1__pwaveEqual__amplitude_grid__Jnoncorr = self.pwave_expand_if_not_None(degree_pwave_expansion, mom_grid, Z_grid, triplet_l_is_j_Plus_1__pwaveEqual__callable__Jnoncorr, I_tchannel=I_tchannel)
+            triplet_l_is_j_Plus_1__pwavePlus__amplitude_grid__Jnoncorr =  self.pwave_expand_if_not_None(degree_pwave_expansion, mom_grid, Z_grid, triplet_l_is_j_Plus_1__pwavePlus__callable__Jnoncorr, I_tchannel=I_tchannel)
 
             triplet_l_is_j_Plus_1__pwaveEqual__amplitude_grid_list.append(triplet_l_is_j_Plus_1__pwaveEqual__amplitude_grid)
             triplet_l_is_j_Plus_1__pwavePlus__amplitude_grid_list.append(triplet_l_is_j_Plus_1__pwavePlus__amplitude_grid)
@@ -292,14 +406,51 @@ class SpectroscopicConversion:
                             triplet_l_is_j_Plus_1__pwaveEqual__amplitude_grid_list[idx][J, :] + triplet_l_is_j_Plus_1__pwavePlus__amplitude_grid_list[idx][J+1, :] \
                             + 1/(2 * J + 1) * (triplet_l_is_j_Plus_1__pwaveEqual__amplitude_grid_list__Jnoncorr[idx][J, :] + triplet_l_is_j_Plus_1__pwavePlus__amplitude_grid_list__Jnoncorr[idx][J+1, :])
 
+        return singlet_amplitude_grid_list,\
+               triplet_l_is_j_Minus_1__amplitude_grid_list,\
+               triplet_l_is_j__amplitude_grid_list,\
+               triplet_l_is_j_Plus_1__amplitude_grid_list
 
 
+
+    def calculate_LSJ_result_in_basis(self, I_tchannel: int, q_grid: np.array, Z_grid: np.array, TLabGrid: np.array, degree_pwave_expansion: int, r_grid: np.array,
+                                      singlet__callables: typing.List[typing.Callable], 
+                                      triplet_l_is_j_Minus_1__callable_tuples: typing.List[typing.Tuple[typing.Callable, typing.Callable]],
+                                      triplet_l_is_j__callable_tuples: typing.List[typing.Tuple[typing.Callable, typing.Callable]],
+                                      triplet_l_is_j_Plus_1__callable_tuples: typing.List[typing.Tuple[typing.Callable, typing.Callable]],
+                                      singlet__TLab_callables: typing.List[typing.Callable],
+                                      triplet_l_is_j_Minus_1__TLab_callable_tuples: typing.List[typing.Tuple[typing.Callable, typing.Callable]],
+                                      triplet_l_is_j__TLab_callable_tuples: typing.List[typing.Tuple[typing.Callable, typing.Callable]],
+                                      triplet_l_is_j_Plus_1__TLab_callable_tuples: typing.List[typing.Tuple[typing.Callable, typing.Callable]]):
+
+
+        # Transfer Momentum
+        singlet_amplitude_grid_list,\
+        triplet_l_is_j_Minus_1__amplitude_grid_list,\
+        triplet_l_is_j__amplitude_grid_list,\
+        triplet_l_is_j_Plus_1__amplitude_grid_list = self.calculate_LSJ_momentum_results_for(degree_pwave_expansion, singlet__callables, 
+                                                                                             triplet_l_is_j_Minus_1__callable_tuples, 
+                                                                                             triplet_l_is_j__callable_tuples, 
+                                                                                             triplet_l_is_j_Plus_1__callable_tuples, 
+                                                                                             q_grid, Z_grid, I_tchannel)
+        
+        # Lab Energy
+        singlet_amplitude_TLab_list,\
+        triplet_l_is_j_Minus_1__amplitude_TLab_list,\
+        triplet_l_is_j__amplitude_TLab_list,\
+        triplet_l_is_j_Plus_1__amplitude_TLab_list = self.calculate_LSJ_momentum_results_for(degree_pwave_expansion, singlet__TLab_callables, 
+                                                                                             triplet_l_is_j_Minus_1__TLab_callable_tuples, 
+                                                                                             triplet_l_is_j__TLab_callable_tuples, 
+                                                                                             triplet_l_is_j_Plus_1__TLab_callable_tuples, 
+                                                                                             TLabGrid, Z_grid, I_tchannel)
+
+
+        # Splines in Transfer Momentum for FT
         singlet_amplitude_spline_list = [SpectroscopicConversion.interpolate_expanded_in_var(singlet_amplitude_grid, q_grid) for singlet_amplitude_grid in singlet_amplitude_grid_list]
 
         triplet_l_is_j_Minus_1__amplitude_spline_list = [SpectroscopicConversion.interpolate_expanded_in_var(triplet_l_is_j_Minus_1__amplitude_grid, q_grid) for triplet_l_is_j_Minus_1__amplitude_grid in triplet_l_is_j_Minus_1__amplitude_grid_list]
         triplet_l_is_j__amplitude_spline_list = [SpectroscopicConversion.interpolate_expanded_in_var(triplet_l_is_j__amplitude_grid, q_grid) for triplet_l_is_j__amplitude_grid in triplet_l_is_j__amplitude_grid_list]
         triplet_l_is_j_Plus_1__amplitude_spline_list = [SpectroscopicConversion.interpolate_expanded_in_var(triplet_l_is_j_Plus_1__amplitude_grid, q_grid) for triplet_l_is_j_Plus_1__amplitude_grid in triplet_l_is_j_Plus_1__amplitude_grid_list]
-
 
 
 
@@ -346,7 +497,11 @@ class SpectroscopicConversion:
                singlet_amplitude_r_list,\
                triplet_l_is_j_Minus_1__amplitude_r_list,\
                triplet_l_is_j__amplitude_r_list,\
-               triplet_l_is_j_Plus_1__amplitude_r_list
+               triplet_l_is_j_Plus_1__amplitude_r_list,\
+               singlet_amplitude_TLab_list,\
+               triplet_l_is_j_Minus_1__amplitude_TLab_list,\
+               triplet_l_is_j__amplitude_TLab_list,\
+               triplet_l_is_j_Plus_1__amplitude_TLab_list
 
         
 
@@ -527,6 +682,15 @@ class SpectroscopicConversion:
     @staticmethod    
     def r_of_q_Z(q, Z):
         return q / np.sqrt(2 * (1 - Z))
+    
+    @staticmethod    
+    def q_of_r_Z(r, Z):
+        return r * np.sqrt(2 * (1 - Z))
+    
+    @staticmethod
+    def q_of_TLab_Z(TLab, Z):
+        r = np.sqrt(TLab * 0.94 / 2.0)      # M_nucleon = 0.94    # GeV
+        return SpectroscopicConversion.q_of_r_Z(r, Z)
     
 
 
