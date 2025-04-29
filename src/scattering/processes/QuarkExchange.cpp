@@ -328,12 +328,13 @@ gsl_complex QuarkExchange::integrate_process(int basisElemIdx, int contourDefEps
     if (CONTOUR_DEF_ACTIVE)
     {
         double X = externalImpulseGrid.getXAtGridIdx(externalImpulseIdx);
+        double Z = externalImpulseGrid.getZAtGridIdx(externalImpulseIdx);
         double epsilon = contour_def_epsilon[contourDefEpsIdx];
 
         std::function<gsl_complex(gsl_complex, double, double, double)> scatteringMatrixIntegrand = [=, this](gsl_complex x_4, double absx, double y, double phi) -> gsl_complex {
             return deformedIntegralKernelWrapper(externalImpulseIdx, contourDefEpsIdx, basisElemIdx, threadIdx, x_4, absx, y, phi);
         };
-        res = momentumLoop->integrate_4d_deformed(scatteringMatrixIntegrand, X, epsilon, eta);
+        res = momentumLoop->integrate_4d_deformed(scatteringMatrixIntegrand, X, Z, epsilon, eta);
     }
     else
     {

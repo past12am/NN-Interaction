@@ -52,8 +52,8 @@ int main(int argc, char *argv[])
     double Z_lower = -1; // -1 + 1E-4;
     double Z_upper = 1; // 1 - 1E-4;
 
-    double contour_def_eps_lower = 0.01;
-    double contour_def_eps_upper = 0.1;
+    double contour_def_eps_lower = 1;
+    double contour_def_eps_upper = 3;
 
 
     // Note: grid lengths for X must be even (edge case not handled)
@@ -70,10 +70,10 @@ int main(int argc, char *argv[])
     int lenContourDef = 6;
 
 
-    int k2_integration_points = 100; // *2 for positive and neg. halfspace
-    int z_integration_points = 60;
-    int y_integration_points = 32;
-    int phi_integration_points = 20;
+    int k2_integration_points = 60; // *2 for positive and neg. halfspace
+    int z_integration_points = 120;
+    int y_integration_points = 120;
+    int phi_integration_points = 32;
 
 
     /* Working parameter sets

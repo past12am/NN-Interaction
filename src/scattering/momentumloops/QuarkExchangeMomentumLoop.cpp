@@ -78,7 +78,7 @@ void QuarkExchangeMomentumLoop::calc_k(double k2, double z, double y, double phi
 }
 
 gsl_complex QuarkExchangeMomentumLoop::integrate_4d_deformed(
-    const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double X, double epsilon, double eta)
+    const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double X, double Z, double epsilon, double eta)
 {
     throw std::invalid_argument("Cannot use deformed function with non-deformed contour");
 }

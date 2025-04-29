@@ -13,7 +13,7 @@ class MomentumLoop
         virtual gsl_complex integrate_4d(const std::function<gsl_complex(double, double, double, double)>& f) = 0;
         virtual void calc_k(double k2, double z, double y, double phi, gsl_vector_complex* k) = 0;
 
-        virtual gsl_complex integrate_4d_deformed(const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double X, double epsilon, double eta) = 0;
+        virtual gsl_complex integrate_4d_deformed(const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double X, double Z, double epsilon, double eta) = 0;
         virtual void calc_k_deformed(gsl_complex x_4, double absx, double y, double phi, gsl_vector_complex* k) = 0;
 
         virtual ~MomentumLoop() {}

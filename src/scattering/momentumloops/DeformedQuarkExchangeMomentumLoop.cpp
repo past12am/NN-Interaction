@@ -11,17 +11,30 @@
 #include "../../../include/gslhacks/GSLComplexOperators.hpp"
 
 gsl_complex DeformedQuarkExchangeMomentumLoop::x_4Integral(
-    const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double X, double epsilon, double eta)
+    const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double X, double Z, double epsilon, double eta)
 {
     // TODO check k_4 = M_nucleon x_4 ?
     std::function<gsl_complex(gsl_complex)> x_4Integrand = [=, this](gsl_complex x_4) -> gsl_complex {
         return gsl_complex_mul_real(absxIntegral(x_4, f), M_nucleon);
     };
 
-    gsl_complex positive_halfspace = gaussLegendreIntegrator_x_4.integrateComplexDeformed(x_4Integrand, contour_parameterization, deriv_contour_parameterization,
-        0, CUTOFF_x_4, X, epsilon, eta);
-    gsl_complex negative_halfspace = gaussLegendreIntegrator_x_4.integrateComplexDeformed(x_4Integrand, contour_parameterization, deriv_contour_parameterization,
-        -CUTOFF_x_4, 0, X, epsilon, eta);
+
+    gsl_complex positive_halfspace;
+    gsl_complex negative_halfspace;
+    if(STORE_x4_KERNELS)
+    {
+        positive_halfspace = gaussLegendreIntegrator_x_4.integrateComplexDeformedAndStoreKernel(x_4Integrand, contour_parameterization, deriv_contour_parameterization,
+            0, CUTOFF_x_4, X, Z, epsilon, eta, "poshalfspace");
+        negative_halfspace = gaussLegendreIntegrator_x_4.integrateComplexDeformedAndStoreKernel(x_4Integrand, contour_parameterization, deriv_contour_parameterization,
+            -CUTOFF_x_4, 0, X, Z, epsilon, eta, "neghalfspace");
+    }
+    else
+    {
+        positive_halfspace = gaussLegendreIntegrator_x_4.integrateComplexDeformed(x_4Integrand, contour_parameterization, deriv_contour_parameterization,
+            0, CUTOFF_x_4, X, epsilon, eta);
+        negative_halfspace = gaussLegendreIntegrator_x_4.integrateComplexDeformed(x_4Integrand, contour_parameterization, deriv_contour_parameterization,
+            -CUTOFF_x_4, 0, X, epsilon, eta);
+    }
 
     return positive_halfspace + negative_halfspace;
 }
@@ -139,9 +152,9 @@ gsl_complex DeformedQuarkExchangeMomentumLoop::deriv_contour_parameterization(do
 }
 
 gsl_complex DeformedQuarkExchangeMomentumLoop::integrate_4d_deformed(
-    const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double X, double epsilon, double eta)
+    const std::function<gsl_complex(gsl_complex, double, double, double)>& f, double X, double Z, double epsilon, double eta)
 {
-    gsl_complex res = x_4Integral(f, X, epsilon, eta);
+    gsl_complex res = x_4Integral(f, X, Z, epsilon, eta);
     res = gsl_complex_mul_real(res, 1.0/pow(2.0 * std::numbers::pi, 4) * M_nucleon);
 
     return res;

@@ -22,11 +22,12 @@
 #define INVERT_STRATEGY InvertStrategy::ANALYTIC
 
 #define CONTOUR_DEF_ACTIVE true
+#define STORE_x4_KERNELS true
 
 #define M_nucleon 0.94
 
-#define CUTOFF_x_4 30.0
-#define CUTOFF_absx 30.0
+#define CUTOFF_x_4 6.0
+#define CUTOFF_absx 10.0
 
 #define CUTOFF_k2 1E4
 
