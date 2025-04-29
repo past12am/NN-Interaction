@@ -40,8 +40,8 @@ def import_results_lit_nijm(datapath, process, tensor, dist_colname):
     return var_grids, LSJ_grids, LSJ_names
 
 
-def import_results_own(datapath, isospin, tensor_name_abbrv):
-    process_files = [f for f in listdir(datapath) if isfile(join(datapath, f)) and f[-4:] == ".csv" and f[6:7] == str(isospin) and f[8:10] == (tensor_name_abbrv if len(tensor_name_abbrv) == 2 else tensor_name_abbrv + "_")]
+def import_results_own(datapath, isospin, tensor_name_abbrv, varname):
+    process_files = [f for f in listdir(datapath) if isfile(join(datapath, f)) and f[-4:] == ".csv" and f[6:7] == str(isospin) and f[8:11] == (tensor_name_abbrv if len(tensor_name_abbrv) == 2 else tensor_name_abbrv + "_") + varname]
 
     var_grids = list()
     LSJ_names = list()
@@ -59,7 +59,7 @@ def import_results_own(datapath, isospin, tensor_name_abbrv):
 
             for row in res_reader:
                 for idx, lsj in enumerate(res_reader.fieldnames[1:]):
-                    var_grids[-1][idx].append(float(row["r"]))
+                    var_grids[-1][idx].append(float(row[varname]))
                     LSJ_grids[-1][idx].append(float(row[lsj]))
 
     var_grids = flatten_dim1(var_grids)
@@ -125,6 +125,14 @@ def potential_comparison_plots(NN_tuple__own, NN_tuple__nijmI, NN_tuple__nijmII,
                     ax.legend()
 
                     plt.show()
+
+
+def calc_phase_shifts(TLab_grid_list, LSJ_TLab_grid_list, NN_LSJ_names):
+    NN_LSJ_TLab_phaseShifts_grid = list()
+    for (TLab_grid, NN_LSJ_TLab_grid, NN_LSJ_name) in zip(TLab_grid_list, LSJ_TLab_grid_list, NN_LSJ_names):
+        NN_LSJ_TLab_phaseShifts_grid.append(np.arctan(NN_LSJ_TLab_grid))
+
+    return NN_LSJ_TLab_phaseShifts_grid
                 
 
 def main():
@@ -149,11 +157,41 @@ def main():
     NN_Q_r_grid_list__lit_nijmII, NN_Q_LSJ_grid_list__lit_nijmII, NN_Q_LSJ_names__lit_nijmII = import_results_lit_nijm("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/ExperimentalPotentials/nijmegen/cmake-build-debug/bin/nijmII/", process, "VQ12", "R")
 
     # our results   # Note: sum up tensor contributions, reid doesn't distinguish them
-    NN_C_r_grid_list, NN_C_LSJ_grid_list, NN_C_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_35_dqx-run_35", 1, "C")
-    NN_SS_r_grid_list, NN_SS_LSJ_grid_list, NN_SS_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_35_dqx-run_35", 1, "SS")
-    NN_T_r_grid_list, NN_T_LSJ_grid_list, NN_T_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_35_dqx-run_35", 1, "T")
-    NN_SO_r_grid_list, NN_SO_LSJ_grid_list, NN_SO_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_35_dqx-run_35", 1, "SO")
-    NN_Q_r_grid_list, NN_Q_LSJ_grid_list, NN_Q_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_35_dqx-run_35", 1, "Q")
+    #   Configuration Space
+    NN_C_r_grid_list, NN_C_LSJ_r_grid_list, NN_C_LSJ_names_r = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "C", "r")
+    NN_SS_r_grid_list, NN_SS_LSJ_r_grid_list, NN_SS_LSJ_names_r = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SS", "r")
+    NN_T_r_grid_list, NN_T_LSJ_r_grid_list, NN_T_LSJ_names_r = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "T", "r")
+    NN_SO_r_grid_list, NN_SO_LSJ_r_grid_list, NN_SO_LSJ_names_r = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SO", "r")
+    NN_Q_r_grid_list, NN_Q_LSJ_r_grid_list, NN_Q_LSJ_names_r = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "Q", "r")
+
+    #   Momentum Space
+    NN_C_q_grid_list, NN_C_LSJ_q_grid_list, NN_C_LSJ_names_q = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "C", "q")
+    NN_SS_q_grid_list, NN_SS_LSJ_q_grid_list, NN_SS_LSJ_names_q = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SS", "q")
+    NN_T_q_grid_list, NN_T_LSJ_q_grid_list, NN_T_LSJ_names_q = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "T", "q")
+    NN_SO_q_grid_list, NN_SO_LSJ_q_grid_list, NN_SO_LSJ_names_q = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SO", "q")
+    NN_Q_q_grid_list, NN_Q_LSJ_q_grid_list, NN_Q_LSJ_names_q = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "Q", "q")
+
+    #   Lab Energy
+    NN_C_T_grid_list, NN_C_LSJ_T_grid_list, NN_C_LSJ_names_T = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "C", "T")
+    NN_SS_T_grid_list, NN_SS_LSJ_T_grid_list, NN_SS_LSJ_names_T = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SS", "T")
+    NN_T_T_grid_list, NN_T_LSJ_T_grid_list, NN_T_LSJ_names_T = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "T", "T")
+    NN_SO_T_grid_list, NN_SO_LSJ_T_grid_list, NN_SO_LSJ_names_T = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SO", "T")
+    NN_Q_T_grid_list, NN_Q_LSJ_T_grid_list, NN_Q_LSJ_names_T = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "Q", "T")
+    
+    # TODO phase shifts --> I dont think this is correct yet
+    NN_C_LSJ_phase_shifts_grid_list = calc_phase_shifts(NN_C_T_grid_list, NN_C_LSJ_T_grid_list, NN_C_LSJ_names_T)
+    NN_SS_LSJ_phase_shifts_grid_list = calc_phase_shifts(NN_SS_T_grid_list, NN_SS_LSJ_T_grid_list, NN_SS_LSJ_names_T)
+    NN_T_LSJ_phase_shifts_grid_list = calc_phase_shifts(NN_T_T_grid_list, NN_T_LSJ_T_grid_list, NN_T_LSJ_names_T)
+    NN_SO_LSJ_phase_shifts_grid_list = calc_phase_shifts(NN_SO_T_grid_list, NN_SO_LSJ_T_grid_list, NN_SO_LSJ_names_T)
+    NN_Q_LSJ_phase_shifts_grid_list = calc_phase_shifts(NN_Q_T_grid_list, NN_Q_LSJ_T_grid_list, NN_Q_LSJ_names_T)
+
+    plt.figure()
+    for TLab_grid, C_LSJ_phase_shift, LSJ_name in zip(NN_C_T_grid_list, NN_C_LSJ_phase_shifts_grid_list, NN_C_LSJ_names_T):
+        if(LSJ_name == "1S0"):
+            plt.plot(TLab_grid, C_LSJ_phase_shift, label=LSJ_name)
+    plt.legend()
+    plt.show()
+    exit()
     
     # TODO: Do this? Move factor for dimensionless basis elements to amplitudes
     #NN_T_LSJ_grid_list = [NN_T_LSJ_grid / (4.0 * np.square(M_nucleon)) for NN_T_LSJ_grid in NN_T_LSJ_grid_list]
@@ -161,15 +199,15 @@ def main():
     #NN_Q_LSJ_grid_list = [NN_Q_LSJ_grid / (4.0 * np.power(M_nucleon, 4)) for NN_Q_LSJ_grid in NN_Q_LSJ_grid_list]
 
     NN_full_grid_list = [NN_C_LSJ_grid + NN_SS_LSJ_grid + NN_T_LSJ_grid + NN_SO_LSJ_grid + NN_Q_LSJ_grid for NN_C_LSJ_grid, NN_SS_LSJ_grid, NN_T_LSJ_grid, NN_SO_LSJ_grid, NN_Q_LSJ_grid in zip(NN_C_LSJ_grid_list, NN_SS_LSJ_grid_list, NN_T_LSJ_grid_list, NN_SO_LSJ_grid_list, NN_Q_LSJ_grid_list)]
-    NN_LSJ_names = NN_C_LSJ_names
+    NN_LSJ_names = NN_C_LSJ_names_r
 
-    potential_comparison_plots((NN_C_r_grid_list, NN_C_LSJ_grid_list, NN_C_LSJ_names),
+    potential_comparison_plots((NN_C_r_grid_list, NN_C_LSJ_r_grid_list, NN_C_LSJ_names_r),
                                (NN_C_r_grid_list__lit_nijmI, NN_C_LSJ_grid_list__lit_nijmI, NN_C_LSJ_names__lit_nijmI),
                                (NN_C_r_grid_list__lit_nijmII, NN_C_LSJ_grid_list__lit_nijmII, NN_C_LSJ_names__lit_nijmII),
                                (NN_r_grid_list__lit_reid, NN_LSJ_grid_list__lit_reid, NN_LSJ_names__lit_reid),
                                "Central")
 
-    potential_comparison_plots((NN_SS_r_grid_list, NN_SS_LSJ_grid_list, NN_SS_LSJ_names),
+    potential_comparison_plots((NN_SS_r_grid_list, NN_SS_LSJ_r_grid_list, NN_SS_LSJ_names_r),
                                (NN_SS_r_grid_list__lit_nijmI, NN_SS_LSJ_grid_list__lit_nijmI, NN_SS_LSJ_names__lit_nijmI),
                                (NN_SS_r_grid_list__lit_nijmII, NN_SS_LSJ_grid_list__lit_nijmII, NN_SS_LSJ_names__lit_nijmII),
                                (NN_r_grid_list__lit_reid, NN_LSJ_grid_list__lit_reid, NN_LSJ_names__lit_reid),
@@ -181,13 +219,13 @@ def main():
     #                           (NN_r_grid_list__lit_reid, NN_LSJ_grid_list__lit_reid, NN_LSJ_names__lit_reid),
     #                           "Tensor")    # TODO nijm Tensor is different from ours
 
-    potential_comparison_plots((NN_SO_r_grid_list, NN_SO_LSJ_grid_list, NN_SO_LSJ_names),
+    potential_comparison_plots((NN_SO_r_grid_list, NN_SO_LSJ_r_grid_list, NN_SO_LSJ_names_r),
                                (NN_SO_r_grid_list__lit_nijmI, NN_SO_LSJ_grid_list__lit_nijmI, NN_SO_LSJ_names__lit_nijmI),
                                (NN_SO_r_grid_list__lit_nijmII, NN_SO_LSJ_grid_list__lit_nijmII, NN_SO_LSJ_names__lit_nijmII),
                                (NN_r_grid_list__lit_reid, NN_LSJ_grid_list__lit_reid, NN_LSJ_names__lit_reid),
                                "Spin-Orbit")
     
-    potential_comparison_plots((NN_Q_r_grid_list, NN_Q_LSJ_grid_list, NN_Q_LSJ_names),
+    potential_comparison_plots((NN_Q_r_grid_list, NN_Q_LSJ_r_grid_list, NN_Q_LSJ_names_r),
                                (NN_Q_r_grid_list__lit_nijmI, NN_Q_LSJ_grid_list__lit_nijmI, NN_Q_LSJ_names__lit_nijmI),
                                (NN_Q_r_grid_list__lit_nijmII, NN_Q_LSJ_grid_list__lit_nijmII, NN_Q_LSJ_names__lit_nijmII),
                                (NN_r_grid_list__lit_reid, NN_LSJ_grid_list__lit_reid, NN_LSJ_names__lit_reid),
