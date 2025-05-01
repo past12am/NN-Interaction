@@ -1,4 +1,6 @@
 import csv
+import glob
+import os
 
 import numpy as np
 import pandas as pd
@@ -97,24 +99,11 @@ def calc_phase_shift_coupled(S_Jx, epsilon_J):
 
 
 
-def main():
-    #   Lab Energy
-    C_T_grid_list, C_LSJ_grid_list, C_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "C", "T")
-    SS_T_grid_list, SS_LSJ_grid_list, SS_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SS", "T")
-    T_T_grid_list, T_LSJ_grid_list, T_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "T", "T")
-    SO_T_grid_list, SO_LSJ_grid_list, SO_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SO", "T")
-    Q_T_grid_list, Q_LSJ_grid_list, Q_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "Q", "T")
-
-    C_T_grid_list_mixing, C_mixing_grid_list, C_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "C", "T")
-    SS_T_grid_list_mixing, SS_mixing_grid_list, SS_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SS", "T")
-    T_T_grid_list_mixing, T_mixing_grid_list, T_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "T", "T")
-    SO_T_grid_list_mixing, SO_mixing_grid_list, SO_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SO", "T")
-    Q_T_grid_list_mixing, Q_mixing_grid_list, Q_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "Q", "T")
-
+def calc_phase_shifts(T_grid_list, LSJ_grid_list, LSJ_names,
+                      T_grid_list_mixing, mixing_grid_list, mixing_Jvals):
     max_l = 0
     max_j = 0
-    num_s = 2
-    for T_grid, LSJ_grid, LSJ_name in zip(C_T_grid_list, C_LSJ_grid_list, C_LSJ_names):
+    for T_grid, LSJ_grid, LSJ_name in zip(T_grid_list, LSJ_grid_list, LSJ_names):
         l, s, j = LSJ_from_spectr(LSJ_name)
 
         if(l > max_l):
@@ -128,7 +117,7 @@ def main():
     delta = dict()
 
     # Uncoupled: L = l
-    for T_grid, LSJ_grid, LSJ_name in zip(C_T_grid_list, C_LSJ_grid_list, C_LSJ_names):
+    for T_grid, LSJ_grid, LSJ_name in zip(T_grid_list, LSJ_grid_list, LSJ_names):
         l, s, j = LSJ_from_spectr(LSJ_name)
         L = l
 
@@ -151,7 +140,7 @@ def main():
             raise Exception("Twice same combination")
 
     # Mixing: l = j-1, L=j+1
-    for T_grid_mixing, mixing_grid, J_val in zip(C_T_grid_list_mixing[:-1], C_mixing_grid_list[:-1], C_mixing_Jvals[:-1]):  # TODO remove the aritfact of the 0 (last element) in processing code
+    for T_grid_mixing, mixing_grid, J_val in zip(T_grid_list_mixing[:-1], mixing_grid_list[:-1], mixing_Jvals[:-1]):  # TODO remove the aritfact of the 0 (last element) in processing code
         j = int(J_val)
         l = j-1
         L = j+1
@@ -195,7 +184,7 @@ def main():
         )
     
     # Phase Shifts
-    for LSJ_name in C_LSJ_names:
+    for LSJ_name in LSJ_names:
         l, s, j = LSJ_from_spectr(LSJ_name)
         L = l
 
@@ -217,12 +206,85 @@ def main():
 
     
 
+    return delta
+    
+
+
+def sum_contribs(C_list, SS_list, T_list, SO_list, Q_list):
+    return [C + SS + T + SO for C, SS, T, SO, Q in zip(C_list, SS_list, T_list, SO_list, Q_list)]
+
+
+def main():
+    #   Load Lab Energy Data
+    C_T_grid_list, C_LSJ_grid_list, C_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "C", "T")
+    SS_T_grid_list, SS_LSJ_grid_list, SS_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SS", "T")
+    T_T_grid_list, T_LSJ_grid_list, T_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "T", "T")
+    SO_T_grid_list, SO_LSJ_grid_list, SO_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SO", "T")
+    Q_T_grid_list, Q_LSJ_grid_list, Q_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "Q", "T")
+
+    C_T_grid_list_mixing, C_mixing_grid_list, C_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "C", "T")
+    SS_T_grid_list_mixing, SS_mixing_grid_list, SS_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SS", "T")
+    T_T_grid_list_mixing, T_mixing_grid_list, T_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "T", "T")
+    SO_T_grid_list_mixing, SO_mixing_grid_list, SO_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SO", "T")
+    Q_T_grid_list_mixing, Q_mixing_grid_list, Q_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "Q", "T")
 
 
 
+    # Calc Phase Shifts
+    C_delta = calc_phase_shifts(C_T_grid_list, C_LSJ_grid_list, C_LSJ_names,
+                                        C_T_grid_list_mixing, C_mixing_grid_list, C_mixing_Jvals)
+    SS_delta = calc_phase_shifts(SS_T_grid_list, SS_LSJ_grid_list, SS_LSJ_names,
+                                         SS_T_grid_list_mixing, SS_mixing_grid_list, SS_mixing_Jvals)
+    T_delta = calc_phase_shifts(T_T_grid_list, T_LSJ_grid_list, T_LSJ_names,
+                                        T_T_grid_list_mixing, T_mixing_grid_list, T_mixing_Jvals)
+    SO_delta = calc_phase_shifts(SO_T_grid_list, SO_LSJ_grid_list, SO_LSJ_names,
+                                         SO_T_grid_list_mixing, SO_mixing_grid_list, SO_mixing_Jvals)
+    Q_delta = calc_phase_shifts(Q_T_grid_list, Q_LSJ_grid_list, Q_LSJ_names,
+                                        Q_T_grid_list_mixing, Q_mixing_grid_list, Q_mixing_Jvals)
+    
+    delta = calc_phase_shifts(C_T_grid_list, sum_contribs(C_LSJ_grid_list, SS_LSJ_grid_list, T_LSJ_grid_list, SO_LSJ_grid_list, Q_LSJ_grid_list), C_LSJ_names,
+                              C_T_grid_list_mixing, sum_contribs(C_mixing_grid_list, SS_mixing_grid_list, T_mixing_grid_list, SO_mixing_grid_list, Q_mixing_grid_list), C_mixing_Jvals)
+    
+
+    # Load Literature Results
+    # Set your target directory
+    directory = "/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/nnonline-phaseshifts"  # replace with your directory path
+
+    # Find all .tsv files with 3-letter filenames
+    tsv_files = glob.glob(os.path.join(directory, "[0-9][A-Z][0-9].tsv"))
+
+    # Dictionary to hold data from each file
+    data_by_file = {}
+
+    for filepath in tsv_files:
+        filename = os.path.basename(filepath)
+        key = os.path.splitext(filename)[0]  # get the 3-letter code
+        
+        # Read the TSV file into a DataFrame
+        df = pd.read_csv(filepath, sep=r"\s+", engine='python')
+        
+        # Store each column as a NumPy array in a sub-dictionary
+        data_by_file[key] = {col: df[col].values for col in df.columns}
+
+    # Example access:
+    # Tlab values from file "abc.tsv" -> data_by_file['abc']['Tlab']
+    # esc96 values from file "xyz.tsv" -> data_by_file['xyz']['esc96']
+
+    for LSJ_name in C_LSJ_names:
+        l, s, j = LSJ_from_spectr(LSJ_name)
+        L = l
+
+        if(LSJ_name not in data_by_file.keys()):
+            continue
+
+        plt.figure()
+        plt.plot(C_T_grid_list[0], delta[l][L][s][j] * 180/np.pi, label="own")
+        plt.plot(data_by_file[LSJ_name]['Tlab'] * 1E-3, data_by_file[LSJ_name]["nijm2"], label="nijmII")
+        plt.title(LSJ_name)
+        plt.legend()
+        plt.show()
 
 
-    return
 
 
 
