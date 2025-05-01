@@ -41,7 +41,7 @@ def import_results_lit_nijm(datapath, process, tensor, dist_colname):
 
 
 def import_results_own(datapath, isospin, tensor_name_abbrv, varname):
-    process_files = [f for f in listdir(datapath) if isfile(join(datapath, f)) and f[-4:] == ".csv" and f[6:7] == str(isospin) and f[8:11] == (tensor_name_abbrv if len(tensor_name_abbrv) == 2 else tensor_name_abbrv + "_") + varname]
+    process_files = [f for f in listdir(datapath) if isfile(join(datapath, f)) and f[-10:-4] != "mixing" and f[-4:] == ".csv" and f[6:7] == str(isospin) and f[8:11] == (tensor_name_abbrv if len(tensor_name_abbrv) == 2 else tensor_name_abbrv + "_") + varname]
 
     var_grids = list()
     LSJ_names = list()
@@ -71,7 +71,7 @@ def import_results_own(datapath, isospin, tensor_name_abbrv, varname):
     return var_grids, LSJ_grids, LSJ_names
 
 def import_results_mixing(datapath, isospin, tensor_name_abbrv, varname):
-    process_files = [f for f in listdir(datapath) if isfile(join(datapath, f)) and f[-10:-4] and f[-4:] == ".csv" and f[6:7] == str(isospin) and f[8:11] == (tensor_name_abbrv if len(tensor_name_abbrv) == 2 else tensor_name_abbrv + "_") + varname]
+    process_files = [f for f in listdir(datapath) if isfile(join(datapath, f)) and f[-10:-4] == "mixing" and f[-4:] == ".csv" and f[6:7] == str(isospin) and f[8:11] == (tensor_name_abbrv if len(tensor_name_abbrv) == 2 else tensor_name_abbrv + "_") + varname]
 
     var_grids = list()
     J_values = list()

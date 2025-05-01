@@ -4,56 +4,20 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from NNComparison import import_results_own, import_results_mixing
 
-pwave_names = ["s", "p", "d", "f", "g"]
 
+M_nucleon = 0.94    # GeV    
 
-def import_results(datapath, num_basis_el, fname_prefix, varname, num_pwaves):
-    var_grid = None
-    f_l_var = [None for i in range(num_basis_el)]
-
-    for base_idx in range(num_basis_el):
-        with open(datapath + "/" + f"{fname_prefix}_rho_{base_idx + 1}.csv", "r") as csvfile:
-            res_reader = csv.DictReader(csvfile, delimiter=";")
-
-            f_l_var[base_idx] = [list() for j in range(num_pwaves)]
-
-            var_grid = list()
-            for row in res_reader:
-                var_grid.append(float(row[varname]))
-
-                f_l_var[base_idx][0].append(float(row[pwave_names[0]]))
-                f_l_var[base_idx][1].append(float(row[pwave_names[1]]))
-                f_l_var[base_idx][2].append(float(row[pwave_names[2]]))
-                f_l_var[base_idx][3].append(float(row[pwave_names[3]]))
-                f_l_var[base_idx][4].append(float(row[pwave_names[4]]))
-
-    return np.array(f_l_var), np.array(var_grid)
-                
+pwave_names = ["s", "p", "d", "f", "g", "h", "i", "j", "k"]
+pwave_names_capital = ["S", "P", "D", "F", "G", "H", "I", "J", "K"]
 
 def check_S_Matrix_unitarity(var_grid: np.ndarray, f_l_var: np.ndarray):
-    max_diff_to_1 = 0
-
-    for basis_idx in range(f_l_var.shape[0]):
-        for l in range(f_l_var.shape[1]):
-            for var_idx, x in enumerate(var_grid):
-                diff_to_1 = np.abs(np.abs(1 + 2j * x * f_l_var[basis_idx, l, var_idx]) - 1)
-
-                if(diff_to_1 > max_diff_to_1):
-                    max_diff_to_1 = diff_to_1
-
-    print(max_diff_to_1)
+    pass
 
 
 def calculate_phase_shifts(var_grid: np.ndarray, f_l_var: np.ndarray):
-    delta_l_var = np.zeros_like(f_l_var)
-
-    for basis_idx in range(f_l_var.shape[0]):
-        for l in range(f_l_var.shape[1]):
-            for var_idx, x in enumerate(var_grid):
-                delta_l_var[basis_idx, l, var_idx] = 0.5 * np.arctan(2.0 * x * f_l_var[basis_idx, l, var_idx])
-
-    return delta_l_var / (2 * np.pi) * 360
+    pass
 
 
 def plot_phase_shifts(delta_l_var, var_grid, cur_proc_run_base_path, xlabel, x_label_unit, base_type, process_isospin, fig_name, savefig: bool=True, show_plots: bool=False):
@@ -87,144 +51,180 @@ def plot_phase_shifts(delta_l_var, var_grid, cur_proc_run_base_path, xlabel, x_l
 
 
 
-def plot_central_potentials(V_C_list, r_grid_list, potential_name_list, colours, cur_proc_run_base_path, xlabel, x_label_unit, fig_name, savefig: bool=True, show_plots: bool=False):
-
-    fig, ax = plt.subplots(1, 1, figsize=(6, 6))
-    axs = [ax]
-
-    fig.subplots_adjust(top=0.88, bottom=0.11, left=0.2, right=0.92, hspace=0.2, wspace=0.2)
-    for V_C, r_grid, potential_name, colour in zip(V_C_list, r_grid_list, potential_name_list, colours):
-
-        axs[0].plot(r_grid, V_C, label=f"{potential_name}", c=colour)
-
-        axs[0].set_xlabel(f"${xlabel}$  [{x_label_unit}]", fontsize="large")
-        axs[0].set_ylabel(f"$V(r)$", fontsize="large")
-        axs[0].grid(color='lightgray', linestyle='dashed')
-        #axs[0].spines[['right', 'top']].set_visible(False)
-        axs[0].legend()
-
-        axs[0].set_xlim([0, 1])
+def r_of_TLab(TLab):
+    r = np.sqrt(TLab * M_nucleon / 2.0)      # M_nucleon = 0.94    # GeV
+    return r
 
 
-    if(savefig):
-        plt.savefig(cur_proc_run_base_path + "/" + f"{fig_name}.pdf", dpi=600)
+def tau_js_Ll(T_matrix_element, TLab):
+    r = r_of_TLab(TLab)
+    return - np.pi / 2 * np.square(M_nucleon) / np.sqrt(np.square(M_nucleon) + np.square(r)) * r * T_matrix_element
 
-    if(show_plots):
-        plt.show()
 
-    plt.close()
+def S_js_Ll(T_matrix_element, TLab, J, S, L, Lp):
+    delta = 0
+    if(L == Lp):
+        delta += 1
+
+    return delta + 2j * tau_js_Ll(T_matrix_element, TLab)
+
+
+def LSJ_from_spectr(LSJ_name):
+    s = (int(LSJ_name[0]) - 1) // 2
+    l = pwave_names_capital.index(LSJ_name[1])
+    j = int(LSJ_name[2])
+
+    return (l, s, j)
+
+
+def spectr_from_LSJ(l, s, j):
+    res = "xxx"
+    res[0] = str(int(2 * s + 1))
+    res[1] = pwave_names_capital[l]
+    res[2] = str(int(j))
+
+    return res
+
+
+def calc_phase_shift_uncoupled(tau):
+    return 0.5 * np.arctan(2 * np.real(tau) / (1 - np.imag(tau)))
+
+def calc_mixing_angle_epsilon(S_Jpm, S_Jpp, S_Jmm):
+    return 0.5 * np.arctan(-1j * S_Jpm / np.sqrt(S_Jpp * S_Jmm))
+
+def calc_phase_shift_coupled(S_Jx, epsilon_J):
+    return 0.5 * np.arctan(np.imag(S_Jx / np.cos(2 * epsilon_J)) / np.real(S_Jx / np.cos(2 * epsilon_J)))
 
 
 
 def main():
-    base_path = "/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/"
-    qx_run_dir = f"run_{17}"
-    dqx_run_dir = f"run_{13}"
+    #   Lab Energy
+    C_T_grid_list, C_LSJ_grid_list, C_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "C", "T")
+    SS_T_grid_list, SS_LSJ_grid_list, SS_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SS", "T")
+    T_T_grid_list, T_LSJ_grid_list, T_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "T", "T")
+    SO_T_grid_list, SO_LSJ_grid_list, SO_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SO", "T")
+    Q_T_grid_list, Q_LSJ_grid_list, Q_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "Q", "T")
 
-    process_spec = dict()
-    process_spec["basis"] = "T"
-    process_spec["invert_strategy"] = "numeric_matrix_inverse"
+    C_T_grid_list_mixing, C_mixing_grid_list, C_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "C", "T")
+    SS_T_grid_list_mixing, SS_mixing_grid_list, SS_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SS", "T")
+    T_T_grid_list_mixing, T_mixing_grid_list, T_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "T", "T")
+    SO_T_grid_list_mixing, SO_mixing_grid_list, SO_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SO", "T")
+    Q_T_grid_list_mixing, Q_mixing_grid_list, Q_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "Q", "T")
 
-    run_path_name = f"qx-{qx_run_dir}_dqx-{dqx_run_dir}"
-    base_spec_dir_name = "qx_" + process_spec["basis"] + "_" + process_spec["invert_strategy"] + "-dq_" + process_spec["basis"] + "_" + process_spec["invert_strategy"]
+    max_l = 0
+    max_j = 0
+    num_s = 2
+    for T_grid, LSJ_grid, LSJ_name in zip(C_T_grid_list, C_LSJ_grid_list, C_LSJ_names):
+        l, s, j = LSJ_from_spectr(LSJ_name)
 
-    cur_proc_run_base_path = base_path + "/" + base_spec_dir_name + "/" + run_path_name + "/"
-
-    num_pwaves = 5
-
-
-
-    # Read results
-    V_l_r__I0, r_grid_I0 = import_results(cur_proc_run_base_path, 5, "V_l_r_I0", "r", num_pwaves)
-    V_l_r__I1, r_grid_I1 = import_results(cur_proc_run_base_path, 5, "V_l_r_I1", "r", num_pwaves)
-    V_l_q__I0, q_grid_I0 = import_results(cur_proc_run_base_path, 5, "V_l_q_I0", "q", num_pwaves)
-    V_l_q__I1, q_grid_I1 = import_results(cur_proc_run_base_path, 5, "V_l_q_I1", "q", num_pwaves)
-
-    V_l_r__sI0, r_grid_sI0 = import_results(cur_proc_run_base_path, 5, "V_l_r_sI0", "r", num_pwaves)
-    V_l_r__sI1, r_grid_sI1 = import_results(cur_proc_run_base_path, 5, "V_l_r_sI1", "r", num_pwaves)
-
-
-    # Check vanishing complex part of phase shift due to S Matrix Unitarity
-    check_S_Matrix_unitarity(r_grid_I0, V_l_r__I0)
-    check_S_Matrix_unitarity(r_grid_I1, V_l_r__I1)
-    check_S_Matrix_unitarity(q_grid_I0, V_l_q__I0)
-    check_S_Matrix_unitarity(q_grid_I1, V_l_q__I1)
+        if(l > max_l):
+            max_l = l
+        
+        if(j > max_j):
+            max_j = j
 
 
-    # Calculate Phase shifts
-    delta_l_q__I0 = calculate_phase_shifts(q_grid_I0, V_l_q__I0)
-    delta_l_q__I1 = calculate_phase_shifts(q_grid_I1, V_l_q__I1)
-    delta_l_r__I0 = calculate_phase_shifts(r_grid_I0, V_l_r__I0)
-    delta_l_r__I1 = calculate_phase_shifts(r_grid_I1, V_l_r__I1)
+    lsj_T_Lsj = dict() # np.zeros((max_l + 1, max_l + 1, num_s, max_j + 1, len(T_grid)))    # Assuming all T_grids equal length
+    delta = dict()
+
+    # Uncoupled: L = l
+    for T_grid, LSJ_grid, LSJ_name in zip(C_T_grid_list, C_LSJ_grid_list, C_LSJ_names):
+        l, s, j = LSJ_from_spectr(LSJ_name)
+        L = l
+
+        if(l not in lsj_T_Lsj.keys()):
+            lsj_T_Lsj[l] = dict()
+            delta[l] = dict()
+        
+        if(L not in lsj_T_Lsj[l].keys()):
+            lsj_T_Lsj[l][L] = dict()
+            delta[l][L] = dict()
+        
+        if(s not in lsj_T_Lsj[l][L].keys()):
+            lsj_T_Lsj[l][L][s] = dict()
+            delta[l][L][s] = dict()
+
+        if(j not in lsj_T_Lsj[l][L][s].keys()):
+            lsj_T_Lsj[l][L][s][j] = LSJ_grid
+            delta[l][L][s][j] = np.zeros_like(LSJ_grid)
+        else:
+            raise Exception("Twice same combination")
+
+    # Mixing: l = j-1, L=j+1
+    for T_grid_mixing, mixing_grid, J_val in zip(C_T_grid_list_mixing[:-1], C_mixing_grid_list[:-1], C_mixing_Jvals[:-1]):  # TODO remove the aritfact of the 0 (last element) in processing code
+        j = int(J_val)
+        l = j-1
+        L = j+1
+        s = 1
+
+        if(l not in lsj_T_Lsj.keys()):
+            lsj_T_Lsj[l] = dict()
+            lsj_T_Lsj[L] = dict()
+            delta[l] = dict()
+        
+        if(L not in lsj_T_Lsj[l].keys()):
+            lsj_T_Lsj[l][L] = dict()
+            lsj_T_Lsj[L][l] = dict()
+            delta[l][L] = dict()
+        
+        if(s not in lsj_T_Lsj[l][L].keys()):
+            lsj_T_Lsj[l][L][s] = dict()
+            lsj_T_Lsj[L][l][s] = dict()
+            delta[l][L][s] = dict()
+
+        if(j not in lsj_T_Lsj[l][L][s].keys()):
+            lsj_T_Lsj[l][L][s][j] = mixing_grid
+            lsj_T_Lsj[L][l][s][j] = mixing_grid
+            delta[l][L][s][j] = dict()
+        else:
+            raise Exception("Twice same combination")
 
 
-    # Plot Phase Shifts
-    #plot_phase_shifts(delta_l_q__I0, q_grid_I0, cur_proc_run_base_path, "q", "GeV", "rho", 0, "PhaseShift", False, True)
-    #plot_phase_shifts(delta_l_q__I1, q_grid_I1, cur_proc_run_base_path, "q", "GeV", "rho", 0, "PhaseShift", False, True)
 
+    # mixing elements
+    epsilon_j = dict()
+    for j in range(1, max_j-1):
 
+        #if(j+1 not in lsj_T_Lsj or j-1 not in lsj_T_Lsj[j+1] or 1 not in lsj_T_Lsj[j+1][j-1] or j not in lsj_T_Lsj[j+1][j-1][1]):
+        #    continue
 
-    ##################################################### Potential comparison #######################################################
+        epsilon_j[j] = calc_mixing_angle_epsilon(
+            S_js_Ll(lsj_T_Lsj[j+1][j-1][1][j], T_grid, j, 1, j+1, j-1),
+            S_js_Ll(lsj_T_Lsj[j+1][j+1][1][j], T_grid, j, 1, j+1, j+1),
+            S_js_Ll(lsj_T_Lsj[j-1][j-1][1][j], T_grid, j, 1, j-1, j-1)
+        )
     
-    # Load Reid93 1S0 neutron neutron Central Potential
-    reid93_csv = pd.read_csv("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/ExperimentalPotentials/reid93/Reid93Potential.csv")
-    V_1S0_reid93 = reid93_csv["v11_1s0"].to_numpy()
-    V_3S1_reid93 = reid93_csv["v11_3s1"].to_numpy()
-    r_grid_reid93 = reid93_csv["r"].to_numpy()
+    # Phase Shifts
+    for LSJ_name in C_LSJ_names:
+        l, s, j = LSJ_from_spectr(LSJ_name)
+        L = l
+
+        # uncoupled
+        delta[l][L][s][j][:] = calc_phase_shift_uncoupled(tau_js_Ll(lsj_T_Lsj[l][L][s][j], T_grid))
 
 
-    nijmII_csv_1s0 = pd.read_csv("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/ExperimentalPotentials/nijmegen/nijm1S0.csv")
-    V_C_nijmII_1s0 = nijmII_csv_1s0["vc"].to_numpy()
-    r_grid_nijmII_1s0 = nijmII_csv_1s0["r"].to_numpy()
+        # we are missing the mixing angles beyond that point
+        if (j >= max_j-1 or j==0):
+            continue
 
-    nijmII_csv_3s1 = pd.read_csv("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/ExperimentalPotentials/nijmegen/nijm3S1.csv")
-    V_C_nijmII_3s1 = nijmII_csv_3s1["vc"].to_numpy()
-    r_grid_nijmII_3s1 = nijmII_csv_3s1["r"].to_numpy()
+        if(s == 1): # no spin 0 coupled channel
+            if(l == j+1 or l == j-1):
+                # Coupled: l = J+1
+                delta[l][L][s][j][:] = calc_phase_shift_coupled(S_js_Ll(lsj_T_Lsj[l][L][s][j], T_grid, j, s, l, L), epsilon_j[j])
 
+                # Coupled: l = J-1
+                delta[l][L][s][j][:] = calc_phase_shift_coupled(S_js_Ll(lsj_T_Lsj[l][L][s][j], T_grid, j, s, l, L), epsilon_j[j])
 
-
-    reid_scaler = np.max(V_l_r__sI0[0, 0, 1:]) / np.max(np.abs(V_1S0_reid93))
-    nijm_scaler = np.max(V_l_r__sI0[0, 0, 1:]) / np.max(np.abs(V_C_nijmII_3s1))
-
-
-    # 1S0
-    #reid_scaler_1s0 = np.max(np.abs(V_l_r__sI1[0, 0, 1:])) / np.max(np.abs(V_1S0_reid93))
-    #nijm_scaler_1s0 = np.max(np.abs(V_l_r__sI1[0, 0, 1:])) / np.max(np.abs(V_C_nijmII_1s0))
-
-    potential_list_1S0 = [-V_C_nijmII_1s0 * nijm_scaler, V_1S0_reid93 * reid_scaler, V_l_r__sI1[0, 0, :]]
-    r_grid_list_1S0 = [r_grid_nijmII_1s0, r_grid_reid93, r_grid_sI1]
-    potentail_names_list_1S0 = ["NijmegenII $^1S_0$ Central Potential", "Reid93 $^1S_0$ Potential", "$U^{(I=1)}_{\\mathrm{C}}$"]
-    colours_1S0 = ["C2", "C1", "C0"]
-
-    plot_central_potentials(potential_list_1S0, 
-                        r_grid_list_1S0, 
-                        potentail_names_list_1S0, 
-                        colours_1S0,
-                        cur_proc_run_base_path, 
-                        "r", 
-                        "1 / GeV", 
-                        "CentralPotentialComparison1S0",
-                        savefig=True, 
-                        show_plots=True)
+    
 
 
 
-    # 3S1
-    potential_list_3S1 = [-V_C_nijmII_3s1 * nijm_scaler, V_1S0_reid93 * reid_scaler, V_l_r__sI0[0, 0, :]]
-    r_grid_list_3S1 = [r_grid_nijmII_3s1, r_grid_reid93, r_grid_sI1]
-    potentail_names_list_3S1 = ["NijmegenII $^3S_1$ Central Potential", "Reid93 $^3S_1$ Potential", "$U^{(I=0)}_{\\mathrm{C}}$"]
-    colours_3S1 = ["C2", "C1", "C0"]
 
-    plot_central_potentials(potential_list_3S1, 
-                            r_grid_list_3S1, 
-                            potentail_names_list_3S1, 
-                            colours_3S1,
-                            cur_proc_run_base_path, 
-                            "r", 
-                            "1 / GeV", 
-                            "CentralPotentialComparison3S1",
-                            savefig=True, 
-                            show_plots=True)
+
+
+    return
+
+
 
 
 
