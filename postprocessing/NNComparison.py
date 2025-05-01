@@ -70,16 +70,46 @@ def import_results_own(datapath, isospin, tensor_name_abbrv, varname):
 
     return var_grids, LSJ_grids, LSJ_names
 
+def import_results_mixing(datapath, isospin, tensor_name_abbrv, varname):
+    process_files = [f for f in listdir(datapath) if isfile(join(datapath, f)) and f[-10:-4] and f[-4:] == ".csv" and f[6:7] == str(isospin) and f[8:11] == (tensor_name_abbrv if len(tensor_name_abbrv) == 2 else tensor_name_abbrv + "_") + varname]
+
+    var_grids = list()
+    J_values = list()
+    mixing_grids = list()
+    
+
+    for process_file in process_files:
+        with open(join(datapath, process_file), "r") as csv_process:
+            res_reader = csv.DictReader(csv_process, delimiter=";")
+
+            J_values.extend(res_reader.fieldnames[1:])
+            
+            var_grids.append([list() for i in range(len(res_reader.fieldnames[1:]))])
+            mixing_grids.append([list() for i in range(len(res_reader.fieldnames[1:]))])
+
+            for row in res_reader:
+                for idx, J_val in enumerate(res_reader.fieldnames[1:]):
+                    var_grids[-1][idx].append(float(row[varname]))
+                    mixing_grids[-1][idx].append(float(row[J_val]))
+
+    var_grids = flatten_dim1(var_grids)
+    mixing_grids = flatten_dim1(mixing_grids)
+
+    var_grids = [np.array(var_grid) for var_grid in var_grids]
+    mixing_grids = [np.array(mixing_grid) for mixing_grid in mixing_grids]
+
+    return var_grids, mixing_grids, J_values
+
 
 def find_normalization(NN_LSJ_grid_list):
-    scalar = np.nanmax(np.abs(NN_LSJ_grid_list[0]))
+    scaler = np.nanmax(np.abs(NN_LSJ_grid_list[0]))
 
     for NN_LSJ_grid in NN_LSJ_grid_list:
         cur = np.nanmax(np.abs(NN_LSJ_grid))
-        if(cur > scalar):
-            scalar = cur
+        if(cur > scaler):
+            scaler = cur
 
-    return 1/scalar
+    return 1/scaler
 
 
 
@@ -91,10 +121,10 @@ def potential_comparison_plots(NN_tuple__own, NN_tuple__nijmI, NN_tuple__nijmII,
 
 
     # Scale all potentials to maximim of 1
-    own_scaler = find_normalization(NN_LSJ_grid_list)
-    nijmI_scaler = find_normalization(NN_LSJ_grid_list__lit_nijmI)
-    nijmII_scaler = find_normalization(NN_LSJ_grid_list__lit_nijmII)
-    reid93_scaler = find_normalization(NN_LSJ_grid_list__lit_reid93)
+    own_scaler = 1.0 #find_normalization(NN_LSJ_grid_list)
+    nijmI_scaler = 0.001 #find_normalization(NN_LSJ_grid_list__lit_nijmI)
+    nijmII_scaler = 0.001 #find_normalization(NN_LSJ_grid_list__lit_nijmII)
+    reid93_scaler = 1.0 #find_normalization(NN_LSJ_grid_list__lit_reid93)
 
 
     for (NN_r_grid__lit_nijmI, NN_LSJ_grid__lit_nijmI, NN_LSJ_name__lit_nijmI) in zip(NN_r_grid_list__lit_nijmI, NN_LSJ_grid_list__lit_nijmI, NN_LSJ_names__lit_nijmI):
@@ -114,7 +144,7 @@ def potential_comparison_plots(NN_tuple__own, NN_tuple__nijmI, NN_tuple__nijmII,
                     ax.plot(NN_r_grid, own_scaler * NN_LSJ_grid, label=f"{NN_LSJ_name} Own")
                     ax.plot(NN_r_grid__lit_nijmI, -nijmI_scaler * NN_LSJ_grid__lit_nijmI, label=f"{NN_LSJ_name} Nijmegen I")
                     ax.plot(NN_r_grid__lit_nijmII, -nijmII_scaler * NN_LSJ_grid__lit_nijmII, label=f"{NN_LSJ_name} Nijmegen II")
-                    ax.plot(NN_r_grid__lit_reid93, reid93_scaler * NN_LSJ_grid__lit_reid93, label=f"{NN_LSJ_name} Reid 93 - All Tensors")
+                    #ax.plot(NN_r_grid__lit_reid93, reid93_scaler * NN_LSJ_grid__lit_reid93, label=f"{NN_LSJ_name} Reid 93 - All Tensors")
 
                     mid = (fig.subplotpars.right + fig.subplotpars.left)/2
                     fig.suptitle(tensor, x=mid, fontsize="xx-large")
@@ -185,21 +215,19 @@ def main():
     NN_SO_LSJ_phase_shifts_grid_list = calc_phase_shifts(NN_SO_T_grid_list, NN_SO_LSJ_T_grid_list, NN_SO_LSJ_names_T)
     NN_Q_LSJ_phase_shifts_grid_list = calc_phase_shifts(NN_Q_T_grid_list, NN_Q_LSJ_T_grid_list, NN_Q_LSJ_names_T)
 
-    plt.figure()
-    for TLab_grid, C_LSJ_phase_shift, LSJ_name in zip(NN_C_T_grid_list, NN_C_LSJ_phase_shifts_grid_list, NN_C_LSJ_names_T):
-        if(LSJ_name == "1S0"):
-            plt.plot(TLab_grid, C_LSJ_phase_shift, label=LSJ_name)
-    plt.legend()
-    plt.show()
-    exit()
+    #plt.figure()
+    #for TLab_grid, C_LSJ_phase_shift, LSJ_name in zip(NN_C_T_grid_list, NN_C_LSJ_phase_shifts_grid_list, NN_C_LSJ_names_T):
+    #    if(LSJ_name == "1S0"):
+    #        plt.plot(TLab_grid, C_LSJ_phase_shift, label=LSJ_name)
+    #plt.legend()
+    #plt.show()
+    #exit()
     
-    # TODO: Do this? Move factor for dimensionless basis elements to amplitudes
-    #NN_T_LSJ_grid_list = [NN_T_LSJ_grid / (4.0 * np.square(M_nucleon)) for NN_T_LSJ_grid in NN_T_LSJ_grid_list]
-    #NN_SO_LSJ_grid_list = [NN_SO_LSJ_grid / (4.0 * np.square(M_nucleon)) for NN_SO_LSJ_grid in NN_SO_LSJ_grid_list]
-    #NN_Q_LSJ_grid_list = [NN_Q_LSJ_grid / (4.0 * np.power(M_nucleon, 4)) for NN_Q_LSJ_grid in NN_Q_LSJ_grid_list]
+    # Move factor for dimensionless basis elements to amplitudes
+    NN_T_LSJ_q_grid_list = [NN_T_LSJ_grid / (4.0 * np.square(M_nucleon)) for NN_T_LSJ_grid in NN_T_LSJ_q_grid_list]
+    NN_SO_LSJ_q_grid_list = [NN_SO_LSJ_grid / (4.0 * np.square(M_nucleon)) for NN_SO_LSJ_grid in NN_SO_LSJ_q_grid_list]
+    NN_Q_LSJ_q_grid_list = [NN_Q_LSJ_grid / (4.0 * np.power(M_nucleon, 4)) for NN_Q_LSJ_grid in NN_Q_LSJ_q_grid_list]
 
-    NN_full_grid_list = [NN_C_LSJ_grid + NN_SS_LSJ_grid + NN_T_LSJ_grid + NN_SO_LSJ_grid + NN_Q_LSJ_grid for NN_C_LSJ_grid, NN_SS_LSJ_grid, NN_T_LSJ_grid, NN_SO_LSJ_grid, NN_Q_LSJ_grid in zip(NN_C_LSJ_grid_list, NN_SS_LSJ_grid_list, NN_T_LSJ_grid_list, NN_SO_LSJ_grid_list, NN_Q_LSJ_grid_list)]
-    NN_LSJ_names = NN_C_LSJ_names_r
 
     potential_comparison_plots((NN_C_r_grid_list, NN_C_LSJ_r_grid_list, NN_C_LSJ_names_r),
                                (NN_C_r_grid_list__lit_nijmI, NN_C_LSJ_grid_list__lit_nijmI, NN_C_LSJ_names__lit_nijmI),

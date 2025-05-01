@@ -133,7 +133,8 @@ def main():
     for I, (process_singlet_contrib_q_list, 
             process_triplet_l_is_j_Minus_1__contrib_q_list, 
             process_triplet_l_is_j__contrib_q_list, 
-            process_triplet_l_is_j_Plus_1__contrib_q_list) in enumerate(LSJ_isospin_res_q):
+            process_triplet_l_is_j_Plus_1__contrib_q_list,
+            process_triplet_mixing__contrib_grid_list) in enumerate(LSJ_isospin_res_q):
         
         # Singlet
         export_result_list_LSJ(plotter_combined, I, process_singlet_contrib_q_list, SpectroscopicConversion.LSJ_singlet, tensor_basis_names, q_grid_spectr, "singlet", "q")
@@ -143,11 +144,15 @@ def main():
         export_result_list_LSJ(plotter_combined, I, process_triplet_l_is_j__contrib_q_list, SpectroscopicConversion.LSJ_triplet__L_eq_J, tensor_basis_names, q_grid_spectr, "triplet_l=j", "q")
         export_result_list_LSJ(plotter_combined, I, process_triplet_l_is_j_Plus_1__contrib_q_list, SpectroscopicConversion.LSJ_triplet__L_eq_J_plus_1, tensor_basis_names, q_grid_spectr, "triplet_l=j+1", "q")
 
+        #   mixing
+        export_result_list_mixing(plotter_combined, I, process_triplet_mixing__contrib_grid_list, tensor_basis_names, q_grid_spectr, "q")
+
     #   Momentum Space - Lab Energy
     for I, (process_singlet_contrib_TLab_list, 
             process_triplet_l_is_j_Minus_1__contrib_TLab_list, 
             process_triplet_l_is_j__contrib_TLab_list, 
-            process_triplet_l_is_j_Plus_1__contrib_TLab_list) in enumerate(LSJ_isospin_res_TLab):
+            process_triplet_l_is_j_Plus_1__contrib_TLab_list,
+            process_triplet_mixing__contrib_TLab_list) in enumerate(LSJ_isospin_res_TLab):
         
         # Singlet
         export_result_list_LSJ(plotter_combined, I, process_singlet_contrib_TLab_list, SpectroscopicConversion.LSJ_singlet, tensor_basis_names, TLab_grid_spectr, "singlet", "T")
@@ -157,6 +162,8 @@ def main():
         export_result_list_LSJ(plotter_combined, I, process_triplet_l_is_j__contrib_TLab_list, SpectroscopicConversion.LSJ_triplet__L_eq_J, tensor_basis_names, TLab_grid_spectr, "triplet_l=j", "T")
         export_result_list_LSJ(plotter_combined, I, process_triplet_l_is_j_Plus_1__contrib_TLab_list, SpectroscopicConversion.LSJ_triplet__L_eq_J_plus_1, tensor_basis_names, TLab_grid_spectr, "triplet_l=j+1", "T")
 
+        #   mixing
+        export_result_list_mixing(plotter_combined, I, process_triplet_mixing__contrib_TLab_list, tensor_basis_names, TLab_grid_spectr, "T")
 
     #   Configuration Space
     for I, (process_singlet_contrib_r_list, 
@@ -308,6 +315,25 @@ def export_result_list_LSJ(plotter_combined, I, process_contrib_r_list, LSJ_quan
             process_contrib_export_r_list.append(process_singlet_contrib_r[lsj_idx])
 
         export_results_LSJ(plotter_combined.cur_proc_run_base_path, I, tensor_basis_name, r_grid_spectr, process_contrib_export_r_list, varname, lsj_names, lsj_part)
+
+
+def export_result_list_mixing(plotter_combined, I, process_contrib_grid_list, tensor_basis_names, var_grid_spectr, varname):
+
+    for tensor_basis_name, process_contrib_grid in zip(tensor_basis_names, process_contrib_grid_list):
+
+        J_names = list()
+        process_contrib_export_list = list()
+        for J in range(len(process_contrib_grid)):
+            
+            # skip amplitudes that don't exist
+            if(J == 0):
+                continue
+
+            process_contrib_export_list.append(process_contrib_grid[J])
+            J_names.append(str(J))
+
+        export_results_LSJ(plotter_combined.cur_proc_run_base_path, I, tensor_basis_name, var_grid_spectr, process_contrib_export_list, varname, J_names, "mixing")
+
 
 
 def export_results_LSJ(datapath, process_isospin, tensor_name, var_grid, LSJ_results, varname, LSJ_Names, lsj_part):

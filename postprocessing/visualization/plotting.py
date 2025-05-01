@@ -189,6 +189,38 @@ class PlotterFullAmplitude:
         plt.close()
 
 
+    def plot_pwave_Mixing(self, mixing_amplitudes, x, xlabel, x_label_unit, basis_element, isospin, title, fig_name):
+
+        fig, ax = plt.subplots(1, 1, figsize=(6, 6))
+        axs = [ax]
+
+        fig.subplots_adjust(top=0.88, bottom=0.11, left=0.2, right=0.92, hspace=0.2, wspace=0.2)
+
+        for J in range(len(mixing_amplitudes)):
+
+            if(J == 0):
+                continue
+
+            axs[0].plot(x, mixing_amplitudes[J], label=f"$\\epsilon_{J}$")
+
+            
+        mid = (fig.subplotpars.right + fig.subplotpars.left)/2
+        fig.suptitle(title, x=mid, fontsize="xx-large")
+
+        axs[0].set_xlabel(f"${xlabel}$  [{x_label_unit}]", fontsize="large")
+        axs[0].set_ylabel(f"$\\left. U_{{{basis_element}}}^{{I = {(isospin)}}}({xlabel}) \\right|_{{\\epsilon_J}}$", fontsize="large")
+        axs[0].grid(color='lightgray', linestyle='dashed')
+        axs[0].legend()
+
+        if(self.savefig):
+            self.save_active_fig(fig_name)
+
+        if(self.show_plots):
+            plt.show()
+
+        plt.close()
+
+
 
 class Plotter:
 
