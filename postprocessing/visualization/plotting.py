@@ -51,17 +51,17 @@ class PlotterFullAmplitude:
     def plotFullSymAmplitudeIsospin0(self, tensor_basis_names, fig_name):
         # Plot Full (Anti-) Symmetric Amplitude
         F_complete_I0 = 1/2 * (self.dataloader_dqx.F - self.dataloader_qx.F)
-        self.plot_full_amplitude_np(self.dataloader_qx.X, self.dataloader_qx.Z, F_complete_I0, tensor_basis_names, isospin=0, fig_name=fig_name)
-        self.plot_full_amplitude_store_sep(self.dataloader_qx.X, self.dataloader_qx.Z, F_complete_I0, tensor_basis_names, isospin=0, fig_name=fig_name)
+        self.plot_full_amplitude_np(self.dataloader_qx.X, self.dataloader_qx.Z, F_complete_I0, "GeV$^{-2}$", tensor_basis_names, isospin=0, fig_name=fig_name)
+        self.plot_full_amplitude_store_sep(self.dataloader_qx.X, self.dataloader_qx.Z, F_complete_I0, "GeV$^{-2}$", tensor_basis_names, isospin=0, fig_name=fig_name)
 
     def plotFullSymAmplitudeIsospin1(self, tensor_basis_names, fig_name):
         # Plot Full (Anti-) Symmetric Amplitude
         F_complete_I1 = 1/2 * (self.dataloader_dqx.F + self.dataloader_qx.F)
-        self.plot_full_amplitude_np(self.dataloader_qx.X, self.dataloader_qx.Z, F_complete_I1, tensor_basis_names, isospin=1, fig_name=fig_name)
-        self.plot_full_amplitude_store_sep(self.dataloader_qx.X, self.dataloader_qx.Z, F_complete_I1, tensor_basis_names, isospin=1, fig_name=fig_name)
+        self.plot_full_amplitude_np(self.dataloader_qx.X, self.dataloader_qx.Z, F_complete_I1, "GeV$^{-2}$", tensor_basis_names, isospin=1, fig_name=fig_name)
+        self.plot_full_amplitude_store_sep(self.dataloader_qx.X, self.dataloader_qx.Z, F_complete_I1, "GeV$^{-2}$", tensor_basis_names, isospin=1, fig_name=fig_name)
 
 
-    def plot_full_amplitude_np(self, X: np.ndarray, Z: np.ndarray, F: np.ndarray, tensor_basis_names, isospin: int, fig_name: str):
+    def plot_full_amplitude_np(self, X: np.ndarray, Z: np.ndarray, F: np.ndarray, F_units: str, tensor_basis_names, isospin: int, fig_name: str):
         fig = plt.figure(figsize=(7, 9))
         fig.tight_layout()
 
@@ -80,14 +80,14 @@ class PlotterFullAmplitude:
             ax.set_xlabel("$X$")
             ax.set_ylabel("$Z$")
 
+            ax.zaxis.set_rotate_label(False)
             if(basis_idx < 2):
                 ax.set_title(tensor_basis_names[basis_idx] + f": $f^{{({isospin})}}_{basis_idx + 1}(X, Z)$")
-                ax.set_zlabel(f"$f^{{({isospin})}}_{basis_idx + 1}$", labelpad=10)
+                ax.set_zlabel(f"$f^{{({isospin})}}_{basis_idx + 1}$ [{F_units}]", labelpad=7, rotation=90)
             else:
                 ax.set_title(tensor_basis_names[basis_idx] + f": $g^{{({isospin})}}_{basis_idx + 1 - 2}(X, Z)$")
-                ax.set_zlabel(f"$g^{{({isospin})}}_{basis_idx + 1 - 2}$", labelpad=10)
+                ax.set_zlabel(f"$g^{{({isospin})}}_{basis_idx + 1 - 2}$ [{F_units}]", labelpad=7, rotation=90)
             ax.set_ylim([-1, 1])
-            ax.zaxis.set_rotate_label(False)
 
 
         fig.subplots_adjust(wspace=0, hspace=0.385, top=0.94, bottom=0.04, left=0.01, right=0.945)
@@ -101,7 +101,7 @@ class PlotterFullAmplitude:
         plt.close()
 
 
-    def plot_full_amplitude_store_sep(self, X: np.ndarray, Z: np.ndarray, F: np.ndarray, tensor_basis_names, isospin: int, fig_name: str):
+    def plot_full_amplitude_store_sep(self, X: np.ndarray, Z: np.ndarray, F: np.ndarray, F_units: str, tensor_basis_names, isospin: int, fig_name: str):
         for basis_idx in range(F.shape[0]):
             fig = plt.figure(figsize=(6, 6))
             fig.tight_layout()
@@ -113,14 +113,14 @@ class PlotterFullAmplitude:
             ax.set_xlabel("$X$")
             ax.set_ylabel("$Z$")
 
-            if(basis_idx < 2):
-                ax.set_title(tensor_basis_names[basis_idx] + f": $f^{{({isospin})}}_{basis_idx + 1}(X, Z)$")
-                ax.set_zlabel(f"$f^{{({isospin})}}_{basis_idx + 1}$", labelpad=10)
-            else:
-                ax.set_title(tensor_basis_names[basis_idx] + f": $g^{{({isospin})}}_{basis_idx + 1 - 2}(X, Z)$")
-                ax.set_zlabel(f"$g^{{({isospin})}}_{basis_idx + 1 - 2}$", labelpad=10)
-            ax.set_ylim([-1, 1])
             ax.zaxis.set_rotate_label(False)
+            if(basis_idx < 2):
+                ax.set_title(tensor_basis_names[basis_idx] + f": $f^{{({isospin})}}_{basis_idx + 1}(X, Z)$ [{F_units}]")
+                ax.set_zlabel(f"$f^{{({isospin})}}_{basis_idx + 1}$", labelpad=7, rotation=90)
+            else:
+                ax.set_title(tensor_basis_names[basis_idx] + f": $g^{{({isospin})}}_{basis_idx + 1 - 2}(X, Z)$ [{F_units}]")
+                ax.set_zlabel(f"$g^{{({isospin})}}_{basis_idx + 1 - 2}$", labelpad=7, rotation=90)
+            ax.set_ylim([-1, 1])
 
             if(self.savefig):
                 self.save_active_fig(fig_name + f"_{basis_idx}")
@@ -128,7 +128,7 @@ class PlotterFullAmplitude:
             plt.close()
 
 
-    def plot_final_res(self, f_l, x, xlabel, x_label_unit, ylabels, tensorBasisNamesDict, exchange_channel, xmax):
+    def plot_final_res(self, f_l, f_l_unit: str, x, xlabel, x_label_unit, ylabels, tensorBasisNamesDict, exchange_channel, xmax):
         for basis_idx in range(f_l.shape[0]):
             fig, ax = plt.subplots(1, 1, figsize=(6, 6))
 
@@ -143,7 +143,7 @@ class PlotterFullAmplitude:
             fig.suptitle(f"${ylabels[basis_idx]}({xlabel})$", x=mid, fontsize="xx-large")
             
             ax.set_xlabel(f"${xlabel}$  [{x_label_unit}]", fontsize="large")
-            ax.set_ylabel(f"${ylabels[basis_idx]}$", fontsize="large")
+            ax.set_ylabel(f"${ylabels[basis_idx]}$ [{f_l_unit}]", fontsize="large")
             ax.grid(color='lightgray', linestyle='dashed')
             ax.legend()
 
@@ -156,7 +156,7 @@ class PlotterFullAmplitude:
             plt.close()
 
 
-    def plot_pwave_LSJ(self, LSJ_amplitudes, LSJ_descriptions, x, xlabel, x_label_unit, basis_element, isospin, title, fig_name):
+    def plot_pwave_LSJ(self, LSJ_amplitudes, LSJ_amp_unit: str, LSJ_descriptions, x, xlabel, x_label_unit, basis_element, isospin, title, fig_name):
 
         fig, ax = plt.subplots(1, 1, figsize=(6, 6))
         axs = [ax]
@@ -176,7 +176,7 @@ class PlotterFullAmplitude:
         fig.suptitle(title, x=mid, fontsize="xx-large")
 
         axs[0].set_xlabel(f"${xlabel}$  [{x_label_unit}]", fontsize="large")
-        axs[0].set_ylabel(f"$\\left. U_{{{basis_element}}}^{{I = {(isospin)}}}({xlabel}) \\right|_{{L,S,J}}$", fontsize="large")
+        axs[0].set_ylabel(f"$\\left. U_{{{basis_element}}}^{{I = {(isospin)}}}({xlabel}) \\right|_{{L,S,J}}$ [{LSJ_amp_unit}]", fontsize="large")
         axs[0].grid(color='lightgray', linestyle='dashed')
         axs[0].legend()
 
@@ -189,7 +189,7 @@ class PlotterFullAmplitude:
         plt.close()
 
 
-    def plot_pwave_Mixing(self, mixing_amplitudes, x, xlabel, x_label_unit, basis_element, isospin, title, fig_name):
+    def plot_pwave_Mixing(self, mixing_amplitudes, mixing_amp_unit, x, xlabel, x_label_unit, basis_element, isospin, title, fig_name):
 
         fig, ax = plt.subplots(1, 1, figsize=(6, 6))
         axs = [ax]
@@ -208,7 +208,7 @@ class PlotterFullAmplitude:
         fig.suptitle(title, x=mid, fontsize="xx-large")
 
         axs[0].set_xlabel(f"${xlabel}$  [{x_label_unit}]", fontsize="large")
-        axs[0].set_ylabel(f"$\\left. U_{{{basis_element}}}^{{I = {(isospin)}}}({xlabel}) \\right|_{{\\epsilon_J}}$", fontsize="large")
+        axs[0].set_ylabel(f"$\\left. U_{{{basis_element}}}^{{I = {(isospin)}}}({xlabel}) \\right|_{{\\epsilon_J}}$ [{mixing_amp_unit}]", fontsize="large")
         axs[0].grid(color='lightgray', linestyle='dashed')
         axs[0].legend()
 
@@ -271,7 +271,7 @@ class Plotter:
         plt.savefig(self.base_path_for(base_type, basis_idx) + "/" + f"{step_idx:03d}__{fig_name}_{base_type}_{basis_idx + 1 if basis_idx is not None else ""}.pdf", dpi=600)
 
 
-    def plot_form_factor_np(self, X: np.ndarray, Z: np.ndarray, dressing_f: np.ndarray, dressing_f_name: str, xlabel_str, tensor_basis_elem: str, base_type: str, basis_idx: int, fig_name: str, step_idx: int, do_title: bool=False, imag_mode:bool=False):
+    def plot_form_factor_np(self, X: np.ndarray, Z: np.ndarray, dressing_f: np.ndarray, dressing_f_name: str, dressing_f_unit: str, xlabel_str, tensor_basis_elem: str, base_type: str, basis_idx: int, fig_name: str, step_idx: int, do_title: bool=False, imag_mode:bool=False):
         fig = plt.figure(figsize=(5, 5))
 
         if do_title:
@@ -283,9 +283,9 @@ class Plotter:
         ax.plot_trisurf(X, Z, np.real(dressing_f.flatten()) if not imag_mode else np.imag(dressing_f.flatten()), cmap=cm.coolwarm)
         ax.set_xlabel(f"${xlabel_str}$")
         ax.set_ylabel("$Z$")
-        ax.set_zlabel(f"${dressing_f_name}$" if not imag_mode else f"Imag ${dressing_f_name}$", labelpad=10)
+        ax.zaxis.set_rotate_label(False)        
+        ax.set_zlabel(f"${dressing_f_name}$ [{dressing_f_unit}]" if not imag_mode else f"Imag ${dressing_f_name}$", labelpad=7, rotation=90)
         ax.set_ylim([-1, 1])
-        ax.zaxis.set_rotate_label(False)
 
         fig.subplots_adjust(top=0.88, bottom=0.11, left=0.03, right=0.9, hspace=0.2, wspace=0.2)
 
@@ -331,8 +331,8 @@ class Plotter:
 
 
 
-    def plot_form_factor_np_side_by_side(self, X1: np.ndarray, Z1: np.ndarray, dressing_f1: np.ndarray, dressing_f_name1: str, xlabel1: str,
-                                        X2: np.ndarray, Z2: np.ndarray, dressing_f2: np.ndarray, dressing_f_name2: str, xlabel2: str, 
+    def plot_form_factor_np_side_by_side(self, X1: np.ndarray, Z1: np.ndarray, dressing_f1: np.ndarray, dressing_f_name1: str, dressing_f1_unit: str, xlabel1: str,
+                                        X2: np.ndarray, Z2: np.ndarray, dressing_f2: np.ndarray, dressing_f_name2: str, dressing_f2_unit: str, xlabel2: str, 
                                         tensor_basis_elem: str, basis_idx: int, base_type: str, fig_name: str, step_idx: int, left_pretitle: str = None, right_pretitle: str = None):
         dressing_f1_params = f"({xlabel1}, Z)"
         dressing_f2_params = f"({xlabel2}, Z)"
@@ -357,7 +357,7 @@ class Plotter:
         ax.plot_trisurf(X1, Z1, np.real(dressing_f1.flatten()), cmap=cm.coolwarm)
         ax.set_xlabel(f"${xlabel1}$")
         ax.set_ylabel("$Z$")
-        ax.set_zlabel(f"${dressing_f_name1}_{basis_idx + 1}$", labelpad=8)
+        ax.set_zlabel(f"${dressing_f_name1}_{basis_idx + 1}$ [{dressing_f1_unit}]", labelpad=8)
         ax.set_ylim([-1, 1])
         ax.zaxis.set_rotate_label(False)
 
@@ -367,7 +367,7 @@ class Plotter:
         ax.plot_trisurf(X2, Z2, np.real(dressing_f2.flatten()), cmap=cm.coolwarm)
         ax.set_xlabel(f"${xlabel2}$")
         ax.set_ylabel("$Z$")
-        ax.set_zlabel(f"${dressing_f_name2}_{basis_idx + 1}$", labelpad=14)
+        ax.set_zlabel(f"${dressing_f_name2}_{basis_idx + 1}$ [{dressing_f2_unit}]", labelpad=14)
         ax.set_ylim([-1, 1])
         ax.zaxis.set_rotate_label(False)
 
@@ -381,8 +381,8 @@ class Plotter:
         plt.close()
 
 
-    def plot_form_factor_np_side_by_side_with_imag(self, X1: np.ndarray, Z1: np.ndarray, dressing_f1: np.ndarray, dressing_f_name1: str, xlabel1: str,
-                                        X2: np.ndarray, Z2: np.ndarray, dressing_f2: np.ndarray, dressing_f_name2: str, xlabel2: str, 
+    def plot_form_factor_np_side_by_side_with_imag(self, X1: np.ndarray, Z1: np.ndarray, dressing_f1: np.ndarray, dressing_f_name1: str, dressing_f1_unit: str, xlabel1: str,
+                                        X2: np.ndarray, Z2: np.ndarray, dressing_f2: np.ndarray, dressing_f_name2: str, dressing_f2_unit: str, xlabel2: str, 
                                         tensor_basis_elem: str, basis_idx: int, base_type: str, fig_name: str, step_idx: int):
         dressing_f1_params = f"({xlabel1}, Z)"
         dressing_f2_params = f"({xlabel2}, Z)"
@@ -436,26 +436,26 @@ class Plotter:
 
 
 
-    def plotAmplitudes(self, dataloader, fig_name_f, fig_name_F, step_idx: int, process_abbrev: str):
+    def plotAmplitudes(self, dataloader, fig_name_f, fig_name_F, amp_unit, step_idx: int, process_abbrev: str):
         # process_abbrev = q (Quark Exchange), dq (Diquark Exchange)
         for base_idx in range(5):
-            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.f[base_idx, :, :], f"f^{{({process_abbrev})}}_{base_idx + 1}", "X", f"$\\tau_{base_idx + 1} = $ " + self.tensorBasisNamesDict["tau"][base_idx], "tau", base_idx, fig_name=f"{fig_name_f}_{base_idx + 1}", step_idx=step_idx)
+            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.f[base_idx, :, :], f"f^{{({process_abbrev})}}_{base_idx + 1}", amp_unit, "X", f"$\\tau_{base_idx + 1} = $ " + self.tensorBasisNamesDict["tau"][base_idx], "tau", base_idx, fig_name=f"{fig_name_f}_{base_idx + 1}", step_idx=step_idx)
 
         for base_idx in range(5):
-            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.F[base_idx, :, :], f"F^{{({process_abbrev})}}_{base_idx + 1}", "X", f"$T_{base_idx + 1} = $ " + self.tensorBasisNamesDict["T"][base_idx], "T", base_idx, fig_name=f"{fig_name_F}_{base_idx + 1}", step_idx=step_idx)
+            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.F[base_idx, :, :], f"F^{{({process_abbrev})}}_{base_idx + 1}", amp_unit, "X", f"$T_{base_idx + 1} = $ " + self.tensorBasisNamesDict["T"][base_idx], "T", base_idx, fig_name=f"{fig_name_F}_{base_idx + 1}", step_idx=step_idx)
 
 
-    def plotAmplitudes_h(self, dataloader, fig_name_h, projection_basis_type: str, step_idx: int, process_abbrev: str, imag_mode: bool=False):
+    def plotAmplitudes_h(self, dataloader, fig_name_h, projection_basis_type: str, amp_unit, step_idx: int, process_abbrev: str, imag_mode: bool=False):
         for base_idx in range(5):
-            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.h[base_idx, :, :], f"h^{{({process_abbrev})}}_{base_idx + 1}", "X", self.tensorBasisNamesDict[projection_basis_type][base_idx], projection_basis_type, base_idx, fig_name=f"{fig_name_h}_{base_idx + 1}", step_idx=step_idx, do_title=False, imag_mode=imag_mode)
+            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.h[base_idx, :, :], f"h^{{({process_abbrev})}}_{base_idx + 1}", amp_unit, "X", self.tensorBasisNamesDict[projection_basis_type][base_idx], projection_basis_type, base_idx, fig_name=f"{fig_name_h}_{base_idx + 1}", step_idx=step_idx, do_title=False, imag_mode=imag_mode)
 
     
-    def plotAmplitudes_rhoBasis(self, X, Z, V, fig_name, step_idx: int, process_abbrev: str):
+    def plotAmplitudes_rhoBasis(self, X, Z, V, fig_name, amp_unit, step_idx: int, process_abbrev: str):
         for base_idx in range(5):
-            self.plot_form_factor_np(X, Z, V[base_idx, :, :], f"V^{{({process_abbrev})}}_{base_idx + 1}", "X", self.tensorBasisNamesDict["rho"][base_idx], "rho", base_idx, fig_name=f"{fig_name}_{base_idx + 1}", step_idx=step_idx)
+            self.plot_form_factor_np(X, Z, V[base_idx, :, :], f"V^{{({process_abbrev})}}_{base_idx + 1}", amp_unit, "X", self.tensorBasisNamesDict["rho"][base_idx], "rho", base_idx, fig_name=f"{fig_name}_{base_idx + 1}", step_idx=step_idx)
 
 
-    def plotAmplitudesPartialWaveExpandedAndOriginal(self, grid_var1: np.ndarray, Z: np.ndarray, V_l: np.ndarray, V: np.ndarray, var1_name: str, fig_name, step_idx: int):
+    def plotAmplitudesPartialWaveExpandedAndOriginal(self, grid_var1: np.ndarray, Z: np.ndarray, V_l: np.ndarray, V: np.ndarray, amp_units, var1_name: str, fig_name, step_idx: int):
         # Build original amplitudes from partial wave expanded ones
         num_Z_check = 21
         Z_check_linspace = np.linspace(np.min(Z), np.max(Z), num_Z_check)
@@ -474,12 +474,12 @@ class Plotter:
             X_check_extended = np.repeat(grid_var1, num_Z_check)
             Z_check_linspace_extended = np.tile(Z_check_linspace, len(grid_var1))
 
-            self.plot_form_factor_np_side_by_side(X_qx_extended, Z_qx_extended, V[basis_idx, :, :], "U", var1_name,
-                                                  X_check_extended, Z_check_linspace_extended, V_qx_check[basis_idx, :, :], "U^{{(\\mathrm{{check}})}}", var1_name,
+            self.plot_form_factor_np_side_by_side(X_qx_extended, Z_qx_extended, V[basis_idx, :, :], "U", amp_units, var1_name,
+                                                  X_check_extended, Z_check_linspace_extended, V_qx_check[basis_idx, :, :], "U^{{(\\mathrm{{check}})}}", amp_units, var1_name,
                                                   self.tensorBasisNamesDict["rho"][basis_idx], basis_idx, "rho", fig_name=fig_name, step_idx=step_idx)                 # f"Amplitude_rho_{basis_idx + 1}"
             
 
-    def plot_pwave_amp_with_fits(self, V_qx_l, X_qx, ampHandler: AmplitudeHandler, base_type, fig_name: str, step_idx: int):
+    def plot_pwave_amp_with_fits(self, V_qx_l, X_qx, ampHandler: AmplitudeHandler, amp_unit:str, base_type, fig_name: str, step_idx: int):
         for basis_idx in range(V_qx_l.shape[0]):
             if(self.include_loglog_plots):
                 fig, axs = plt.subplots(1, 2, figsize=(14, 7))
@@ -508,7 +508,7 @@ class Plotter:
             fig.suptitle(f"$V^{{(l)}}_{basis_idx + 1}(X)$", x=mid, fontsize="xx-large")
 
             axs[0].set_xlabel("$X$")
-            axs[0].set_ylabel(f"$V^{{(l)}}_{basis_idx + 1}$", fontsize="large")
+            axs[0].set_ylabel(f"$V^{{(l)}}_{basis_idx + 1}$ [{amp_unit}]", fontsize="large")
             axs[0].legend()
 
             if(self.include_loglog_plots):
@@ -525,7 +525,7 @@ class Plotter:
             plt.close()
 
 
-    def plot_pwave_amp(self, f_l, x, xlabel, x_label_unit, fig_name, base_type, process_shorthand, step_idx: int, max_wave: int=None):
+    def plot_pwave_amp(self, f_l, f_l_unit, x, xlabel, x_label_unit, fig_name, base_type, process_shorthand, step_idx: int, max_wave: int=None):
         for basis_idx in range(f_l.shape[0]):
             if(self.include_loglog_plots):
                 fig, axs = plt.subplots(1, 2, figsize=(14, 7))
@@ -548,14 +548,14 @@ class Plotter:
             #axs[0].set_title(f"$V_{{{basis_idx + 1} l}}^{{({process_shorthand})}}({xlabel})$")
 
             axs[0].set_xlabel(f"${xlabel}$  [{x_label_unit}]", fontsize="large")
-            axs[0].set_ylabel(f"$V_{{{basis_idx + 1} l}}^{{({process_shorthand})}}$", fontsize="large")
+            axs[0].set_ylabel(f"$V_{{{basis_idx + 1} l}}^{{({process_shorthand})}}$ [{f_l_unit}]", fontsize="large")
             axs[0].grid(color='lightgray', linestyle='dashed')
             #axs[0].spines[['right', 'top']].set_visible(False)
             axs[0].legend()
 
             if(self.include_loglog_plots):
                 axs[1].set_xlabel(f"$\\log {xlabel}$  [{x_label_unit}]")
-                axs[1].set_ylabel(f"$\\log V_l({xlabel})$")
+                axs[1].set_ylabel(f"$\\log V_l({xlabel})$ [$\\log${f_l_unit}]")
                 axs[1].legend()
 
             if(self.savefig):
@@ -567,7 +567,7 @@ class Plotter:
             plt.close()
 
     
-    def plot_pwave_amp_scaled(self, f_l, x, xlabel, x_label_unit, fig_name, base_type, step_idx: int, x_lim: typing.Tuple):
+    def plot_pwave_amp_scaled(self, f_l, f_l_unit: str, x, xlabel, x_label_unit, fig_name, base_type, step_idx: int, x_lim: typing.Tuple):
         for basis_idx in range(f_l.shape[0]):
             if(self.include_loglog_plots):
                 fig, axs = plt.subplots(1, 2, figsize=(14, 7))
@@ -587,7 +587,7 @@ class Plotter:
             fig.suptitle(f"$V_{basis_idx + 1}^{{(l)}}({xlabel})$", x=mid, fontsize="xx-large")
 
             axs[0].set_xlabel(f"${xlabel}$  [{x_label_unit}]", fontsize="large")
-            axs[0].set_ylabel(f"$V_{basis_idx + 1}^{{(l)}}$", fontsize="large")
+            axs[0].set_ylabel(f"$V_{basis_idx + 1}^{{(l)}}$ [{f_l_unit}]", fontsize="large")
             axs[0].grid(color='lightgray', linestyle='dashed')
             #axs[0].spines[['right', 'top']].set_visible(False)
             axs[0].set_xlim(x_lim)
@@ -603,7 +603,7 @@ class Plotter:
             plt.close()
 
 
-    def plot_pwave_amp_scaled_side_by_side(self, f_l, x, xlabel, x_label_unit, fig_name, base_type, step_idx: int, y_lim: typing.Tuple=None, max_wave: int=None):
+    def plot_pwave_amp_scaled_side_by_side(self, f_l, f_l_unit: str, x, xlabel, x_label_unit, fig_name, base_type, step_idx: int, y_lim: typing.Tuple=None, max_wave: int=None):
         for basis_idx in range(f_l.shape[0]):
             fig, axs = plt.subplots(1, 2, figsize=(11, 6))
 
@@ -617,12 +617,12 @@ class Plotter:
             fig.suptitle(f"$V_{basis_idx + 1}^{{(l)}}({xlabel})$", x=mid, fontsize="xx-large")
 
             axs[0].set_xlabel(f"${xlabel}$  [{x_label_unit}]", fontsize="large")
-            axs[0].set_ylabel(f"$V_{basis_idx + 1}^{{(l)}}$", fontsize="large")
+            axs[0].set_ylabel(f"$V_{basis_idx + 1}^{{(l)}}$ [{f_l_unit}]", fontsize="large")
             axs[0].grid(color='lightgray', linestyle='dashed')
 
             axs[1].set_title(f"$U_{basis_idx + 1}^{{(l)}}({xlabel})$")
             axs[1].set_xlabel(f"${xlabel}$  [{x_label_unit}]", fontsize="large")
-            axs[1].set_ylabel(f"$U_{basis_idx + 1}^{{(l)}}$", fontsize="large")
+            axs[1].set_ylabel(f"$U_{basis_idx + 1}^{{(l)}}$ [{f_l_unit}]", fontsize="large")
             axs[1].grid(color='lightgray', linestyle='dashed')
 
             axs[0].legend()
@@ -680,7 +680,7 @@ class Plotter:
             plt.close()
 
 
-    def plot_pwave_amp_fits_seperated(self, X_qx_check, ampHandler: AmplitudeHandler, fig_name, base_type, x_label_unit, step_idx: int, Ymax: float=None):
+    def plot_pwave_amp_fits_seperated(self, X_qx_check, ampHandler: AmplitudeHandler, pwave_units, fig_name, base_type, x_label_unit, step_idx: int, Ymax: float=None):
         for basis_idx in range(ampHandler.f_l.shape[0]):
             if(self.include_loglog_plots):
                 fig, axs = plt.subplots(1, 2, figsize=(14, 7))
@@ -707,13 +707,13 @@ class Plotter:
             fig.suptitle(f"$V_{basis_idx + 1}^{{(l)}}(X)$", x=mid, fontsize="xx-large")
 
             axs[0].set_xlabel(f"$X$  [{x_label_unit}]", fontsize="large")
-            axs[0].set_ylabel(f"$V_{basis_idx + 1}^{{(l)}}$", fontsize="large")
+            axs[0].set_ylabel(f"$V_{basis_idx + 1}^{{(l)}}$ [{pwave_units}]", fontsize="large")
             axs[0].grid(color='lightgray', linestyle='dashed')
             axs[0].legend()
 
             if(self.include_loglog_plots):
                 axs[1].set_xlabel(f"$\\log X$  [{x_label_unit}]")
-                axs[1].set_ylabel("$\\log V_{l}(X)$")
+                axs[1].set_ylabel(f"$\\log V_{basis_idx + 1}^{{(l)}}$ [$\\log${pwave_units}]")
                 axs[1].legend()
 
             if Ymax is not None:
@@ -727,7 +727,7 @@ class Plotter:
 
             plt.close()
 
-    def plot_pwave_q_amp_fits_seperated(self, q_check, ampHandler: AmplitudeHandler, fig_name, base_type, step_idx: int, Ymax: float=None):
+    def plot_pwave_q_amp_fits_seperated(self, q_check, ampHandler: AmplitudeHandler, pwave_units, fig_name, base_type, step_idx: int, Ymax: float=None):
         for basis_idx in range(ampHandler.f_l.shape[0]):
             if(self.include_loglog_plots):
                 fig, axs = plt.subplots(1, 2, figsize=(14, 7))
@@ -749,12 +749,12 @@ class Plotter:
                 
 
             axs[0].set_xlabel("$q$")
-            axs[0].set_ylabel("$V_{l}(q)$")
+            axs[0].set_ylabel(f"$V_l(q)$ [{pwave_units}]")
             axs[0].legend()
 
             if(self.include_loglog_plots):
                 axs[1].set_xlabel("$\\log q$")
-                axs[1].set_ylabel("$\\log V_{l}(q)$")
+                axs[1].set_ylabel(f"$\\log V_l(q)$ [$\\log${pwave_units}]")
                 axs[1].legend()
 
             #axs[0].set_ylim([-0.001, 0.02])
@@ -771,7 +771,7 @@ class Plotter:
             plt.close()
 
 
-    def plot_pwave_amp_FT(self, r_grid, ampHandler: AmplitudeHandler, fig_name, base_type, step_idx: int):
+    def plot_pwave_amp_FT(self, r_grid, ampHandler: AmplitudeHandler, pwave_units, fig_name, base_type, step_idx: int):
         for basis_idx in range(ampHandler.f_l_q.shape[0]):
             if(self.include_loglog_plots):
                 fig, axs = plt.subplots(1, 2, figsize=(14, 7))
@@ -791,12 +791,12 @@ class Plotter:
                 
 
             axs[0].set_xlabel("$r$")
-            axs[0].set_ylabel("$V_{l}(r)$")
+            axs[0].set_ylabel(f"$V_l(r)$ [{pwave_units}]")
             axs[0].legend()
 
             if(self.include_loglog_plots):
                 axs[1].set_xlabel("$\\log r$")
-                axs[1].set_ylabel("$\\log V_{l}(r)$")
+                axs[1].set_ylabel(f"$\\log V_l(r)$ [$\\log${pwave_units}]")
                 axs[1].legend()
 
             if(self.savefig):
@@ -808,7 +808,7 @@ class Plotter:
             plt.close()
 
 
-    def plot_pwave_amp_fits(self, X_qx_check, ampHandler: AmplitudeHandler, fig_name, base_type, step_idx: int, Ymax: float=None):
+    def plot_pwave_amp_fits(self, X_qx_check, ampHandler: AmplitudeHandler, pwave_units, fig_name, base_type, step_idx: int, Ymax: float=None):
         for basis_idx in range(ampHandler.f_l.shape[0]):
             if(self.include_loglog_plots):
                 fig, axs = plt.subplots(1, 2, figsize=(14, 7))
@@ -828,12 +828,12 @@ class Plotter:
                 
 
             axs[0].set_xlabel("$X$")
-            axs[0].set_ylabel("$V_{l}(X)$")
+            axs[0].set_ylabel(f"$V_l(X)$ [{pwave_units}]")
             axs[0].legend()
 
             if(self.include_loglog_plots):
                 axs[1].set_xlabel("$\\log X$")
-                axs[1].set_ylabel("$\\log V_{l}(X)$")
+                axs[1].set_ylabel(f"$\\log V_l(X)$ [$\\log${pwave_units}]")
                 axs[1].legend()
 
             if Ymax is not None:
@@ -848,7 +848,7 @@ class Plotter:
             plt.close()
 
 
-    def plot_pwave_amp_with_interpolation(self, ampHandler: AmplitudeHandler, f_name: str, base_type, fig_name, step_idx):
+    def plot_pwave_amp_with_interpolation(self, ampHandler: AmplitudeHandler, pwave_units, f_name: str, base_type, fig_name, step_idx):
         X_check = np.linspace(ampHandler.X[0], ampHandler.X[-1], 1000)
 
         for basis_idx in range(ampHandler.f_l.shape[0]):
@@ -869,12 +869,12 @@ class Plotter:
             fig.suptitle(self.tensorBasisNamesDict["rho"][basis_idx])
 
             axs[0].set_xlabel("$X$")
-            axs[0].set_ylabel(f"${f_name}_l(X)$")
+            axs[0].set_ylabel(f"${f_name}_l(X)$ [{pwave_units}]")
             axs[0].legend()
 
             if(self.include_loglog_plots):
                 axs[1].set_xlabel("$\\log X$")
-                axs[1].set_ylabel(f"$\\log {f_name}_l(X)$")
+                axs[1].set_ylabel(f"$\\log {f_name}_l(X)$ [$\\log${pwave_units}]")
                 axs[1].legend()
 
             if(self.savefig):
@@ -886,7 +886,7 @@ class Plotter:
             plt.close()
 
 
-    def plot_pwave_q_amp_with_interpolation(self, ampHandler: AmplitudeHandler, f_name: str, fig_name, base_type, step_idx):
+    def plot_pwave_q_amp_with_interpolation(self, ampHandler: AmplitudeHandler, pwave_units, f_name: str, fig_name, base_type, step_idx):
         q_check = np.linspace(ampHandler.q[0], ampHandler.q[-1], 1000)
 
         for basis_idx in range(ampHandler.f_l_q.shape[0]):
@@ -905,12 +905,12 @@ class Plotter:
                 
 
             axs[0].set_xlabel("$q$")
-            axs[0].set_ylabel(f"${f_name}_l(q)$")
+            axs[0].set_ylabel(f"${f_name}_l(q)$ [{pwave_units}]")
             axs[0].legend()
 
             if(self.include_loglog_plots):
                 axs[1].set_xlabel("$\\log q$")
-                axs[1].set_ylabel(f"$\\log {f_name}_l(q)$")
+                axs[1].set_ylabel(f"$\\log {f_name}_l(q)$ [$\\log${pwave_units}]")
                 axs[1].legend()
 
             if(self.savefig):

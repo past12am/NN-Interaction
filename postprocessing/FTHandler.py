@@ -51,10 +51,10 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
     ampHandler_rho.partial_wave_expand(degree_pwave_exp)
 
     # Plot partial wave amplitudes
-    plotter.plot_pwave_amp(ampHandler_rho.f_l, ampHandler_rho.X, "X", "1", "PWaves_V_l(X)", "rho", process_shorthand, 11)
+    plotter.plot_pwave_amp(ampHandler_rho.f_l, "GeV$^{-2}$", ampHandler_rho.X, "X", "1", "PWaves_V_l(X)", "rho", process_shorthand, 11)
 
     # Check result of partial wave expansion
-    plotter.plotAmplitudesPartialWaveExpandedAndOriginal(ampHandler_rho.X, ampHandler_rho.Z, ampHandler_rho.f_l, V, "X", "Amplitude_CheckPwavesReconstruction_V(X, Z)", 12)
+    plotter.plotAmplitudesPartialWaveExpandedAndOriginal(ampHandler_rho.X, ampHandler_rho.Z, ampHandler_rho.f_l, V, "GeV$^{-2}$", "X", "Amplitude_CheckPwavesReconstruction_V(X, Z)", 12)
 
 
 
@@ -68,12 +68,12 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
             
 
     # Plot partial wave amplitudes for X in (Log-Log) Plot
-    plotter.plot_pwave_amp_with_fits(ampHandler_rho.f_l, ampHandler_rho.X, ampHandler_rho, "rho", "Fit_PWaves_V_l(X)__known_region", 21)
+    plotter.plot_pwave_amp_with_fits(ampHandler_rho.f_l, ampHandler_rho.X, ampHandler_rho, "GeV$^{-2}$", "rho", "Fit_PWaves_V_l(X)__known_region", 21)
 
 
     # Check Fit behaviour for large X
     X_grid_check = np.linspace(0, 10, 1000)
-    plotter.plot_pwave_amp_fits_seperated(X_grid_check, ampHandler_rho, "Fit_PWaves_V_l(X)__extended_region", "rho", "1", 22)
+    plotter.plot_pwave_amp_fits_seperated(X_grid_check, ampHandler_rho, "GeV$^{-2}$", "Fit_PWaves_V_l(X)__extended_region", "rho", "1", 22)
 
 
 
@@ -98,8 +98,8 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
                 V_qx_reconst[basis_idx, X_idx, Z_idx] = ampHandler_rho.f_at(basis_idx, X_grid_reconst[X_idx], Z_grid_reconst[Z_idx])
 
     for basis_idx in range(V.shape[0]):
-        plotter.plot_form_factor_np_side_by_side(X_grid_extended, Z_grid_extended, V[basis_idx, :, :], "V", "X",
-                                                 X_grid_extended_reconst, Z_grid_extended_reconst, V_qx_reconst[basis_idx, :, :], "V", "X",
+        plotter.plot_form_factor_np_side_by_side(X_grid_extended, Z_grid_extended, V[basis_idx, :, :], "V", "GeV$^{-2}$", "X",
+                                                 X_grid_extended_reconst, Z_grid_extended_reconst, V_qx_reconst[basis_idx, :, :], "V", "GeV$^{-2}$", "X",
                                                  tensorBasisNamesRho[basis_idx], basis_idx, "rho", "Amplitude_PwavesFitReconstruction_V(X, Z)", 32, left_pretitle="Numeric: ", right_pretitle="Fitted: ")
         pass
                 
@@ -127,8 +127,8 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
 
 
     for basis_idx in range(V.shape[0]):
-        plotter.plot_form_factor_np_side_by_side(X_grid_extended_reconst, Z_grid_extended_reconst, V_qx_reconst[basis_idx, :, :], "V", "X",
-                                         q_qx_extended_reconst, Z_grid_q_extended_reconst, V_qx_q_reconst[basis_idx, :, :], "V", "q",
+        plotter.plot_form_factor_np_side_by_side(X_grid_extended_reconst, Z_grid_extended_reconst, V_qx_reconst[basis_idx, :, :], "V", "GeV$^{-2}$", "X",
+                                         q_qx_extended_reconst, Z_grid_q_extended_reconst, V_qx_q_reconst[basis_idx, :, :], "V", "GeV$^{-2}$", "q",
                                          tensorBasisNamesRho[basis_idx], basis_idx, "rho", "Amplitudes_Comparison_V(X, Z)_vs_V(q, Z)", 41)
         pass
 
@@ -141,10 +141,10 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
     ampHandler_rho.interpolate_in_q()
 
     # Check result of partial wave expansion
-    plotter.plotAmplitudesPartialWaveExpandedAndOriginal(ampHandler_rho.q, Z_grid_reconst, ampHandler_rho.f_l_q, V_qx_q_reconst, "q", "Amplitude_CheckPwavesReconstruction_V(q, Z)", 51)
+    plotter.plotAmplitudesPartialWaveExpandedAndOriginal(ampHandler_rho.q, Z_grid_reconst, ampHandler_rho.f_l_q, V_qx_q_reconst, "GeV$^{-2}$", "q", "Amplitude_CheckPwavesReconstruction_V(q, Z)", 51)
 
     # Plot partial wave amplitudes for q in (Log-Log) Plot
-    plotter.plot_pwave_amp(ampHandler_rho.f_l_q, ampHandler_rho.q, "q", "GeV", "PWaves_V_l(q)", "rho", process_shorthand, 52)
+    plotter.plot_pwave_amp(ampHandler_rho.f_l_q, "GeV$^{-2}$", ampHandler_rho.q, "q", "GeV", "PWaves_V_l(q)", "rho", process_shorthand, 52)
 
 
     # TODO remove?
