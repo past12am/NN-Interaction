@@ -129,7 +129,7 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
     for basis_idx in range(V.shape[0]):
         plotter.plot_form_factor_np_side_by_side(X_grid_extended_reconst, Z_grid_extended_reconst, V_qx_reconst[basis_idx, :, :], "V", "GeV$^{-2}$", "X",
                                          q_qx_extended_reconst, Z_grid_q_extended_reconst, V_qx_q_reconst[basis_idx, :, :], "V", "GeV$^{-2}$", "q",
-                                         tensorBasisNamesRho[basis_idx], basis_idx, "rho", "Amplitudes_Comparison_V(X, Z)_vs_V(q, Z)", 41)
+                                         tensorBasisNamesRho[basis_idx], basis_idx, "rho", "Amplitudes_Comparison_V(X, Z)_vs_V(q, Z)", 41, xlabel2_unit="GeV")
         pass
 
 

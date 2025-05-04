@@ -333,7 +333,7 @@ class Plotter:
 
     def plot_form_factor_np_side_by_side(self, X1: np.ndarray, Z1: np.ndarray, dressing_f1: np.ndarray, dressing_f_name1: str, dressing_f1_unit: str, xlabel1: str,
                                         X2: np.ndarray, Z2: np.ndarray, dressing_f2: np.ndarray, dressing_f_name2: str, dressing_f2_unit: str, xlabel2: str, 
-                                        tensor_basis_elem: str, basis_idx: int, base_type: str, fig_name: str, step_idx: int, left_pretitle: str = None, right_pretitle: str = None):
+                                        tensor_basis_elem: str, basis_idx: int, base_type: str, fig_name: str, step_idx: int, left_pretitle: str = None, right_pretitle: str = None, xlabel1_unit:str=None, xlabel2_unit: str=None):
         dressing_f1_params = f"({xlabel1}, Z)"
         dressing_f2_params = f"({xlabel2}, Z)"
 
@@ -355,7 +355,7 @@ class Plotter:
         ax = fig.add_subplot(1, 2, 1, projection='3d')
         ax.set_title(left_title, fontsize="xx-large")
         ax.plot_trisurf(X1, Z1, np.real(dressing_f1.flatten()), cmap=cm.coolwarm)
-        ax.set_xlabel(f"${xlabel1}$")
+        ax.set_xlabel(f"${xlabel1}$" + ("" if xlabel1_unit is None else f" [{xlabel1_unit}]"))
         ax.set_ylabel("$Z$")
         ax.set_zlabel(f"${dressing_f_name1}_{basis_idx + 1}$ [{dressing_f1_unit}]", labelpad=8)
         ax.set_ylim([-1, 1])
@@ -365,7 +365,7 @@ class Plotter:
         ax = fig.add_subplot(1, 2, 2, projection='3d')
         ax.set_title(right_title, fontsize="xx-large")
         ax.plot_trisurf(X2, Z2, np.real(dressing_f2.flatten()), cmap=cm.coolwarm)
-        ax.set_xlabel(f"${xlabel2}$")
+        ax.set_xlabel(f"${xlabel2}$" + ("" if xlabel2_unit is None else f" [{xlabel2_unit}]"))
         ax.set_ylabel("$Z$")
         ax.set_zlabel(f"${dressing_f_name2}_{basis_idx + 1}$ [{dressing_f2_unit}]", labelpad=14)
         ax.set_ylim([-1, 1])
