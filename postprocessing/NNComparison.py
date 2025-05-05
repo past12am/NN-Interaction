@@ -175,7 +175,8 @@ def potential_comparison_plots(NN_tuple__own, NN_tuple__nijmI, NN_tuple__nijmII,
                     ax.plot(NN_r_grid, own_scaler * NN_LSJ_grid, label=f"$^{2 * s + 1}{pwave_names_capital[l]}_{j}$ Own", color=color)
 
                     ax.set_xlabel(f"$r$  [1/GeV]", fontsize="large")
-                    ax.set_ylabel(f"$R_C^{{(NN)}}(r)$", fontsize="large", color=color)
+                    ax.set_ylabel(f"$U_C^{{(NN)}}(r)$ [GeV]", fontsize="large", color=color)
+                    ax.set_xlim((0, 2))
                     ax.grid(color='lightgray', linestyle='dashed')
 
                     ax2 = ax.twinx()
@@ -183,7 +184,7 @@ def potential_comparison_plots(NN_tuple__own, NN_tuple__nijmI, NN_tuple__nijmII,
                     ax2.plot(NN_r_grid__lit_nijmII, -nijmII_scaler * NN_LSJ_grid__lit_nijmII, label=f"$^{2 * s + 1}{pwave_names_capital[l]}_{j}$ Nijmegen II", color=color)
                     #ax.plot(NN_r_grid__lit_nijmI, -nijmI_scaler * NN_LSJ_grid__lit_nijmI, label=f"{NN_LSJ_name} Nijmegen I")
                     #ax.plot(NN_r_grid__lit_reid93, reid93_scaler * NN_LSJ_grid__lit_reid93, label=f"{NN_LSJ_name} Reid 93 - All Tensors")
-                    ax2.set_ylabel(f"$R_C^{{(NN)}}(r)$", fontsize="large", color=color)
+                    ax2.set_ylabel(f"$U_C^{{(NN)}}(r)$ [GeV]", fontsize="large", color=color)
                     
 
                     # added these three lines
@@ -227,25 +228,25 @@ def main():
 
     # our results   # Note: sum up tensor contributions, reid doesn't distinguish them
     #   Configuration Space
-    NN_C_r_grid_list, NN_C_LSJ_r_grid_list, NN_C_LSJ_names_r = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 1, "C", "r")
-    NN_SS_r_grid_list, NN_SS_LSJ_r_grid_list, NN_SS_LSJ_names_r = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 1, "SS", "r")
-    NN_T_r_grid_list, NN_T_LSJ_r_grid_list, NN_T_LSJ_names_r = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 1, "T", "r")
-    NN_SO_r_grid_list, NN_SO_LSJ_r_grid_list, NN_SO_LSJ_names_r = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 1, "SO", "r")
-    NN_Q_r_grid_list, NN_Q_LSJ_r_grid_list, NN_Q_LSJ_names_r = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 1, "Q", "r")
+    NN_C_r_grid_list, NN_C_LSJ_r_grid_list, NN_C_LSJ_names_r = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_89_dqx-run_89", 1, "C", "r")
+    NN_SS_r_grid_list, NN_SS_LSJ_r_grid_list, NN_SS_LSJ_names_r = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_89_dqx-run_89", 1, "SS", "r")
+    NN_T_r_grid_list, NN_T_LSJ_r_grid_list, NN_T_LSJ_names_r = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_89_dqx-run_89", 1, "T", "r")
+    NN_SO_r_grid_list, NN_SO_LSJ_r_grid_list, NN_SO_LSJ_names_r = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_89_dqx-run_89", 1, "SO", "r")
+    NN_Q_r_grid_list, NN_Q_LSJ_r_grid_list, NN_Q_LSJ_names_r = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_89_dqx-run_89", 1, "Q", "r")
 
     #   Momentum Space
-    NN_C_q_grid_list, NN_C_LSJ_q_grid_list, NN_C_LSJ_names_q = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 1, "C", "q")
-    NN_SS_q_grid_list, NN_SS_LSJ_q_grid_list, NN_SS_LSJ_names_q = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 1, "SS", "q")
-    NN_T_q_grid_list, NN_T_LSJ_q_grid_list, NN_T_LSJ_names_q = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 1, "T", "q")
-    NN_SO_q_grid_list, NN_SO_LSJ_q_grid_list, NN_SO_LSJ_names_q = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 1, "SO", "q")
-    NN_Q_q_grid_list, NN_Q_LSJ_q_grid_list, NN_Q_LSJ_names_q = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 1, "Q", "q")
+    NN_C_q_grid_list, NN_C_LSJ_q_grid_list, NN_C_LSJ_names_q = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_89_dqx-run_89", 1, "C", "q")
+    NN_SS_q_grid_list, NN_SS_LSJ_q_grid_list, NN_SS_LSJ_names_q = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_89_dqx-run_89", 1, "SS", "q")
+    NN_T_q_grid_list, NN_T_LSJ_q_grid_list, NN_T_LSJ_names_q = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_89_dqx-run_89", 1, "T", "q")
+    NN_SO_q_grid_list, NN_SO_LSJ_q_grid_list, NN_SO_LSJ_names_q = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_89_dqx-run_89", 1, "SO", "q")
+    NN_Q_q_grid_list, NN_Q_LSJ_q_grid_list, NN_Q_LSJ_names_q = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_89_dqx-run_89", 1, "Q", "q")
 
     #   Lab Energy
-    NN_C_T_grid_list, NN_C_LSJ_T_grid_list, NN_C_LSJ_names_T = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 0, "C", "T")
-    NN_SS_T_grid_list, NN_SS_LSJ_T_grid_list, NN_SS_LSJ_names_T = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 0, "SS", "T")
-    NN_T_T_grid_list, NN_T_LSJ_T_grid_list, NN_T_LSJ_names_T = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 0, "T", "T")
-    NN_SO_T_grid_list, NN_SO_LSJ_T_grid_list, NN_SO_LSJ_names_T = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 0, "SO", "T")
-    NN_Q_T_grid_list, NN_Q_LSJ_T_grid_list, NN_Q_LSJ_names_T = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 0, "Q", "T")
+    NN_C_T_grid_list, NN_C_LSJ_T_grid_list, NN_C_LSJ_names_T = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_89_dqx-run_89", 1, "C", "T")
+    NN_SS_T_grid_list, NN_SS_LSJ_T_grid_list, NN_SS_LSJ_names_T = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_89_dqx-run_89", 1, "SS", "T")
+    NN_T_T_grid_list, NN_T_LSJ_T_grid_list, NN_T_LSJ_names_T = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_89_dqx-run_89", 1, "T", "T")
+    NN_SO_T_grid_list, NN_SO_LSJ_T_grid_list, NN_SO_LSJ_names_T = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_89_dqx-run_89", 1, "SO", "T")
+    NN_Q_T_grid_list, NN_Q_LSJ_T_grid_list, NN_Q_LSJ_names_T = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_89_dqx-run_89", 1, "Q", "T")
     
     # TODO phase shifts --> I dont think this is correct yet
     NN_C_LSJ_phase_shifts_grid_list = calc_phase_shifts(NN_C_T_grid_list, NN_C_LSJ_T_grid_list, NN_C_LSJ_names_T)
