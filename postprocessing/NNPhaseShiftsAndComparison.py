@@ -216,17 +216,17 @@ def sum_contribs(C_list, SS_list, T_list, SO_list, Q_list):
 
 def main():
     #   Load Lab Energy Data
-    C_T_grid_list, C_LSJ_grid_list, C_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "C", "T")
-    SS_T_grid_list, SS_LSJ_grid_list, SS_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SS", "T")
-    T_T_grid_list, T_LSJ_grid_list, T_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "T", "T")
-    SO_T_grid_list, SO_LSJ_grid_list, SO_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SO", "T")
-    Q_T_grid_list, Q_LSJ_grid_list, Q_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "Q", "T")
+    C_T_grid_list, C_LSJ_grid_list, C_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 1, "C", "T")
+    SS_T_grid_list, SS_LSJ_grid_list, SS_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 1, "SS", "T")
+    T_T_grid_list, T_LSJ_grid_list, T_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 1, "T", "T")
+    SO_T_grid_list, SO_LSJ_grid_list, SO_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 1, "SO", "T")
+    Q_T_grid_list, Q_LSJ_grid_list, Q_LSJ_names = import_results_own("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 1, "Q", "T")
 
-    C_T_grid_list_mixing, C_mixing_grid_list, C_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "C", "T")
-    SS_T_grid_list_mixing, SS_mixing_grid_list, SS_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SS", "T")
-    T_T_grid_list_mixing, T_mixing_grid_list, T_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "T", "T")
-    SO_T_grid_list_mixing, SO_mixing_grid_list, SO_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "SO", "T")
-    Q_T_grid_list_mixing, Q_mixing_grid_list, Q_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_81_dqx-run_81", 1, "Q", "T")
+    C_T_grid_list_mixing, C_mixing_grid_list, C_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 1, "C", "T")
+    SS_T_grid_list_mixing, SS_mixing_grid_list, SS_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 1, "SS", "T")
+    T_T_grid_list_mixing, T_mixing_grid_list, T_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 1, "T", "T")
+    SO_T_grid_list_mixing, SO_mixing_grid_list, SO_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 1, "SO", "T")
+    Q_T_grid_list_mixing, Q_mixing_grid_list, Q_mixing_Jvals = import_results_mixing("/home/past12am/OuzoCloud/Studium/Physik/6_Semester/SE_Bachelorarbeit/NN-Interaction-Data/postprocess-output/qx_tau_analytic-dq_tau_analytic/qx-run_87_dqx-run_87", 1, "Q", "T")
 
 
 
@@ -278,7 +278,7 @@ def main():
             continue
 
         plt.figure()
-        plt.plot(C_T_grid_list[0], delta[l][L][s][j] * 180/np.pi, label="own")
+        plt.plot(C_T_grid_list[0], C_delta[l][L][s][j] * 180/np.pi, label="own")
         plt.plot(data_by_file[LSJ_name]['Tlab'] * 1E-3, data_by_file[LSJ_name]["nijm2"], label="nijmII")
         plt.title(LSJ_name)
         plt.legend()

@@ -147,8 +147,6 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
     plotter.plot_pwave_amp(ampHandler_rho.f_l_q, "GeV$^{-2}$", ampHandler_rho.q, "q", "GeV", "PWaves_V_l(q)", "rho", process_shorthand, 52)
 
 
-    # TODO remove?
-    return ampHandler_rho, None, None
 
 
 
@@ -169,9 +167,9 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
         y_lim_upper = np.max(f_l_r[basis_idx, ~np.isnan(f_l_r[basis_idx, ...])])
         ylims[basis_idx, :] = np.array([-y_lim_upper, y_lim_upper]) * 0.1
 
-    plotter.plot_pwave_amp(f_l_r, r_grid, "r", "1/GeV", "PWaves_V_l(r)", "rho", process_shorthand, 61)
-    plotter.plot_pwave_amp_scaled_side_by_side(f_l_r, r_grid, "r", "1/GeV", "PWaves_V_l(r)__scaled", "rho", 62, ylims)
-    plotter.plot_pwave_amp_wave_sum(f_l_r, r_grid, "r", "1/GeV", "PWaves_V_l(r)__summed_l", "rho", 63)
+    plotter.plot_pwave_amp(f_l_r, "GeV", r_grid, "r", "1/GeV", "PWaves_V_l(r)", "rho", process_shorthand, 61)
+    plotter.plot_pwave_amp_scaled_side_by_side(f_l_r, "GeV", r_grid, "r", "1/GeV", "PWaves_V_l(r)__scaled", "rho", 62, ylims)
+    #plotter.plot_pwave_amp_wave_sum(f_l_r, "GeV", r_grid, "r", "1/GeV", "PWaves_V_l(r)__summed_l", "rho", 63)
 
 
 
@@ -181,13 +179,13 @@ def perform_FT_of_amplitudes(dataloader: Dataloader, plotter: Plotter, tensorBas
 
     ########################### (7) ##############################
     # Some more specific plots
-    plotter.plotAmplitudes_rhoBasis(X_grid_extended, Z_grid_extended, V, "AmplitudeRhoBasis", 10, "q")
+    plotter.plotAmplitudes_rhoBasis(X_grid_extended, Z_grid_extended, V, "AmplitudeRhoBasis", "GeV$^{-2}$", 10, "q")
 
 
     for basis_idx in range(V.shape[0]):
-        plotter.plot_form_factor_np(q_qx_extended_reconst, Z_grid_q_extended_reconst, V_qx_q_reconst[basis_idx, :, :], f"V_{basis_idx + 1}^{{({process_shorthand})}}", "q", tensorBasisNamesRho[basis_idx], "rho", basis_idx, "AmplitudeV(q, Z)", 40)
+        plotter.plot_form_factor_np(q_qx_extended_reconst, Z_grid_q_extended_reconst, V_qx_q_reconst[basis_idx, :, :], f"V_{basis_idx + 1}^{{({process_shorthand})}}", "GeV$^{-2}$", "q", tensorBasisNamesRho[basis_idx], "rho", basis_idx, "AmplitudeV(q, Z)", 40)
 
-    plotter.plot_pwave_amp_scaled(f_l_r, r_grid, "r", "1/GeV", "PWaves_V_l(r)", "rho", 60, (0, 1))
+    plotter.plot_pwave_amp_scaled(f_l_r, "GeV", r_grid, "r", "1/GeV", "PWaves_V_l(r)", "rho", 60, (0, 1), 0)
 
 
     return ampHandler_rho, f_l_r, r_grid

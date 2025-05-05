@@ -156,7 +156,7 @@ class PlotterFullAmplitude:
             plt.close()
 
 
-    def plot_pwave_LSJ(self, LSJ_amplitudes, LSJ_amp_unit: str, LSJ_descriptions, x, xlabel, x_label_unit, basis_element, isospin, title, fig_name):
+    def plot_pwave_LSJ(self, LSJ_amplitudes, LSJ_amp_unit: str, LSJ_descriptions, x, xlabel, x_label_unit, basis_element, isospin, title, fig_name, max_pwave: int=None):
 
         fig, ax = plt.subplots(1, 1, figsize=(6, 6))
         axs = [ax]
@@ -167,6 +167,9 @@ class PlotterFullAmplitude:
             L, S, J = LSJ_descriptions[idx]
 
             if(L is None or S is None or J is None):    # Skip invalid quantum numbers
+                continue
+
+            if (max_pwave is not None and L > max_pwave):
                 continue
 
             axs[0].plot(x, LSJ_amplitudes[idx], label=f"$^{{{2 * S + 1}}}{pwave_names_capital[L]}_{J}$")
@@ -447,7 +450,7 @@ class Plotter:
 
     def plotAmplitudes_h(self, dataloader, fig_name_h, projection_basis_type: str, amp_unit, step_idx: int, process_abbrev: str, imag_mode: bool=False):
         for base_idx in range(5):
-            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.h[base_idx, :, :], f"h^{{({process_abbrev})}}_{base_idx + 1}", amp_unit, "X", self.tensorBasisNamesDict[projection_basis_type][base_idx], projection_basis_type, base_idx, fig_name=f"{fig_name_h}_{base_idx + 1}", step_idx=step_idx, do_title=False, imag_mode=imag_mode)
+            self.plot_form_factor_np(dataloader.X, dataloader.Z, dataloader.h[base_idx, :, :], f"h^{{({process_abbrev})}}_{base_idx + 1}", amp_unit, "X", self.tensorBasisNamesDict[projection_basis_type][base_idx], projection_basis_type, base_idx, fig_name=f"{fig_name_h}_{base_idx + 1}" + ("" if not imag_mode else "_imag"), step_idx=step_idx, do_title=False, imag_mode=imag_mode)
 
     
     def plotAmplitudes_rhoBasis(self, X, Z, V, fig_name, amp_unit, step_idx: int, process_abbrev: str):
@@ -567,7 +570,7 @@ class Plotter:
             plt.close()
 
     
-    def plot_pwave_amp_scaled(self, f_l, f_l_unit: str, x, xlabel, x_label_unit, fig_name, base_type, step_idx: int, x_lim: typing.Tuple):
+    def plot_pwave_amp_scaled(self, f_l, f_l_unit: str, x, xlabel, x_label_unit, fig_name, base_type, step_idx: int, x_lim: typing.Tuple, max_pwave:int=None):
         for basis_idx in range(f_l.shape[0]):
             if(self.include_loglog_plots):
                 fig, axs = plt.subplots(1, 2, figsize=(14, 7))
@@ -577,7 +580,7 @@ class Plotter:
 
             fig.subplots_adjust(top=0.88, bottom=0.11, left=0.2, right=0.92, hspace=0.2, wspace=0.2)
 
-            for l in range(f_l.shape[1]):
+            for l in range(f_l.shape[1] if max_pwave is None else max_pwave+1):
                 axs[0].plot(x, f_l[basis_idx, l, :], label=f"{pwave_names[l]}-wave")
 
                 if(self.include_loglog_plots):

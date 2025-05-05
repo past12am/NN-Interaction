@@ -81,8 +81,8 @@ def main():
     # Load data files
     qx_process_type = "quark_exchange"
     dqx_process_type = "diquark_exchange"
-    dataloader_qx = Dataloader(data_base_path, tensorbase_type, qx_process_type, dq_1_type, dq_2_type, Z_range, X_range_lower, run_nr=81)
-    dataloader_dqx = Dataloader(data_base_path, tensorbase_type, dqx_process_type, dq_1_type, dq_2_type, Z_range, X_range_lower, run_nr=81)
+    dataloader_qx = Dataloader(data_base_path, tensorbase_type, qx_process_type, dq_1_type, dq_2_type, Z_range, X_range_lower, run_nr=87)
+    dataloader_dqx = Dataloader(data_base_path, tensorbase_type, dqx_process_type, dq_1_type, dq_2_type, Z_range, X_range_lower, run_nr=87)
 
 
     # Instantiate Plotter
