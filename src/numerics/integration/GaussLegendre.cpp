@@ -3,6 +3,9 @@
 //
 
 #include "../../../include/numerics/integration/GaussLegendre.hpp"
+
+#include <assert.h>
+
 #include "../../../include/numerics/roots/NewtonRootFinder.hpp"
 #include "../../../include/numerics/polynomials/LegendrePolynomials.hpp"
 
@@ -32,6 +35,14 @@ std::tuple<double*, double*> GaussLegendre::generageWeights(int n)
         w_arr[i] = 2.0/((1.0 - pow(x_arr[i], 2.0)) * pow(df_val, 2.0));
         w_arr[n - 1 - i] = w_arr[i];
     }
+
+    // check weights
+    double w_sum = 0.0;
+    for (int i = 0; i < n; i++)
+    {
+        w_sum += w_arr[i];
+    }
+    assert(w_sum - 2.0 < 1E-15);
 
     return std::tuple<double*, double*>{w_arr, x_arr};
 }

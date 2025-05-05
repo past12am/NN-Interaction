@@ -37,7 +37,8 @@ add_executable(NNInteraction main.cpp
         include/numerics/Integratable.hpp
         include/scattering/impulse/LoopComplexImpulseGrid.hpp
         include/scattering/impulse/LoopImpulseGrid.hpp
-        include/numerics/integration/GaussChebyshev.hpp
+        include/numerics/integration/GaussChebyshevFirst.hpp
+        include/numerics/integration/GaussChebyshevSecond.hpp
         include/numerics/integration/GaussLegendre.hpp
         include/numerics/integration/GaussLegendreDeformed.hpp
         include/numerics/polynomials/LegendrePolynomials.hpp
@@ -60,7 +61,8 @@ add_executable(NNInteraction main.cpp
         src/scattering/momentumloops/QuarkExchangeMomentumLoop.cpp
         src/scattering/impulse/LoopComplexImpulseGrid.cpp
         src/scattering/impulse/LoopImpulseGrid.cpp
-        src/numerics/integration/GaussChebyshev.cpp
+        src/numerics/integration/GaussChebyshevFirst.cpp
+        src/numerics/integration/GaussChebyshevSecond.cpp
         src/numerics/integration/GaussLegendre.cpp
         src/numerics/integration/GaussLegendreDeformed.cpp
         src/numerics/polynomials/LegendrePolynomials.cpp

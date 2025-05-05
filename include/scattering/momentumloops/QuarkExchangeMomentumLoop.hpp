@@ -9,7 +9,7 @@
 #include "MomentumLoop.hpp"
 #include "../impulse/LoopImpulseGrid.hpp"
 #include "../../numerics/integration/GaussLegendre.hpp"
-#include "../../numerics/integration/GaussChebyshev.hpp"
+#include "../../numerics/integration/GaussChebyshevSecond.hpp"
 
 class QuarkExchangeMomentumLoop : public MomentumLoop
 {
@@ -17,7 +17,7 @@ class QuarkExchangeMomentumLoop : public MomentumLoop
         GaussLegendre gaussLegendreIntegrator_k2;
         GaussLegendre gaussLegendreIntegrator_y;
         GaussLegendre gaussLegendreIntegrator_phi;
-        GaussChebyshev gaussChebyshevIntegrator_z;
+        GaussChebyshevSecond gaussChebyshevIntegrator_z;
 
         gsl_complex k2Integral(const std::function<gsl_complex(double, double, double, double)>& f, double lowerIntegrationBound, double upperIntegrationBound);
         gsl_complex zIntegral(double k2, const std::function<gsl_complex(double, double, double, double)>& f);

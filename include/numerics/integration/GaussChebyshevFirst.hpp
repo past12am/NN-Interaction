@@ -12,16 +12,16 @@
 #include <functional>
 #include <gsl/gsl_complex.h>
 
-class GaussChebyshev
+class GaussChebyshevFirst
 {
     private:
         int n;
 
     public:
-        GaussChebyshev(int n);
+        GaussChebyshevFirst(int n);
 
-        double integrate_f_times_sqrt(std::function<double(double)>& f);
-        gsl_complex integrate_complex_f_times_sqrt(std::function<gsl_complex(double)>& f);
+        double integrate_f_over_sqrt(std::function<double(double)>& f);
+        gsl_complex integrate_complex_f_over_sqrt(std::function<gsl_complex(double)>& f);
 };
 
 

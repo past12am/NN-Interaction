@@ -29,7 +29,7 @@ gsl_complex QuarkExchangeMomentumLoop::k2Integral(const std::function<gsl_comple
         return gsl_complex_mul_real(zIntegral(k2, f), k2);
     };
 
-    return gaussLegendreIntegrator_k2.integrateComplex(k2Integrand, lowerIntegrationBound, upperIntegrationBound);
+    return gaussLegendreIntegrator_k2.integrateComplexLogSpacing(k2Integrand, lowerIntegrationBound, upperIntegrationBound);
 }
 
 gsl_complex QuarkExchangeMomentumLoop::zIntegral(double k2, const std::function<gsl_complex(double, double, double, double)> &f)
@@ -61,7 +61,7 @@ gsl_complex QuarkExchangeMomentumLoop::phiIntegral(double k2, double z, double y
 
 gsl_complex QuarkExchangeMomentumLoop::integrate_4d(const std::function<gsl_complex(double, double, double, double)>& f)
 {
-    gsl_complex res = k2Integral(f, 0, CUTOFF_k2);
+    gsl_complex res = k2Integral(f, 1E-6, CUTOFF_k2);
     res = gsl_complex_mul_real(res, 1.0/pow(2.0 * std::numbers::pi, 4) * 0.5);
 
     return res;
