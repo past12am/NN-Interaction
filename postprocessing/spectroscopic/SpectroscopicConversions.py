@@ -259,7 +259,7 @@ class SpectroscopicConversion:
             # Plot
             #   Process Singlet
             for c_idx, singlet_contrib_grid in enumerate(process_singlet_contrib_grid_list):
-                plotter.plot_pwave_LSJ(singlet_contrib_grid, "GeV$^{-2}$", SpectroscopicConversion.LSJ_singlet, q_grid, "q", "GeV", contribs[c_idx], I, f"Singlet {contribs[c_idx]} for I = {I}", f"LSJ_Singlet_{contribs[c_idx]}_I={I}_q")
+                plotter.plot_pwave_LSJ(singlet_contrib_grid, "GeV$^{-2}$", SpectroscopicConversion.LSJ_singlet, q_grid, "q", "GeV", contribs[c_idx], I, f"Singlet {contribs[c_idx]} for I = {I}", f"LSJ_Singlet_{contribs[c_idx]}_I={I}_q", x_limits=(-0.5, 15))
 
             for c_idx, singlet_contrib_r in enumerate(process_singlet_contrib_r_list):
                 plotter.plot_pwave_LSJ(singlet_contrib_r, "GeV", SpectroscopicConversion.LSJ_singlet, r_grid, "r", "1/GeV", contribs[c_idx], I, f"Singlet {contribs[c_idx]} for I = {I}", f"LSJ_Singlet_{contribs[c_idx]}_I={I}_r", max_pwave=0)
@@ -270,7 +270,7 @@ class SpectroscopicConversion:
 
             #   Process Triplet
             for c_idx, triplet_l_is_j_Minus_1__contrib_grid in enumerate(process_triplet_l_is_j_Minus_1__contrib_grid_list):
-                plotter.plot_pwave_LSJ(triplet_l_is_j_Minus_1__contrib_grid, "GeV$^{-2}$", SpectroscopicConversion.LSJ_triplet__L_eq_J_minus_1, q_grid, "q", "GeV", contribs[c_idx], I, f"Triplet L=J-1 {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J-1_{contribs[c_idx]}_I={I}_q")
+                plotter.plot_pwave_LSJ(triplet_l_is_j_Minus_1__contrib_grid, "GeV$^{-2}$", SpectroscopicConversion.LSJ_triplet__L_eq_J_minus_1, q_grid, "q", "GeV", contribs[c_idx], I, f"Triplet L=J-1 {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J-1_{contribs[c_idx]}_I={I}_q", x_limits=(-0.5, 15))
             
             for c_idx, triplet_l_is_j_Minus_1__contrib_r in enumerate(process_triplet_l_is_j_Minus_1__contrib_r_list):
                 plotter.plot_pwave_LSJ(triplet_l_is_j_Minus_1__contrib_r, "GeV", SpectroscopicConversion.LSJ_triplet__L_eq_J_minus_1, r_grid, "r", "1/GeV", contribs[c_idx], I, f"Triplet L=J-1 {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J-1_{contribs[c_idx]}_I={I}_r", max_pwave=0)
@@ -280,7 +280,7 @@ class SpectroscopicConversion:
 
 
             for c_idx, triplet_l_is_j__contrib_grid in enumerate(process_triplet_l_is_j__contrib_grid_list):
-                plotter.plot_pwave_LSJ(triplet_l_is_j__contrib_grid, "GeV$^{-2}$", SpectroscopicConversion.LSJ_triplet__L_eq_J, q_grid, "q", "GeV", contribs[c_idx], I, f"Triplet L=J {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J_{contribs[c_idx]}_I={I}_q")
+                plotter.plot_pwave_LSJ(triplet_l_is_j__contrib_grid, "GeV$^{-2}$", SpectroscopicConversion.LSJ_triplet__L_eq_J, q_grid, "q", "GeV", contribs[c_idx], I, f"Triplet L=J {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J_{contribs[c_idx]}_I={I}_q", x_limits=(-0.5, 15))
 
             for c_idx, triplet_l_is_j__contrib_r in enumerate(process_triplet_l_is_j__contrib_r_list):
                 plotter.plot_pwave_LSJ(triplet_l_is_j__contrib_r, "GeV", SpectroscopicConversion.LSJ_triplet__L_eq_J, r_grid, "r", "1/GeV", contribs[c_idx], I, f"Triplet L=J {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J_{contribs[c_idx]}_I={I}_r")
@@ -290,7 +290,7 @@ class SpectroscopicConversion:
 
 
             for c_idx, triplet_l_is_j_Plus_1__contrib_grid in enumerate(process_triplet_l_is_j_Plus_1__contrib_grid_list):
-                plotter.plot_pwave_LSJ(triplet_l_is_j_Plus_1__contrib_grid, "GeV$^{-2}$", SpectroscopicConversion.LSJ_triplet__L_eq_J_plus_1, q_grid, "q", "GeV", contribs[c_idx], I, f"Triplet L=J+1 {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J+1_{contribs[c_idx]}_I={I}_q")
+                plotter.plot_pwave_LSJ(triplet_l_is_j_Plus_1__contrib_grid, "GeV$^{-2}$", SpectroscopicConversion.LSJ_triplet__L_eq_J_plus_1, q_grid, "q", "GeV", contribs[c_idx], I, f"Triplet L=J+1 {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J+1_{contribs[c_idx]}_I={I}_q", x_limits=(-0.5, 15))
 
             for c_idx, triplet_l_is_j_Plus_1__contrib_r in enumerate(process_triplet_l_is_j_Plus_1__contrib_r_list):
                 plotter.plot_pwave_LSJ(triplet_l_is_j_Plus_1__contrib_r, "GeV", SpectroscopicConversion.LSJ_triplet__L_eq_J_plus_1, r_grid, "r", "1/GeV", contribs[c_idx], I, f"Triplet L=J+1 {contribs[c_idx]} for I = {I}", f"LSJ_Triplet_L=J+1_{contribs[c_idx]}_I={I}_r")

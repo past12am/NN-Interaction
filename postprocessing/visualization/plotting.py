@@ -156,7 +156,7 @@ class PlotterFullAmplitude:
             plt.close()
 
 
-    def plot_pwave_LSJ(self, LSJ_amplitudes, LSJ_amp_unit: str, LSJ_descriptions, x, xlabel, x_label_unit, basis_element, isospin, title, fig_name, max_pwave: int=None):
+    def plot_pwave_LSJ(self, LSJ_amplitudes, LSJ_amp_unit: str, LSJ_descriptions, x, xlabel, x_label_unit, basis_element, isospin, title, fig_name, max_pwave: int=None, x_limits=None):
 
         fig, ax = plt.subplots(1, 1, figsize=(6, 6))
         axs = [ax]
@@ -180,6 +180,10 @@ class PlotterFullAmplitude:
 
         axs[0].set_xlabel(f"${xlabel}$  [{x_label_unit}]", fontsize="large")
         axs[0].set_ylabel(f"$\\left. U_{{{basis_element}}}^{{I = {(isospin)}}}({xlabel}) \\right|_{{L,S,J}}$ [{LSJ_amp_unit}]", fontsize="large")
+
+        if (x_limits is not None):
+            axs[0].set_xlim(x_limits)
+
         axs[0].grid(color='lightgray', linestyle='dashed')
         axs[0].legend()
 
