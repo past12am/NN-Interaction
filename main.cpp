@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     //double impulse_mid_cutoff = 600;
 
     double X_upper = 0.99;
-    double X_lower = 0.1;
+    double X_lower = 0.01;
 
     double Z_lower = -1; // -1 + 1E-4;
     double Z_upper = 1; // 1 - 1E-4;
@@ -67,13 +67,13 @@ int main(int argc, char *argv[])
     int numThreads = NUM_THREADS;
     int lenX = 8;
     int lenZ = 11;
-    int lenContourDef = 6;
+    int lenContourDef = 1;
 
 
-    int k2_integration_points = 100; // *2 for positive and neg. halfspace
-    int z_integration_points = 60;
-    int y_integration_points = 32;
-    int phi_integration_points = 20;
+    int k2_integration_points = 80; // *2 for positive and neg. halfspace
+    int z_integration_points = 40;
+    int y_integration_points = 40;
+    int phi_integration_points = 40;
 
 
     /* Working parameter sets

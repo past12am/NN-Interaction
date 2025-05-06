@@ -17,11 +17,11 @@
 
 # define AMPLITUDE_ISOSPIN 0
 
-#define SCATTERING_PROCESS_TYPE ScatteringProcessType::QUARK_EXCHANGE
+#define SCATTERING_PROCESS_TYPE ScatteringProcessType::DIQUARK_EXCHANGE
 
 #define INVERT_STRATEGY InvertStrategy::ANALYTIC
 
-#define CONTOUR_DEF_ACTIVE true
+#define CONTOUR_DEF_ACTIVE false
 
 #define M_nucleon 0.94
 
